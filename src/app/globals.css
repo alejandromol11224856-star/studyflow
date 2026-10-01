@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------
+   Design tokens
+   Todos los colores de la UI salen de estas variables, así el modo
+   claro/oscuro se resuelve en un solo lugar.
+---------------------------------------------------------------- */
+:root {
+  --background: #f7f7f8;
+  --foreground: #0b0b0f;
+  --card: #ffffff;
+  --card-foreground: #0b0b0f;
+  --popover: #ffffff;
+  --muted: #f1f1f4;
+  --muted-foreground: #6b6b76;
+  --subtle: #f7f7f9;
+  --border: #e6e6ea;
+  --input: #e2e2e8;
+  /* Acento (ver bloque [data-accent] más abajo). --primary = relleno con texto
+     blanco; --primary-text = acento usado como texto/ícono sobre superficies.
+     Todos los pares validados con contraste WCAG AA. */
+  --primary: #5b4ef5;
+  --primary-text: #4f42e3;
+  --primary-foreground: #ffffff;
+  --primary-hover: color-mix(in srgb, var(--primary) 86%, black);
+  --primary-soft: color-mix(in srgb, var(--primary) 10%, var(--card));
+  --ring: var(--primary);
+  --success: #12a36d;
+  --success-soft: #e3f7ee;
+  --warning: #d98b06;
+  --warning-soft: #fdf3dc;
+  --danger: #e5484d;
+  --danger-soft: #fdeaea;
+  --shadow-color: 220 20% 10%;
+
+  /* Paleta categórica de secciones (validada para daltonismo, modo claro) */
+  --sec-blue: #2a78d6;
+  --sec-orange: #eb6834;
+  --sec-aqua: #1baf7a;
+  --sec-yellow: #eda100;
+  --sec-magenta: #e87ba4;
+  --sec-green: #008300;
+  --sec-violet: #4a3aa7;
+  --sec-red: #e34948;
+  --sec-none: #9a9aa6;
+
+  /* Escala secuencial (un solo tono) para el mapa de calor del calendario */
+  --heat-1: color-mix(in srgb, var(--primary) 16%, var(--card));
+  --heat-2: color-mix(in srgb, var(--primary) 38%, var(--card));
+  --heat-3: color-mix(in srgb, var(--primary-text) 86%, var(--card));
+  --heat-4: var(--primary-text);
+  --heat-fg-1: var(--foreground);
+  --heat-fg-2: var(--foreground);
+  --heat-fg-3: #ffffff;
+  --heat-fg-4: #ffffff;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f6;
+  --card: #111114;
+  --card-foreground: #f4f4f6;
+  --popover: #16161a;
+  --muted: #1b1b20;
+  --muted-foreground: #9a9aa6;
+  --subtle: #141418;
+  --border: #25252b;
+  --input: #2c2c33;
+  --primary: #5f53e8;
+  --primary-text: #a29bff;
+  --primary-foreground: #ffffff;
+  --primary-hover: color-mix(in srgb, var(--primary) 84%, white);
+  --primary-soft: color-mix(in srgb, var(--primary-text) 16%, var(--card));
+  --ring: var(--primary-text);
+  --success: #2bc48a;
+  --success-soft: #10291f;
+  --warning: #f0a92b;
+  --warning-soft: #2d2410;
+  --danger: #f2555a;
+  --danger-soft: #2e1415;
+  --shadow-color: 0 0% 0%;
+
+  /* Misma paleta, con los pasos validados para superficie oscura */
+  --sec-blue: #3987e5;
+  --sec-orange: #d95926;
+  --sec-aqua: #199e70;
+  --sec-yellow: #c98500;
+  --sec-magenta: #d55181;
+  --sec-green: #008300;
+  --sec-violet: #9085e9;
+  --sec-red: #e66767;
+  --sec-none: #6b6b76;
+
+  --heat-1: color-mix(in srgb, var(--primary-text) 18%, var(--card));
+  --heat-2: color-mix(in srgb, var(--primary-text) 34%, var(--card));
+  --heat-3: color-mix(in srgb, var(--primary-text) 72%, var(--card));
+  --heat-4: var(--primary-text);
+  --heat-fg-1: var(--foreground);
+  --heat-fg-2: var(--foreground);
+  --heat-fg-3: #0b0b0f;
+  --heat-fg-4: #0b0b0f;
+}
+
+/* Colores de acento elegibles (valores verificados: texto blanco sobre el
+   relleno >= 4.5:1, acento como texto >= 4.5:1, escala del calendario legible). */
+:root[data-accent="blue"] { --primary: #2563eb; --primary-text: #1d4ed8; }
+:root[data-accent="teal"] { --primary: #0f766e; --primary-text: #0f6b64; }
+:root[data-accent="green"] { --primary: #15803d; --primary-text: #166534; }
+:root[data-accent="orange"] { --primary: #c2410c; --primary-text: #9a3412; }
+:root[data-accent="rose"] { --primary: #e11d48; --primary-text: #be123c; }
+:root[data-accent="graphite"] { --primary: #3f3f46; --primary-text: #3f3f46; }
+.dark[data-accent="blue"] { --primary: #2563eb; --primary-text: #7cb2ff; }
+.dark[data-accent="teal"] { --primary: #0f766e; --primary-text: #3fd1bd; }
+.dark[data-accent="green"] { --primary: #15803d; --primary-text: #5ed68b; }
+.dark[data-accent="orange"] { --primary: #c2410c; --primary-text: #fb9a5b; }
+.dark[data-accent="rose"] { --primary: #d0153f; --primary-text: #ff8aa0; }
+.dark[data-accent="graphite"] { --primary: #6b6b75; --primary-text: #d4d4d8; }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-text: var(--primary-text);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.04), 0 1px 3px hsl(var(--shadow-color) / 0.04);
+  --shadow-elevated: 0 8px 30px hsl(var(--shadow-color) / 0.12), 0 2px 6px hsl(var(--shadow-color) / 0.06);
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pop: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Sin flechas nativas en campos numéricos (se superponen con las unidades). */
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+  }
+  .dark input[type="date"]::-webkit-calendar-picker-indicator,
+  .dark input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in srgb, var(--muted) 60%, var(--card)) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Animaciones de Radix (dialogs / menús) basadas en data-state.
+   En móvil el diálogo entra como hoja inferior; en escritorio, con escala. */
+.dialog-overlay[data-state="open"] { animation: fade-in 0.2s ease-out; }
+.dialog-overlay[data-state="closed"] { animation: fade-out 0.16s ease-in forwards; }
+.dialog-content[data-state="open"] { animation: sheet-up 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+.dialog-content[data-state="closed"] { animation: sheet-down 0.2s ease-in forwards; }
+@media (min-width: 640px) {
+  .dialog-content[data-state="open"] { animation: scale-in 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+  .dialog-content[data-state="closed"] { animation: scale-out 0.14s ease-in forwards; }
+}
+.menu-content[data-state="open"] { animation: scale-in 0.14s ease-out; }
+.menu-content[data-state="closed"] { animation: fade-out 0.1s ease-in forwards; }
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes scale-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.97); }
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheet-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
