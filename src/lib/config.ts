@@ -31,6 +31,7 @@ export const PROTECTED_PREFIXES = [
   "/habits",
   "/achievements",
   "/onboarding",
+  "/methods",
 ];
 
 /** Rutas de autenticación (si ya hay sesión, se redirige al dashboard). */

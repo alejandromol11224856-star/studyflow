@@ -1,5 +1,6 @@
 "use client";
 
+import { SproutIllustration } from "@/components/brand/illustrations";
 import {
   Archive,
   ArchiveRestore,
@@ -9,7 +10,6 @@ import {
   ChevronDown,
   Ellipsis,
   Flame,
-  Layers,
   Pause,
   Pencil,
   Play,
@@ -174,7 +174,8 @@ export function SectionsView() {
   return (
     <div>
       <PageHeader
-        title="🧩 Áreas"
+        eyebrow="Lo que medís"
+        title="Áreas"
         description="Las áreas de tu vida que querés medir. Nombre, ícono, color y objetivos: todo lo definís vos."
         actions={
           <>
@@ -183,7 +184,7 @@ export function SectionsView() {
                 <ArrowUpDown /> {ordering ? "Listo" : "Ordenar"}
               </Button>
             )}
-            <Button onClick={() => dialogs.openSectionForm()}>
+            <Button variant="gradient" onClick={() => dialogs.openSectionForm()}>
               <Plus /> Nueva área
             </Button>
           </>
@@ -198,8 +199,8 @@ export function SectionsView() {
         </div>
       ) : current.length === 0 ? (
         <Card>
-          <EmptyState emoji="🧩"
-            icon={Layers}
+          <EmptyState
+            illustration={<SproutIllustration />}
             title="Creá tu primera área"
             description="Programación, Gym, Inglés, Lectura… cualquier área que quieras mejorar, con su ícono, color y objetivo."
             action={

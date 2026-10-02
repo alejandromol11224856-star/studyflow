@@ -1,5 +1,6 @@
 "use client";
 
+import { PathIllustration } from "@/components/brand/illustrations";
 import {
   ArrowLeft,
   ArrowDownRight,
@@ -179,14 +180,15 @@ export function StatsView() {
         <ArrowLeft className="size-4" /> Progreso
       </Link>
       <PageHeader
-        title="📊 Estadísticas completas"
+        eyebrow="Progreso · detalle"
+        title="Estadísticas"
         description="En qué se va tu tiempo y cómo evoluciona tu constancia."
         actions={<SegmentedControl value={rangeKey} onChange={setRangeKey} options={RANGES.map((r) => ({ value: r.value, label: r.label }))} />}
       />
 
       {empty ? (
         <Card>
-          <EmptyState emoji="📈" icon={ChartColumn} title="Tus estadísticas aparecen acá" description="Registrá algunas actividades y vas a ver gráficos de tu progreso. ¡Empezá hoy!" />
+          <EmptyState illustration={<PathIllustration />} title="Tus estadísticas aparecen acá" description="Registrá algunas actividades y vas a ver cómo evoluciona tu tiempo." />
         </Card>
       ) : (
         <div className="space-y-4">
@@ -283,7 +285,7 @@ export function StatsView() {
               </CardHeader>
               <CardContent className="pt-4">
                 {distribution.length === 0 ? (
-                  <EmptyState emoji="🌤️" compact icon={ChartColumn} title="Sin actividad en este período" />
+                  <EmptyState compact icon={ChartColumn} title="Sin actividad en este período" />
                 ) : (
                   <ul className="space-y-3.5">
                     {distribution.map((d) => {
@@ -327,7 +329,7 @@ export function StatsView() {
               </CardHeader>
               <CardContent className="pt-4">
                 {compliance.length === 0 ? (
-                  <EmptyState emoji="🎯" compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
+                  <EmptyState compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
                 ) : (
                   <StackedBarChart
                     rows={compliance.map((w) => ({ key: w.key, total: w.total, pct: w.total }))}
@@ -379,7 +381,7 @@ export function StatsView() {
               </CardHeader>
               <CardContent className="pt-4">
                 {habitRows.length === 0 ? (
-                  <EmptyState emoji="🔥" compact icon={ListChecks} title="Sin hábitos en este período" />
+                  <EmptyState compact icon={ListChecks} title="Sin hábitos en este período" />
                 ) : (
                   <ul className="space-y-3">
                     {habitRows.map((r) => (
@@ -497,7 +499,7 @@ function DataTable({
   labelFor: (k: string) => string;
 }) {
   const visible = [...rows].reverse().filter((r) => r.total > 0);
-  if (visible.length === 0) return <EmptyState emoji="📋" compact icon={Table2} title="Sin datos en este período" />;
+  if (visible.length === 0) return <EmptyState compact icon={Table2} title="Sin datos en este período" />;
   return (
     <div className="max-h-[360px] overflow-auto rounded-xl border border-border">
       <table className="w-full min-w-[480px] text-sm">

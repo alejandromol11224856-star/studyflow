@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, Eye, EyeOff, HardDrive, TriangleAlert } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, HardDrive, KeyRound, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ComponentProps, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { EnvelopeIllustration, PathIllustration } from "@/components/brand/illustrations";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import {
   ConfirmLinkButton,
   OpenMailButton,
   ResendButton,
+  VerifyCodeForm,
   savePendingSignup,
   useAuthLinkState,
   usePendingSignup,
@@ -57,16 +59,11 @@ function FormAlert({ children, tone = "danger" }: { children: React.ReactNode; t
   );
 }
 
-function AuthHeading({ emoji, title, description }: { emoji?: string; title: string; description: React.ReactNode }) {
+function AuthHeading({ title, description }: { title: string; description: React.ReactNode }) {
   return (
-    <div className="mb-7">
-      {emoji && (
-        <span className="mb-3 inline-flex size-12 items-center justify-center rounded-2xl bg-primary-soft text-2xl" aria-hidden>
-          {emoji}
-        </span>
-      )}
-      <h1 className="text-[28px] font-bold leading-tight tracking-tight">{title}</h1>
-      <p className="mt-1.5 text-[15px] text-muted-foreground">{description}</p>
+    <div className="mb-8">
+      <h1 className="font-display text-[36px] font-semibold leading-[1.05]">{title}</h1>
+      <p className="mt-2.5 text-[15px] text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -101,6 +98,7 @@ const isUnconfirmedError = (error: unknown) => /email not confirmed/i.test(error
 // ---------------------------------------------------------------------------
 export function LoginForm({ next, linkError }: { next?: string; linkError?: boolean }) {
   const { signIn } = useAuth();
+  const router = useRouter();
   const target = safeNextPath(next);
   useRedirectWhenAuthenticated(target);
   const [email, setEmail] = useState("");
@@ -132,8 +130,7 @@ export function LoginForm({ next, linkError }: { next?: string; linkError?: bool
   return (
     <>
       <AuthHeading
-        emoji="👋"
-        title="¡Hola de nuevo!"
+        title="Hola de nuevo."
         description={
           <>
             ¿No tenés cuenta?{" "}
@@ -146,8 +143,22 @@ export function LoginForm({ next, linkError }: { next?: string; linkError?: bool
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {formError && (
           <FormAlert>
-            {formError}
-            {unconfirmed && <ResendButton className="mt-3" email={email.trim()} kind="signup" variant="soft" />}
+            {unconfirmed ? "Todavía no confirmaste tu email." : formError}
+            {unconfirmed && (
+              <div className="mt-3 space-y-1">
+                <Button
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => {
+                    savePendingSignup({ email: email.trim(), displayName: "" });
+                    router.push("/check-email");
+                  }}
+                >
+                  Ingresar el código
+                </Button>
+                <ResendButton email={email.trim()} kind="signup" variant="ghost" />
+              </div>
+            )}
           </FormAlert>
         )}
         <Field label="Email" error={errors.email}>
@@ -227,7 +238,7 @@ export function RegisterForm({ next, editing }: { next?: string; editing?: boole
         router.push("/check-email");
         return;
       }
-      toast.success("¡Cuenta creada! Bienvenido a StudyFlow 🎉");
+      toast.success("Cuenta creada", { description: "Bienvenido a StudyFlow." });
     } catch (error) {
       setFormError(getErrorMessage(error));
       setLoading(false);
@@ -237,11 +248,10 @@ export function RegisterForm({ next, editing }: { next?: string; editing?: boole
   return (
     <>
       <AuthHeading
-        emoji="🚀"
-        title={editing ? "Corregí tu email" : "Creá tu cuenta"}
+        title={editing ? "Corregí tu email." : "Creá tu cuenta."}
         description={
           editing ? (
-            "Escribí el email correcto y te mandamos un enlace nuevo."
+            "Escribí el email correcto y te mandamos un código nuevo."
           ) : (
             <>
               ¿Ya tenés cuenta?{" "}
@@ -297,9 +307,9 @@ export function RegisterForm({ next, editing }: { next?: string; editing?: boole
           )}
         </Field>
         <Button type="submit" variant="gradient" size="xl" className="w-full" loading={loading}>
-          {editing ? "Enviar enlace nuevo" : "Crear mi cuenta"} <ArrowRight />
+          {editing ? "Enviar código nuevo" : "Crear mi cuenta"} <ArrowRight />
         </Button>
-        <p className="text-center text-xs text-muted-foreground">Gratis. Sin tarjeta de crédito.</p>
+        <p className="text-center text-xs text-muted-foreground">Gratis. Te mandamos un código para confirmar tu email.</p>
       </form>
       <LocalModeNote />
     </>
@@ -309,6 +319,7 @@ export function RegisterForm({ next, editing }: { next?: string; editing?: boole
 // ---------------------------------------------------------------------------
 export function ForgotPasswordForm() {
   const { sendPasswordReset, mode } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -332,16 +343,17 @@ export function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <div className="space-y-6">
-        <AuthHero emoji="📬" title="¡Revisá tu correo!">
-          Si existe una cuenta con <b className="break-all text-foreground">{email.trim()}</b>, vas a recibir un enlace para crear
-          una nueva contraseña.
+      <div className="space-y-7">
+        <AuthHero art={<EnvelopeIllustration />} title="Revisá tu correo">
+          Si existe una cuenta con <b className="break-all text-foreground">{email.trim()}</b>, te mandamos un código de 6 dígitos para
+          crear una contraseña nueva.
         </AuthHero>
-        <div className="space-y-3">
+        <VerifyCodeForm email={email.trim()} kind="recovery" onVerified={() => router.push("/reset-password")} />
+        <div className="space-y-1">
           <OpenMailButton email={email.trim()} />
-          <ResendButton email={email.trim()} kind="recovery" />
+          <ResendButton email={email.trim()} kind="recovery" variant="ghost" />
         </div>
-        <Link href="/login" className="block text-center text-sm font-semibold text-primary-text hover:underline">
+        <Link href="/login" className="block text-center text-sm font-semibold text-muted-foreground hover:text-foreground">
           Volver a iniciar sesión
         </Link>
       </div>
@@ -350,11 +362,9 @@ export function ForgotPasswordForm() {
 
   return (
     <>
-      <AuthHeading emoji="🔑" title="Recuperá tu contraseña" description="Te mandamos un enlace para crear una nueva." />
+      <AuthHeading title="Recuperá tu contraseña." description="Te mandamos un código al email para crear una nueva." />
       {mode === "local" ? (
-        <FormAlert tone="info">
-          La recuperación por email necesita Supabase configurado. En modo local podés crear otra cuenta.
-        </FormAlert>
+        <FormAlert tone="info">La recuperación por email necesita Supabase configurado. En modo local podés crear otra cuenta.</FormAlert>
       ) : (
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <Field label="Email" error={error}>
@@ -374,12 +384,12 @@ export function ForgotPasswordForm() {
             )}
           </Field>
           <Button type="submit" variant="gradient" size="xl" className="w-full" loading={loading}>
-            Enviar enlace
+            <KeyRound /> Enviar código
           </Button>
         </form>
       )}
       <Link href="/login" className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
-        ← Volver a iniciar sesión
+        Volver a iniciar sesión
       </Link>
     </>
   );
@@ -405,7 +415,7 @@ export function ResetPasswordForm({ link: initialLink }: { link: AuthLinkState }
     setLoading(true);
     try {
       await updatePassword(parsed.data.password);
-      toast.success("Contraseña actualizada 🔐");
+      toast.success("Contraseña actualizada");
       router.replace("/dashboard");
     } catch (error) {
       setFormError(getErrorMessage(error));
@@ -415,11 +425,11 @@ export function ResetPasswordForm({ link: initialLink }: { link: AuthLinkState }
 
   const expired = (
     <div className="space-y-6">
-      <AuthHero emoji="⏳" tone="warning" title="Este enlace ya no sirve">
-        {linkError ?? "Puede haber vencido o ya se usó."} Pedí uno nuevo y abrilo apenas te llegue.
+      <AuthHero art={<PathIllustration />} title="Este enlace ya no sirve">
+        {linkError ?? "Puede haber vencido o ya se usó."} Pedí un código nuevo y usalo apenas te llegue.
       </AuthHero>
       <Link href="/forgot-password" className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full" })}>
-        Pedir un enlace nuevo
+        Pedir un código nuevo
       </Link>
     </div>
   );
@@ -429,7 +439,7 @@ export function ResetPasswordForm({ link: initialLink }: { link: AuthLinkState }
     if (linkError) return expired;
     return (
       <div className="space-y-6">
-        <AuthHero emoji="🔐" eyebrow="Recuperar contraseña" title="Creá una nueva contraseña">
+        <AuthHero art={<EnvelopeIllustration />} eyebrow="Recuperar contraseña" title="Creá una nueva contraseña">
           Tocá el botón para continuar. Por seguridad, el enlace funciona una sola vez.
         </AuthHero>
         <ConfirmLinkButton tokenHash={link.tokenHash} type={link.type} onVerified={() => undefined} onError={setLinkError} />
@@ -448,7 +458,7 @@ export function ResetPasswordForm({ link: initialLink }: { link: AuthLinkState }
 
   return (
     <>
-      <AuthHeading emoji="🔐" title="Nueva contraseña" description="Elegí una contraseña segura que no uses en otros sitios." />
+      <AuthHeading title="Nueva contraseña." description="Elegí una contraseña segura que no uses en otros sitios." />
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {formError && <FormAlert>{formError}</FormAlert>}
         <Field label="Nueva contraseña" error={errors.password} hint="Mínimo 8 caracteres.">

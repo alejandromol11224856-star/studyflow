@@ -14,6 +14,7 @@ import { PERIOD_NOUN, goalSummary } from "@/lib/domain/goals";
 import { formatTarget } from "@/lib/domain/metrics";
 import { ACHIEVEMENTS, type XpBreakdown, levelTitle } from "@/lib/domain/progression";
 import { bestDayBefore } from "@/lib/domain/records";
+import { rewardMessage } from "@/lib/domain/motivation";
 import { formatDuration } from "@/lib/format";
 import { useCelebrations } from "./celebration-provider";
 
@@ -79,11 +80,13 @@ export function ProgressWatcher() {
       } else {
         // El de tiempo diario es "el" objetivo diario; los demás se nombran por su meta.
         const isMainDaily = s.goal.period === "daily" && s.goal.metric === "time";
-        const streakNote = s.goal.period === "daily" && streakNow >= 2 ? ` 🔥 Vas ${streakNow} días seguidos.` : " ¡Seguí así!";
+        const streakNote = s.goal.period === "daily" && streakNow >= 2 ? ` Vas ${streakNow} días seguidos.` : "";
         celebrate({
           tone: "major",
-          title: isMainDaily ? "🎉 Objetivo diario cumplido" : `🎉 Objetivo ${label} cumplido: ${formatTarget(s.goal.metric, s.goal.target)}`,
-          description: `Llegaste a ${formatTarget(s.goal.metric, s.goal.target)} ${PERIOD_NOUN[s.goal.period]}.${streakNote}`,
+          title: isMainDaily ? "Objetivo completado." : `Objetivo ${label} completado: ${formatTarget(s.goal.metric, s.goal.target)}`,
+          description: isMainDaily
+            ? `${rewardMessage("goal")}${streakNote}`
+            : `Llegaste a ${formatTarget(s.goal.metric, s.goal.target)} ${PERIOD_NOUN[s.goal.period]}.${streakNote}`,
         });
       }
     }
@@ -115,7 +118,7 @@ export function ProgressWatcher() {
         }
         for (const a of added) {
           const def = ACHIEVEMENTS.find((d) => d.code === a.code);
-          if (def) celebrate({ tone: "major", title: `🏆 Logro desbloqueado: ${def.title}`, description: def.xp ? `${def.description} +${def.xp} XP` : def.description });
+          if (def) celebrate({ tone: "major", title: `Logro desbloqueado: ${def.title}`, description: def.xp ? `${def.description} +${def.xp} XP` : def.description });
         }
       },
       onSettled: () => {
@@ -160,7 +163,7 @@ export function ProgressWatcher() {
     prevToday.current = { day: today, seconds: todaySeconds };
     if (!prev || prev.day !== today) return;
     if (previousBestDay >= 30 * 60 && prev.seconds <= previousBestDay && todaySeconds > previousBestDay) {
-      celebrate({ tone: "minor", title: "Nuevo récord: tu mejor día", description: `${formatDuration(todaySeconds)} registrados hoy.` });
+      celebrate({ tone: "minor", title: "Nuevo récord: tu mejor día", description: `${formatDuration(todaySeconds)} hoy. ${rewardMessage("record")}` });
     }
   }, [todaySeconds, today, previousBestDay, totals.data, celebrate]);
 
@@ -171,7 +174,7 @@ export function ProgressWatcher() {
     const prev = prevStreak.current;
     prevStreak.current = { current: streakCurrent, best: streakBest };
     if (prev && prev.best >= 3 && streakCurrent > prev.best) {
-      celebrate({ tone: "major", title: `🔥 Nueva mejor racha: ${streakCurrent} días`, description: "Superaste tu récord de constancia." });
+      celebrate({ tone: "major", title: `Nueva mejor racha: ${streakCurrent} días`, description: rewardMessage("streak") });
     }
   }, [streakCurrent, streakBest, streaksLoading, celebrate]);
 
@@ -184,7 +187,7 @@ export function ProgressWatcher() {
     const prev = prevHabits.current;
     prevHabits.current = { day: today, allDone };
     if (prev && prev.day === today && !prev.allDone && allDone) {
-      celebrate({ tone: "minor", title: "Hábitos del día completos", description: `${habits.due.length} de ${habits.due.length}. Bien hecho.` });
+      celebrate({ tone: "minor", title: "Hábitos del día completos", description: rewardMessage("habitsAll") });
     }
   }, [allDone, today, habits.isLoading, habits.due.length, celebrate]);
 

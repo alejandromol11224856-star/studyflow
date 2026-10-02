@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, Inbox, LockKeyhole, Mail, PencilLine, RefreshCw, ShieldCheck } from "lucide-react";
+import { ArrowRight, Inbox, LockKeyhole, Mail, PencilLine, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
+import { EnvelopeIllustration, PathIllustration, SproutIllustration } from "@/components/brand/illustrations";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,12 +21,14 @@ import {
 import { getErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { emailSchema } from "@/lib/validation";
+import { OtpInput } from "./otp-input";
 
 // ---------------------------------------------------------------------------
-// Registro pendiente (para la pantalla "Revisá tu correo" y "Cambiar email").
+// Registro pendiente (para "Revisá tu correo" y "Cambiar email").
 // Vive en sessionStorage: no viaja en la URL ni queda guardado para siempre.
 // ---------------------------------------------------------------------------
 const PENDING_KEY = "studyflow:pending-signup";
+const PENDING_EVENT = "studyflow:pending-signup";
 
 export interface PendingSignup {
   email: string;
@@ -38,14 +41,18 @@ export function savePendingSignup(value: PendingSignup) {
   } catch {
     /* sin almacenamiento */
   }
+  window.dispatchEvent(new Event(PENDING_EVENT));
 }
 
-const noopSubscribe = () => () => {};
+function subscribePending(listener: () => void) {
+  window.addEventListener(PENDING_EVENT, listener);
+  return () => window.removeEventListener(PENDING_EVENT, listener);
+}
 
 /** Lee sessionStorage sin romper la hidratación (en el servidor no hay nada). */
 export function usePendingSignup(): PendingSignup | null {
   const raw = useSyncExternalStore(
-    noopSubscribe,
+    subscribePending,
     () => {
       try {
         return window.sessionStorage.getItem(PENDING_KEY);
@@ -68,27 +75,22 @@ export function usePendingSignup(): PendingSignup | null {
 // Piezas visuales
 // ---------------------------------------------------------------------------
 export function AuthHero({
-  emoji,
-  tone = "primary",
+  art,
   eyebrow,
   title,
   children,
 }: {
-  emoji: string;
-  tone?: "primary" | "success" | "warning";
+  art?: React.ReactNode;
   eyebrow?: string;
   title: string;
   children?: React.ReactNode;
 }) {
-  const ring = { primary: "bg-primary-soft", success: "bg-success-soft", warning: "bg-warning-soft" }[tone];
   return (
     <div className="text-center">
-      <div className={cn("mx-auto mb-5 flex size-20 items-center justify-center rounded-[28px] text-[40px] shadow-sm animate-pop", ring)} aria-hidden>
-        {emoji}
-      </div>
-      {eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-text">{eyebrow}</p>}
-      <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight">{title}</h1>
-      {children && <div className="mx-auto mt-2.5 max-w-sm text-[15px] leading-relaxed text-muted-foreground">{children}</div>}
+      {art && <div className="mx-auto mb-4 flex justify-center [&_svg]:w-36">{art}</div>}
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+      <h1 className="mt-1 font-display text-[32px] font-semibold leading-[1.1]">{title}</h1>
+      {children && <div className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-muted-foreground">{children}</div>}
     </div>
   );
 }
@@ -114,7 +116,7 @@ function openMailbox(provider: MailProvider) {
   else window.open(provider.web, "_blank", "noopener,noreferrer");
 }
 
-export function OpenMailButton({ email, className }: { email: string | null; className?: string }) {
+export function OpenMailButton({ email, className, variant = "outline" }: { email: string | null; className?: string; variant?: "outline" | "gradient" }) {
   const { provider } = mailProviderFor(email);
   return (
     <a
@@ -125,7 +127,7 @@ export function OpenMailButton({ email, className }: { email: string | null; cla
         e.preventDefault();
         openMailbox(provider);
       }}
-      className={buttonVariants({ variant: "gradient", size: "xl", className: cn("w-full", className) })}
+      className={buttonVariants({ variant, size: "lg", className: cn("w-full", className) })}
     >
       <Inbox /> Abrir {provider.label}
     </a>
@@ -138,11 +140,13 @@ export function ResendButton({
   kind,
   variant = "outline",
   className,
+  label = "Reenviar código",
 }: {
   email: string;
   kind: "signup" | "recovery";
-  variant?: "outline" | "soft" | "primary";
+  variant?: "outline" | "soft" | "primary" | "ghost";
   className?: string;
+  label?: string;
 }) {
   const { resendConfirmation, sendPasswordReset } = useAuth();
   const { remaining, start } = useEmailCooldown(email);
@@ -158,7 +162,7 @@ export function ResendButton({
     try {
       await (kind === "signup" ? resendConfirmation(email) : sendPasswordReset(email));
       start();
-      toast.success("Te enviamos otro correo", { description: `Revisá ${email} (y la carpeta de Spam).` });
+      toast.success("Te enviamos otro correo", { description: `Revisá ${email} (y la carpeta de spam).` });
     } catch (error) {
       const wait = parseRetryAfterSeconds(error instanceof Error ? error.message : String(error));
       if (wait) start(wait);
@@ -171,7 +175,7 @@ export function ResendButton({
   return (
     <div className={cn("w-full", className)}>
       <Button variant={variant} size="lg" className="w-full" onClick={() => void resend()} loading={sending} disabled={remaining > 0}>
-        {!sending && <RefreshCw />} Reenviar correo
+        {!sending && <RefreshCw />} {label}
       </Button>
       <p className="mt-2 min-h-5 text-center text-xs text-muted-foreground" aria-live="polite">
         {remaining > 0 ? `Podés volver a solicitar un correo en ${remaining} ${remaining === 1 ? "segundo" : "segundos"}.` : ""}
@@ -185,7 +189,7 @@ function ResendForm({ kind, initialEmail = "" }: { kind: "signup" | "recovery"; 
   const [email, setEmail] = useState(initialEmail);
   return (
     <div className="rounded-3xl border border-border bg-card p-4 text-left shadow-card">
-      <p className="text-sm font-semibold">{kind === "signup" ? "¿No recibiste el correo?" : "¿Necesitás un enlace nuevo?"}</p>
+      <p className="text-sm font-semibold">{kind === "signup" ? "¿Necesitás otro correo?" : "¿Necesitás un enlace nuevo?"}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">Escribí tu email y te mandamos uno nuevo.</p>
       <Input
         className="mt-3"
@@ -197,40 +201,107 @@ function ResendForm({ kind, initialEmail = "" }: { kind: "signup" | "recovery"; 
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <ResendButton className="mt-3" email={email.trim()} kind={kind} />
+      <ResendButton className="mt-3" email={email.trim()} kind={kind} label="Reenviar correo" />
     </div>
   );
 }
 
-function Steps({ items }: { items: React.ReactNode[] }) {
+/**
+ * Código de 6 dígitos: se escribe (o se pega) y se confirma sin salir de la
+ * app. Se usa para confirmar la cuenta y para recuperar la contraseña.
+ */
+export function VerifyCodeForm({
+  email,
+  kind,
+  onVerified,
+}: {
+  email: string;
+  kind: "signup" | "recovery";
+  onVerified: () => void;
+}) {
+  const { verifyEmailCode } = useAuth();
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function verify(value = code) {
+    if (value.length < 6 || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await verifyEmailCode(email, value, kind);
+      onVerified();
+    } catch (err) {
+      setError(/venció o ya se usó/.test(getErrorMessage(err)) ? "El código no es correcto o ya venció. Revisalo o pedí uno nuevo." : getErrorMessage(err));
+      setBusy(false);
+    }
+  }
+
   return (
-    <ol className="space-y-3 text-left">
-      {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-3 text-sm">
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-bold text-primary-text">{i + 1}</span>
-          <span className="pt-1 leading-snug">{item}</span>
-        </li>
-      ))}
-    </ol>
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void verify();
+      }}
+    >
+      <OtpInput
+        value={code}
+        onChange={(v) => {
+          setCode(v);
+          if (error) setError(null);
+        }}
+        onComplete={(v) => void verify(v)}
+        disabled={busy}
+        invalid={Boolean(error)}
+        autoFocus
+      />
+      <p className="min-h-5 text-center text-sm font-medium text-danger" role="alert">
+        {error ?? ""}
+      </p>
+      <Button type="submit" variant="gradient" size="xl" className="w-full" loading={busy} disabled={code.length < 6}>
+        {kind === "signup" ? "Confirmar" : "Continuar"} {!busy && <ArrowRight />}
+      </Button>
+    </form>
   );
 }
 
 // ---------------------------------------------------------------------------
-// "📬 ¡Revisá tu correo!" (después de registrarse)
+// "Revisá tu correo" (después de registrarse): código dentro de la app
 // ---------------------------------------------------------------------------
 export function CheckEmailView() {
   const router = useRouter();
   const pending = usePendingSignup();
+  const [typedEmail, setTypedEmail] = useState("");
+  const [emailConfirmed, setEmailConfirmed] = useState<string | null>(null);
+  const email = pending?.email ?? emailConfirmed;
 
-  if (!pending) {
+  const onVerified = () => {
+    toast.success("Cuenta confirmada", { description: "Bienvenido a StudyFlow." });
+    router.replace("/onboarding");
+  };
+
+  if (!email) {
     return (
       <div className="space-y-6">
-        <AuthHero emoji="📬" title="¡Revisá tu correo!">
-          Si acabás de crear tu cuenta, te enviamos un enlace para activarla.
+        <AuthHero art={<EnvelopeIllustration />} title="Revisá tu correo">
+          Escribí el email con el que te registraste y después el código que te mandamos.
         </AuthHero>
-        <ResendForm kind="signup" />
+        <form
+          className="space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (emailSchema.safeParse(typedEmail).success) setEmailConfirmed(typedEmail.trim());
+            else toast.error("Escribí un email válido.");
+          }}
+        >
+          <Input type="email" inputMode="email" autoComplete="email" placeholder="vos@email.com" aria-label="Tu email" value={typedEmail} onChange={(e) => setTypedEmail(e.target.value)} />
+          <Button type="submit" variant="gradient" size="lg" className="w-full">
+            Seguir
+          </Button>
+        </form>
         <p className="text-center text-sm text-muted-foreground">
-          ¿Ya la confirmaste?{" "}
+          ¿Ya confirmaste?{" "}
           <Link href="/login" className="font-semibold text-primary-text hover:underline">
             Iniciá sesión
           </Link>
@@ -240,42 +311,29 @@ export function CheckEmailView() {
   }
 
   return (
-    <div className="space-y-6">
-      <AuthHero emoji="📬" eyebrow="Último paso" title="¡Revisá tu correo!">
-        Te enviamos un enlace para activar tu cuenta a
-        <span className="mt-2 block break-all rounded-2xl bg-muted px-3 py-2 text-[15px] font-semibold text-foreground">{pending.email}</span>
+    <div className="space-y-7">
+      <AuthHero art={<EnvelopeIllustration />} eyebrow="Último paso" title="Revisá tu correo">
+        Te mandamos un código de 6 dígitos a
+        <span className="mt-2 block break-all font-semibold text-foreground">{email}</span>
       </AuthHero>
 
-      <div className="rounded-3xl border border-border bg-card p-5 shadow-card">
-        <Steps
-          items={[
-            <>Abrí el correo de <b>StudyFlow</b>. Puede tardar 1 o 2 minutos.</>,
-            <>
-              Tocá el botón <b>🚀 TERMINAR REGISTRO</b>.
-            </>,
-            <>En la página que se abre, tocá <b>Confirmar mi email</b> y listo.</>,
-          ]}
-        />
-      </div>
+      <VerifyCodeForm email={email} kind="signup" onVerified={onVerified} />
 
-      <div className="space-y-3">
-        <OpenMailButton email={pending.email} />
-        <ResendButton email={pending.email} kind="signup" />
-        <Button
-          variant="ghost"
-          size="lg"
-          className="w-full"
-          onClick={() => router.push("/register?edit=1")}
-        >
-          <PencilLine /> Cambiar email
-        </Button>
+      <div className="space-y-1">
+        <div className="grid grid-cols-2 gap-2">
+          <OpenMailButton email={email} />
+          <Button variant="outline" size="lg" className="w-full" onClick={() => router.push("/register?edit=1")}>
+            <PencilLine /> Cambiar email
+          </Button>
+        </div>
+        <ResendButton email={email} kind="signup" variant="ghost" />
       </div>
 
       <p className="flex gap-2.5 rounded-2xl bg-muted/70 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
         <Mail className="mt-0.5 size-4 shrink-0" />
         <span>
-          ¿No lo encontrás? Revisá <b className="text-foreground">Spam</b> o <b className="text-foreground">Promociones</b> y buscá
-          &quot;StudyFlow&quot;. Podés abrir el correo en cualquier dispositivo.
+          ¿No lo ves? Revisá <b className="text-foreground">spam</b> o <b className="text-foreground">promociones</b>. También podés tocar el
+          botón del correo, en cualquier dispositivo.
         </span>
       </p>
     </div>
@@ -283,21 +341,21 @@ export function CheckEmailView() {
 }
 
 // ---------------------------------------------------------------------------
-// /confirm-email: la persona toca el botón para usar el enlace
+// /confirm-email: la persona toca el botón para usar el enlace del correo
 // ---------------------------------------------------------------------------
 const CONFIRM_COPY: Record<EmailLinkType, { title: string; text: string; button: string; next: string }> = {
-  email: { title: "Confirmá tu email", text: "Tocá el botón para activar tu cuenta y empezar a usar StudyFlow.", button: "CONFIRMAR MI EMAIL", next: "/onboarding" },
-  signup: { title: "Confirmá tu email", text: "Tocá el botón para activar tu cuenta y empezar a usar StudyFlow.", button: "CONFIRMAR MI EMAIL", next: "/onboarding" },
-  email_change: { title: "Confirmá tu nuevo email", text: "Tocá el botón para empezar a usar este email en StudyFlow.", button: "CONFIRMAR MI EMAIL", next: "/settings" },
-  invite: { title: "Aceptá la invitación", text: "Tocá el botón para entrar a StudyFlow.", button: "ENTRAR A STUDYFLOW", next: "/onboarding" },
-  magiclink: { title: "Entrá a StudyFlow", text: "Tocá el botón para iniciar sesión.", button: "ENTRAR A STUDYFLOW", next: "/dashboard" },
-  recovery: { title: "Creá una nueva contraseña", text: "Tocá el botón para continuar.", button: "CREAR NUEVA CONTRASEÑA", next: "/reset-password" },
+  email: { title: "Confirmá tu email", text: "Tocá el botón para activar tu cuenta y empezar a usar StudyFlow.", button: "Confirmar mi email", next: "/onboarding" },
+  signup: { title: "Confirmá tu email", text: "Tocá el botón para activar tu cuenta y empezar a usar StudyFlow.", button: "Confirmar mi email", next: "/onboarding" },
+  email_change: { title: "Confirmá tu nuevo email", text: "Tocá el botón para empezar a usar este email en StudyFlow.", button: "Confirmar mi email", next: "/settings" },
+  invite: { title: "Aceptá la invitación", text: "Tocá el botón para entrar a StudyFlow.", button: "Entrar a StudyFlow", next: "/onboarding" },
+  magiclink: { title: "Entrá a StudyFlow", text: "Tocá el botón para iniciar sesión.", button: "Entrar a StudyFlow", next: "/dashboard" },
+  recovery: { title: "Creá una nueva contraseña", text: "Tocá el botón para continuar.", button: "Crear nueva contraseña", next: "/reset-password" },
 };
 
 /** Lee el #fragmento (Supabase puede mandar ahí los errores) sin romper la hidratación. */
 function useLocationHash() {
   return useSyncExternalStore(
-    noopSubscribe,
+    () => () => {},
     () => window.location.hash,
     () => "",
   );
@@ -351,7 +409,7 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   const link = useAuthLinkState(initial);
   const [result, setResult] = useState<{ ok: true; next: string } | { ok: false; message: string } | null>(null);
 
-  // Después de confirmar, llevar a la persona a la app (con un instante para ver el ✅).
+  // Después de confirmar, llevar a la persona a la app (con un instante para ver la confirmación).
   useEffect(() => {
     if (!result?.ok) return;
     const id = window.setTimeout(() => router.replace(result.next), 1400);
@@ -361,7 +419,7 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   if (result?.ok) {
     return (
       <div className="space-y-6">
-        <AuthHero emoji="✅" tone="success" title="¡Email confirmado!">
+        <AuthHero art={<SproutIllustration />} title="Email confirmado.">
           Tu cuenta está activa. Te llevamos a StudyFlow…
         </AuthHero>
         <Button variant="gradient" size="xl" className="w-full" onClick={() => router.replace(result.next)}>
@@ -375,7 +433,7 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
     const copy = CONFIRM_COPY[link.type];
     return (
       <div className="space-y-6">
-        <AuthHero emoji="📩" eyebrow="Último paso" title={copy.title}>
+        <AuthHero art={<EnvelopeIllustration />} eyebrow="Último paso" title={copy.title}>
           {copy.text}
         </AuthHero>
         <ConfirmLinkButton
@@ -394,11 +452,11 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   if (link.kind === "verified") {
     return (
       <div className="space-y-6">
-        <AuthHero emoji="✅" tone="success" title="¡Tu email ya está confirmado!">
+        <AuthHero art={<SproutIllustration />} title="Tu email ya está confirmado.">
           Abriste el enlace en otro navegador o dispositivo. Iniciá sesión con tu email y contraseña para continuar.
         </AuthHero>
         <Link href="/login?next=/onboarding" className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full" })}>
-          INICIAR SESIÓN <ArrowRight />
+          Iniciar sesión <ArrowRight />
         </Link>
       </div>
     );
@@ -407,9 +465,9 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   if (link.kind === "error" || result) {
     return (
       <div className="space-y-6">
-        <AuthHero emoji="⏳" tone="warning" title="Este enlace ya no sirve">
+        <AuthHero art={<PathIllustration />} title="Este enlace ya no sirve">
           {result && !result.ok ? `${result.message} ` : "Puede haber vencido o ya se usó. "}
-          A veces el antivirus del correo abre el enlace antes que vos: si pasó eso, tu email ya puede estar confirmado.
+          A veces el antivirus del correo lo abre antes que vos: si pasó eso, tu email ya puede estar confirmado.
         </AuthHero>
         <Link href="/login?next=/onboarding" className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full" })}>
           Probar iniciar sesión <ArrowRight />
@@ -423,7 +481,7 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   if (status === "authenticated") {
     return (
       <div className="space-y-6">
-        <AuthHero emoji="👋" title="Ya estás dentro">
+        <AuthHero art={<SproutIllustration />} title="Ya estás dentro.">
           Tu sesión está iniciada.
         </AuthHero>
         <Link href="/dashboard" className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full" })}>
@@ -434,16 +492,13 @@ export function ConfirmEmailView({ initial }: { initial: AuthLinkState }) {
   }
   return (
     <div className="space-y-6">
-      <AuthHero emoji="📬" title="Confirmá tu email">
-        Abrí el correo que te enviamos y tocá <b className="text-foreground">🚀 TERMINAR REGISTRO</b>.
+      <AuthHero art={<EnvelopeIllustration />} title="Confirmá tu email">
+        Escribí el código que te mandamos o tocá el botón del correo.
       </AuthHero>
+      <Link href="/check-email" className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full" })}>
+        Ingresar el código <ArrowRight />
+      </Link>
       <ResendForm kind="signup" />
-      <p className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-        <ShieldCheck className="size-4" /> ¿Ya confirmaste?{" "}
-        <Link href="/login" className="font-semibold text-primary-text hover:underline">
-          Iniciá sesión
-        </Link>
-      </p>
     </div>
   );
 }

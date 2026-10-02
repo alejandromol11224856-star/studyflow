@@ -45,7 +45,7 @@ export function SectionDetailView({ id }: { id: string }) {
   if (!section) {
     return (
       <Card>
-        <EmptyState emoji="🧭"
+        <EmptyState
           icon={SearchX}
           title="No encontramos esta área"
           description="Puede que la hayas eliminado."
@@ -221,7 +221,7 @@ function SectionDetail({ section }: { section: Section }) {
           {recent.isLoading ? (
             <Skeleton className="h-24" />
           ) : items.length === 0 ? (
-            <EmptyState emoji="🌱"
+            <EmptyState
               compact
               icon={NotebookPen}
               title="Todavía no hay actividades"

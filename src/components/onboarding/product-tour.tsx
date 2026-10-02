@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ListChecks, type LucideIcon, Play, Shapes, Sprout, Target, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { SproutIllustration } from "@/components/brand/illustrations";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils";
 export interface TourStep {
   /** Valor de data-tour del elemento a resaltar (sin target: tarjeta centrada). */
   target?: string;
-  emoji: string;
+  icon: LucideIcon;
   title: string;
   body: string;
 }
@@ -18,35 +19,35 @@ export interface TourStep {
 export const TOUR_STEPS: TourStep[] = [
   {
     target: "daily-goal",
-    emoji: "🎯",
-    title: "Tu objetivo diario",
-    body: "Acá ves cuánto llevás hoy y cuánto te falta. Tocá «Cambiar» para elegir tu meta: tiempo, páginas, km o repeticiones.",
+    icon: Target,
+    title: "Tu día, de un vistazo",
+    body: "El anillo muestra cuánto avanzaste hacia tu meta de hoy. Tocá «Cambiar objetivo» para ajustarla cuando quieras.",
   },
   {
     target: "timer",
-    emoji: "⏱️",
-    title: "El temporizador",
-    body: "Tocá «Comenzar sesión» cuando empieces. Podés pausarlo y, al terminar, se guarda solo en tu día.",
-  },
-  {
-    target: "areas",
-    emoji: "🧩",
-    title: "Tus áreas",
-    body: "Programación, Gym, Inglés… cada área tiene su ícono, color y objetivo. Tocá ▶ para empezar una sesión de esa área.",
+    icon: Play,
+    title: "Qué hacer ahora",
+    body: "Retomá lo último en un toque o empezá una sesión nueva, libre o con Pomodoro. Al terminar se guarda sola.",
   },
   {
     target: "habits",
-    emoji: "🔥",
-    title: "Hábitos",
-    body: "Lo que querés hacer seguido. Marcalo con un toque y mirá crecer tu racha.",
+    icon: ListChecks,
+    title: "Lo que te toca hoy",
+    body: "Tus hábitos y objetivos del día. Marcá lo que vas haciendo: cada día cumplido suma a tu constancia.",
+  },
+  {
+    target: "areas",
+    icon: Shapes,
+    title: "Tus áreas",
+    body: "Programación, Inglés, Gimnasio… cada área tiene su color, su objetivo y su progreso. El botón de play empieza una sesión ahí.",
   },
   {
     target: "progress",
-    emoji: "📈",
-    title: "Tu progreso",
-    body: "Nivel, XP, racha, tu mejor día y cómo vas frente a la semana pasada. Las estadísticas completas también están ahí.",
+    icon: TrendingUp,
+    title: "Progreso",
+    body: "Hoy es para actuar; Progreso, para mirar el camino: si estás mejorando, tu nivel, tu constancia y tus récords.",
   },
-  { emoji: "🎉", title: "¡Ya estás listo!", body: "Tu progreso comienza hoy." },
+  { icon: Sprout, title: "Tu progreso empieza hoy.", body: "Un poco todos los días termina siendo muchísimo." },
 ];
 
 const PAD = 8;
@@ -88,19 +89,16 @@ export function WelcomeDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onLater()}>
-      <DialogContent title={`¡Bienvenido a StudyFlow${name ? `, ${name}` : ""}! 👋`} size="sm" hideHeader>
+      <DialogContent title={`Bienvenido a StudyFlow${name ? `, ${name}` : ""}`} size="sm" hideHeader>
         <div className="pt-2 text-center">
-          <div aria-hidden className="mx-auto flex size-20 items-center justify-center rounded-[28px] bg-primary-soft text-[40px] animate-bounce-soft">
-            👋
-          </div>
-          <h2 className="mt-5 text-2xl font-extrabold tracking-tight">
-            ¡Bienvenido a StudyFlow{name ? `, ${name}` : ""}!
+          <SproutIllustration className="mx-auto w-36" />
+          <h2 className="mt-4 font-display text-[28px] font-semibold leading-tight">
+            Bienvenido a StudyFlow{name ? `, ${name}` : ""}.
           </h2>
-          <p className="mt-2 text-[15px] text-muted-foreground">¿Querés que te mostremos cómo funciona?</p>
-          <p className="mt-1 text-xs text-muted-foreground">Son 5 pasos cortos. Menos de un minuto.</p>
+          <p className="mt-2 text-[15px] text-muted-foreground">¿Te mostramos lo importante? Es un recorrido de cinco pasos.</p>
           <div className="mt-7 space-y-2">
             <Button variant="gradient" size="xl" className="w-full" onClick={onStart} autoFocus>
-              🚀 Sí, mostrarme
+              Sí, mostrame
             </Button>
             <Button variant="ghost" size="lg" className="w-full" onClick={onLater}>
               Ahora no
@@ -236,10 +234,14 @@ export function ProductTour({ open, onFinish, onSkip }: { open: boolean; onFinis
             <span key={i} className={cn("h-1.5 rounded-full transition-all", i === index ? "w-6 bg-primary-text" : "w-1.5 bg-border")} />
           ))}
         </div>
-        <p aria-hidden className={cn("mt-4", rect ? "text-3xl" : "text-5xl")}>
-          {step.emoji}
-        </p>
-        <h2 id="tour-title" className={cn("mt-2 font-extrabold tracking-tight", rect ? "text-lg" : "text-2xl")}>
+        {rect ? (
+          <span aria-hidden className="mt-4 flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary-text">
+            <step.icon className="size-5" />
+          </span>
+        ) : (
+          <SproutIllustration className="mx-auto mt-4 w-32" />
+        )}
+        <h2 id="tour-title" className={cn("mt-3 font-display font-semibold leading-tight", rect ? "text-[22px]" : "text-[28px]")}>
           {step.title}
         </h2>
         <p id="tour-body" className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
@@ -248,7 +250,7 @@ export function ProductTour({ open, onFinish, onSkip }: { open: boolean; onFinis
 
         {last ? (
           <Button ref={primaryRef} variant="gradient" size="xl" className="mt-6 w-full" onClick={onFinish}>
-            EMPEZAR 🚀
+            Empezar
           </Button>
         ) : (
           <div className="mt-5 flex items-center gap-2">

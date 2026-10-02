@@ -558,6 +558,10 @@ export function createLocalAuthService(): AuthService {
       throw new AppError("Los enlaces por email requieren conectar Supabase.");
     },
 
+    async verifyEmailCode() {
+      throw new AppError("Los códigos por email requieren conectar Supabase.");
+    },
+
     async updatePassword(password) {
       const current = currentLocalUser();
       if (!current) throw new AppError("Tu sesión expiró. Volvé a iniciar sesión.");

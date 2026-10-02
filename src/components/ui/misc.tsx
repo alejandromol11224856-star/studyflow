@@ -7,7 +7,7 @@ export function Skeleton({ className, ...props }: ComponentProps<"div">) {
 }
 
 const PROGRESS_TONES = {
-  primary: "bg-[image:var(--gradient-primary)]",
+  primary: "bg-primary",
   success: "bg-[image:var(--gradient-success)]",
   xp: "bg-[image:var(--gradient-xp)]",
   streak: "bg-[image:var(--gradient-streak)]",
@@ -79,6 +79,7 @@ export function Badge({
 export function EmptyState({
   icon: Icon,
   emoji,
+  illustration,
   title,
   description,
   action,
@@ -87,6 +88,8 @@ export function EmptyState({
 }: {
   icon?: LucideIcon;
   emoji?: string;
+  /** Ilustración propia (components/brand/illustrations). Tiene prioridad sobre ícono/emoji. */
+  illustration?: ReactNode;
   title: string;
   description?: ReactNode;
   action?: ReactNode;
@@ -95,16 +98,22 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center px-2 text-center", compact ? "py-7" : "py-12", className)}>
-      <div
-        aria-hidden
-        className={cn(
-          "mb-4 flex items-center justify-center rounded-[22px] bg-primary-soft text-primary-text animate-pop",
-          compact ? "size-14 text-[28px]" : "size-[72px] text-[36px]",
-        )}
-      >
-        {emoji ?? (Icon && <Icon className={compact ? "size-6" : "size-8"} />)}
-      </div>
-      <h3 className={cn("font-bold tracking-tight", compact ? "text-[15px]" : "text-lg")}>{title}</h3>
+      {illustration ? (
+        <div aria-hidden className={cn("mb-3 animate-fade-in", compact ? "[&_svg]:w-28" : "[&_svg]:w-40")}>
+          {illustration}
+        </div>
+      ) : (
+        <div
+          aria-hidden
+          className={cn(
+            "mb-4 flex items-center justify-center rounded-[20px] bg-primary-soft text-primary-text",
+            compact ? "size-12 text-[24px]" : "size-16 text-[30px]",
+          )}
+        >
+          {emoji ?? (Icon && <Icon className={compact ? "size-5" : "size-7"} />)}
+        </div>
+      )}
+      <h3 className={cn("font-display font-semibold", compact ? "text-lg" : "text-[22px]")}>{title}</h3>
       {description && <div className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</div>}
       {action && <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>

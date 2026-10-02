@@ -1,5 +1,12 @@
-/** Ícono de la app para ImageResponse (favicon, PWA, Apple touch icon). */
+import { BRAND } from "./logo";
+
+/**
+ * Ícono de la app para ImageResponse (favicon, PWA, Apple touch icon).
+ * `rounded=false` = ícono "maskable": ocupa todo el cuadrado y el trazo queda
+ * dentro de la zona segura (Android lo recorta con la forma del sistema).
+ */
 export function BrandIcon({ size, rounded = true }: { size: number; rounded?: boolean }) {
+  const glyph = rounded ? 0.72 : 0.58;
   return (
     <div
       style={{
@@ -8,12 +15,20 @@ export function BrandIcon({ size, rounded = true }: { size: number; rounded?: bo
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #7b6dff 0%, #5b4ef5 50%, #3b2fd1 100%)",
-        borderRadius: rounded ? size * 0.22 : 0,
+        background: `linear-gradient(160deg, ${BRAND.pine} 0%, ${BRAND.pineDeep} 100%)`,
+        borderRadius: rounded ? size * 0.24 : 0,
       }}
     >
-      <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.4} strokeLinecap="round">
-        <path d="M4 15c2.5 0 3.5-6 6-6s3.5 6 6 6 3-3 4-4" />
+      <svg width={size * glyph} height={size * glyph} viewBox="4 6 24 20">
+        <path
+          d="M6.5 21.5c3.4 0 4.3-7.4 8.2-7.4s4.4 4.6 7.4 4.6c1.9 0 2.8-2.3 3.4-4.8"
+          fill="none"
+          stroke={BRAND.paper}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="25.6" cy="10.2" r="2.5" fill={BRAND.sun} />
       </svg>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, CalendarRange, ChevronDown, Flame, Gauge, ListChecks, NotebookPen, Sun, Trophy } from "lucide-react";
+import { SummitIllustration } from "@/components/brand/illustrations";
+import { CalendarDays, CalendarRange, ChevronDown, Flame, Gauge, ListChecks, NotebookPen, Sun } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
@@ -207,7 +208,7 @@ function RecordsGrid() {
   if (items.every((i) => !i.value)) {
     return (
       <Card>
-        <EmptyState emoji="🏅" icon={Trophy} title="Tus récords te esperan" description="Registrá actividades y cumplí objetivos: tus mejores marcas aparecen acá." />
+        <EmptyState illustration={<SummitIllustration />} title="Tus récords te esperan" description="Registrá actividades y cumplí objetivos: tus mejores marcas aparecen acá." />
       </Card>
     );
   }

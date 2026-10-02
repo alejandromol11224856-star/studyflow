@@ -19,10 +19,13 @@ export function HabitFormDialog({
   open,
   onOpenChange,
   habit,
+  draftName,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   habit?: Habit;
+  /** Nombre sugerido para un hábito nuevo (por ejemplo, desde Métodos). */
+  draftName?: string;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -31,7 +34,7 @@ export function HabitFormDialog({
         description={habit ? undefined : "Algo que querés hacer seguido y marcar como hecho, sin medir tiempo."}
         size="lg"
       >
-        <HabitForm key={habit?.id ?? "new"} habit={habit} onDone={() => onOpenChange(false)} />
+        <HabitForm key={habit?.id ?? `new-${draftName ?? ""}`} habit={habit} draftName={draftName} onDone={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );
@@ -39,15 +42,15 @@ export function HabitFormDialog({
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-function HabitForm({ habit, onDone }: { habit?: Habit; onDone: () => void }) {
+function HabitForm({ habit, draftName, onDone }: { habit?: Habit; draftName?: string; onDone: () => void }) {
   const today = useToday();
   const { data: habits = [] } = useHabits();
   const { active: sections } = useActiveSections();
   const create = useCreateHabit();
   const update = useUpdateHabit();
 
-  const [name, setName] = useState(habit?.name ?? "");
-  const [icon, setIcon] = useState<SectionIcon>(habit?.icon ?? "check");
+  const [name, setName] = useState(habit?.name ?? draftName ?? "");
+  const [icon, setIcon] = useState<SectionIcon>(habit?.icon ?? (draftName ? guessSectionIcon(draftName) : "check"));
   const [iconTouched, setIconTouched] = useState(Boolean(habit));
   const [color, setColor] = useState<SectionColor>(habit?.color ?? nextSectionColor(habits.map((h) => h.color)));
   const [sectionId, setSectionId] = useState<string | null>(habit?.sectionId ?? null);

@@ -43,6 +43,12 @@ export const WIDGETS = [
 ] as const satisfies readonly WidgetDefinition[];
 
 export type WidgetId = (typeof WIDGETS)[number]["id"];
+
+/**
+ * Lo que Hoy ya muestra siempre (anillo del día, Continuar, lista de hoy y
+ * áreas). No se repiten como tarjetas: "Personalizar" ofrece solo los extras.
+ */
+export const HOY_NATIVE_WIDGETS: ReadonlySet<WidgetId> = new Set<WidgetId>(["today", "activities-today", "sections", "daily-goal", "timer"]);
 export interface WidgetPreference {
   id: WidgetId;
   visible: boolean;
@@ -79,6 +85,7 @@ export function normalizeWidgets(raw: unknown): WidgetPreference[] {
 // Color de acento (paleta validada: contraste AA en claro y oscuro)
 // ---------------------------------------------------------------------------
 export const ACCENTS = [
+  { id: "pine", label: "Pino", swatch: "#0d6b5a" },
   { id: "violet", label: "Violeta", swatch: "#5b4ef5" },
   { id: "blue", label: "Azul", swatch: "#2563eb" },
   { id: "teal", label: "Turquesa", swatch: "#0f766e" },
@@ -89,7 +96,7 @@ export const ACCENTS = [
 ] as const;
 
 export type AccentId = (typeof ACCENTS)[number]["id"];
-export const DEFAULT_ACCENT: AccentId = "violet";
+export const DEFAULT_ACCENT: AccentId = "pine";
 export const ACCENT_STORAGE_KEY = "studyflow:accent";
 
 export function isAccentId(value: unknown): value is AccentId {

@@ -3,55 +3,61 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------
-   Design tokens — identidad "Friendly Gamified Productivity"
-   Todos los colores de la UI salen de estas variables, así el modo
-   claro/oscuro se resuelve en un solo lugar. Los pares texto/fondo
-   están verificados con contraste WCAG AA (>= 4.5:1).
+   StudyFlow — sistema de diseño
+   Concepto: "progreso visible". Un cuaderno de progreso: papel
+   cálido + tinta en claro; tinta verde profunda en oscuro. El acento
+   (Pino) es crecimiento; ámbar = XP; coral = constancia.
+   Todos los pares texto/fondo verificados con WCAG AA (>= 4.5:1).
 ---------------------------------------------------------------- */
 :root {
-  --background: #f5f4fb;
-  --foreground: #14112b;
-  --card: #ffffff;
-  --card-foreground: #14112b;
-  --popover: #ffffff;
-  --muted: #f0eff8;
-  --muted-foreground: #5f5c78;
-  --subtle: #f8f7fd;
-  --border: #e6e4f0;
-  --input: #dcd9ea;
-  /* Acento (ver bloque [data-accent] más abajo). --primary = relleno con texto
-     blanco; --primary-text = acento usado como texto/ícono sobre superficies. */
-  --primary: #5b4ef5;
-  --primary-text: #4f42e3;
+  /* Superficies (papel) */
+  --background: #f4f0e8;
+  --card: #fffdf8;
+  --card-foreground: #1c1a15;
+  --popover: #fffdf8;
+  --muted: #ece6da;
+  --subtle: #f8f5ef;
+  --border: #e3dccd;
+  --input: #d6cebf;
+  --foreground: #1c1a15;
+  --muted-foreground: #666052;
+
+  /* Acento (ver [data-accent] más abajo). --primary = relleno con texto
+     blanco; --primary-text = acento usado como texto/ícono. */
+  --primary: #0d6b5a;
+  --primary-text: #0a5c4e;
   --primary-foreground: #ffffff;
   --primary-hover: color-mix(in srgb, var(--primary) 86%, black);
   --primary-soft: color-mix(in srgb, var(--primary) 10%, var(--card));
   --ring: var(--primary);
-  --success: #0b7a51;
-  --success-soft: #e4f6ed;
-  --warning: #955b07;
-  --warning-soft: #fdf3df;
-  --danger: #c62a35;
-  --danger-soft: #fdeced;
-  --shadow-color: 248 40% 18%;
 
-  /* Gamificación: XP (ámbar) y racha (fuego). *-text para texto, el resto para rellenos. */
-  --xp: #f59e0b;
-  --xp-text: #b45309;
+  --success: #0b7a51;
+  --success-soft: #e2f3ea;
+  --warning: #955b07;
+  --warning-soft: #fbf0d9;
+  --danger: #c62a35;
+  --danger-soft: #fbe9e8;
+
+  /* Gamificación */
+  --xp: #e9a23b;
+  --xp-text: #9a5a06;
   --xp-soft: color-mix(in srgb, var(--xp) 14%, var(--card));
-  --streak: #f97316;
-  --streak-text: #c2410c;
+  --streak: #e8673f;
+  --streak-text: #b23f22;
   --streak-soft: color-mix(in srgb, var(--streak) 12%, var(--card));
 
-  /* Gradientes. El de acento solo oscurece (el texto blanco mantiene el contraste). */
-  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 78%, black) 100%);
-  --gradient-xp: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
-  --gradient-streak: linear-gradient(135deg, #fb923c 0%, #f43f5e 100%);
-  --gradient-success: linear-gradient(90deg, #34d399 0%, #10b981 100%);
-  --glow-primary: color-mix(in srgb, var(--primary) 9%, transparent);
-  --glow-warm: color-mix(in srgb, #f59e0b 7%, transparent);
+  /* Gradientes: siempre sutiles; el de acento solo oscurece (contraste del texto blanco). */
+  --gradient-primary: linear-gradient(160deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 82%, black) 100%);
+  --gradient-xp: linear-gradient(90deg, #f2bd5c 0%, #e9a23b 100%);
+  --gradient-streak: linear-gradient(135deg, #f08a5d 0%, #e8673f 100%);
+  --gradient-success: linear-gradient(90deg, #2fb37f 0%, #0f9363 100%);
 
-  /* Paleta categórica de secciones (validada para daltonismo, modo claro) */
+  /* Profundidad y textura */
+  --shadow-color: 36 30% 22%;
+  --grain-opacity: 0.045;
+  --ink: #1c1a15;
+
+  /* Paleta categórica de áreas (validada para daltonismo, modo claro) */
   --sec-blue: #2a78d6;
   --sec-orange: #eb6834;
   --sec-aqua: #1baf7a;
@@ -60,9 +66,9 @@
   --sec-green: #008300;
   --sec-violet: #4a3aa7;
   --sec-red: #e34948;
-  --sec-none: #9a9aa6;
+  --sec-none: #9a948a;
 
-  /* Escala secuencial (un solo tono) para el mapa de calor del calendario */
+  /* Escala secuencial (un solo tono) para mapas de calor */
   --heat-1: color-mix(in srgb, var(--primary) 16%, var(--card));
   --heat-2: color-mix(in srgb, var(--primary) 38%, var(--card));
   --heat-3: color-mix(in srgb, var(--primary-text) 86%, var(--card));
@@ -74,40 +80,43 @@
 }
 
 .dark {
-  --background: #0b0a12;
-  --foreground: #f3f2fa;
-  --card: #15131f;
-  --card-foreground: #f3f2fa;
-  --popover: #1b1928;
-  --muted: #1e1c2b;
-  --muted-foreground: #a4a1ba;
-  --subtle: #12101b;
-  --border: #2a2739;
-  --input: #34314a;
-  --primary: #5f53e8;
-  --primary-text: #a29bff;
+  /* Superficies (tinta) */
+  --background: #0e1412;
+  --card: #151c19;
+  --card-foreground: #edf1ec;
+  --popover: #1a221f;
+  --muted: #1d2622;
+  --subtle: #121916;
+  --border: #28322e;
+  --input: #34403b;
+  --foreground: #edf1ec;
+  --muted-foreground: #9aa8a1;
+
+  --primary: #107a66;
+  --primary-text: #62d2b6;
   --primary-foreground: #ffffff;
   --primary-hover: color-mix(in srgb, var(--primary) 84%, white);
-  --primary-soft: color-mix(in srgb, var(--primary-text) 16%, var(--card));
+  --primary-soft: color-mix(in srgb, var(--primary-text) 14%, var(--card));
   --ring: var(--primary-text);
+
   --success: #2bc48a;
   --success-soft: #10291f;
   --warning: #f0a92b;
-  --warning-soft: #2d2410;
+  --warning-soft: #2b2310;
   --danger: #f2555a;
   --danger-soft: #2e1415;
-  --shadow-color: 250 50% 2%;
 
-  --xp: #f5a524;
-  --xp-text: #fbbf24;
+  --xp: #e9a23b;
+  --xp-text: #f2b84b;
   --xp-soft: color-mix(in srgb, var(--xp) 14%, var(--card));
-  --streak: #ea580c;
-  --streak-text: #fb923c;
+  --streak: #e8673f;
+  --streak-text: #f08a66;
   --streak-soft: color-mix(in srgb, var(--streak) 14%, var(--card));
-  --glow-primary: color-mix(in srgb, var(--primary) 16%, transparent);
-  --glow-warm: color-mix(in srgb, #f59e0b 5%, transparent);
 
-  /* Misma paleta, con los pasos validados para superficie oscura */
+  --shadow-color: 160 40% 2%;
+  --grain-opacity: 0.03;
+  --ink: #edf1ec;
+
   --sec-blue: #3987e5;
   --sec-orange: #d95926;
   --sec-aqua: #199e70;
@@ -116,7 +125,7 @@
   --sec-green: #008300;
   --sec-violet: #9085e9;
   --sec-red: #e66767;
-  --sec-none: #6b6b76;
+  --sec-none: #6b746f;
 
   --heat-1: color-mix(in srgb, var(--primary-text) 18%, var(--card));
   --heat-2: color-mix(in srgb, var(--primary-text) 34%, var(--card));
@@ -124,18 +133,20 @@
   --heat-4: var(--primary-text);
   --heat-fg-1: var(--foreground);
   --heat-fg-2: var(--foreground);
-  --heat-fg-3: #0b0b0f;
-  --heat-fg-4: #0b0b0f;
+  --heat-fg-3: #0b0f0d;
+  --heat-fg-4: #0b0f0d;
 }
 
-/* Colores de acento elegibles (valores verificados: texto blanco sobre el
-   relleno >= 4.5:1, acento como texto >= 4.5:1, escala del calendario legible). */
+/* Colores de acento elegibles (texto blanco sobre el relleno >= 4.5:1,
+   acento como texto >= 4.5:1, escala de calor legible). "pine" es el de la marca. */
+:root[data-accent="violet"] { --primary: #5b4ef5; --primary-text: #4f42e3; }
 :root[data-accent="blue"] { --primary: #2563eb; --primary-text: #1d4ed8; }
 :root[data-accent="teal"] { --primary: #0f766e; --primary-text: #0f6b64; }
 :root[data-accent="green"] { --primary: #15803d; --primary-text: #166534; }
 :root[data-accent="orange"] { --primary: #c2410c; --primary-text: #9a3412; }
 :root[data-accent="rose"] { --primary: #e11d48; --primary-text: #be123c; }
 :root[data-accent="graphite"] { --primary: #3f3f46; --primary-text: #3f3f46; }
+.dark[data-accent="violet"] { --primary: #5f53e8; --primary-text: #a29bff; }
 .dark[data-accent="blue"] { --primary: #2563eb; --primary-text: #7cb2ff; }
 .dark[data-accent="teal"] { --primary: #0f766e; --primary-text: #3fd1bd; }
 .dark[data-accent="green"] { --primary: #15803d; --primary-text: #5ed68b; }
@@ -154,6 +165,7 @@
   --color-subtle: var(--subtle);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-ink: var(--ink);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-text: var(--primary-text);
@@ -174,21 +186,23 @@
   --color-streak-soft: var(--streak-soft);
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.04), 0 6px 20px -8px hsl(var(--shadow-color) / 0.08);
-  --shadow-elevated: 0 14px 40px -12px hsl(var(--shadow-color) / 0.18), 0 2px 6px hsl(var(--shadow-color) / 0.05);
+  --shadow-card: 0 1px 1px hsl(var(--shadow-color) / 0.04), 0 2px 8px -2px hsl(var(--shadow-color) / 0.06);
+  --shadow-elevated: 0 18px 44px -16px hsl(var(--shadow-color) / 0.28), 0 2px 6px hsl(var(--shadow-color) / 0.06);
+  --shadow-lift: 0 10px 28px -14px hsl(var(--shadow-color) / 0.3);
 
-  --animate-fade-in: fade-in 0.25s ease-out both;
-  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-scale-in: scale-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-pop: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-fade-in: fade-in 0.22s ease-out both;
+  --animate-slide-up: slide-up 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pop: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
-  --animate-page-in: page-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-flame: flame 2.4s ease-in-out infinite;
-  --animate-float-in: float-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-bounce-soft: bounce-soft 2.6s ease-in-out infinite;
+  --animate-page-in: page-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-float-in: float-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-ring-burst: ring-burst 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-draw: draw 1.1s cubic-bezier(0.65, 0, 0.35, 1) both;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -218,17 +232,19 @@
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes flame {
-    0%, 100% { transform: rotate(-3deg) scale(1); }
-    50% { transform: rotate(3deg) scale(1.08); }
-  }
   @keyframes float-in {
-    from { opacity: 0; transform: translateY(14px) scale(0.92); }
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
-  @keyframes bounce-soft {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+  /* Anillo que se expande al completar algo (hábitos, objetivos). */
+  @keyframes ring-burst {
+    0% { opacity: 0.55; transform: scale(0.7); }
+    100% { opacity: 0; transform: scale(1.9); }
+  }
+  /* Trazo que se dibuja (ilustraciones, línea de progreso). */
+  @keyframes draw {
+    from { stroke-dashoffset: var(--draw-length, 400); }
+    to { stroke-dashoffset: 0; }
   }
 }
 
@@ -244,20 +260,25 @@
     color-scheme: dark;
   }
   body {
-    /* Brillo sutil arriba (acento + cálido): da calidez sin distraer. */
-    background:
-      radial-gradient(900px 460px at 88% -140px, var(--glow-primary), transparent 70%),
-      radial-gradient(700px 380px at -8% -120px, var(--glow-warm), transparent 70%),
-      var(--background);
-    background-repeat: no-repeat;
+    background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
   }
+  /* Grano de papel: textura casi imperceptible que quita la sensación "plana". */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
   h1, h2, h3 {
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
   }
   ::selection {
-    background: color-mix(in srgb, var(--primary) 25%, transparent);
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
   }
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -288,6 +309,22 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Títulos y números grandes con la tipografía de la marca. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 60, "opsz" 72;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
 @utility scrollbar-none {
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -296,18 +333,18 @@
 }
 
 @utility skeleton {
-  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in srgb, var(--muted) 60%, var(--card)) 50%, var(--muted) 75%);
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in srgb, var(--muted) 55%, var(--card)) 50%, var(--muted) 75%);
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
 }
 
-/* Tarjetas que se "levantan" al pasar el mouse (solo con puntero fino). */
+/* Tarjetas que se levantan al pasar el mouse (solo con puntero fino). */
 @utility lift {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       transform: translateY(-2px);
-      box-shadow: var(--shadow-elevated);
+      box-shadow: var(--shadow-lift);
     }
   }
 }

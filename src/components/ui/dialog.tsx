@@ -51,7 +51,7 @@ export function DialogContent({
         <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border sm:hidden" aria-hidden />
         <div className={cn("flex items-start justify-between gap-4 px-5 pt-4 sm:px-6 sm:pt-6", hideHeader && "sr-only")}>
           <div className="min-w-0">
-            <DialogPrimitive.Title className="text-lg font-bold tracking-tight">{title}</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="font-display text-[22px] font-semibold">{title}</DialogPrimitive.Title>
             {description ? (
               <DialogPrimitive.Description className="mt-1 text-sm text-muted-foreground">
                 {description}

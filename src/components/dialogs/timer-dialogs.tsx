@@ -1,8 +1,9 @@
 "use client";
 
-import { Play, Timer as TimerIcon } from "lucide-react";
+import { Play } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TimerIllustration } from "@/components/brand/illustrations";
 import { SectionChips } from "@/components/sections/section-visuals";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
@@ -11,9 +12,13 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { MeasuresInput } from "@/components/ui/measures-input";
 import { EmptyState } from "@/components/ui/misc";
 import { useActiveSections, useSectionMap } from "@/hooks/use-data";
+import { saveSessionPlan } from "@/hooks/use-session-plan";
 import { useTimerActions, useTimerState } from "@/hooks/use-timer";
+import { rewardMessage } from "@/lib/domain/motivation";
 import { formatClock, formatDuration } from "@/lib/format";
+import { FREE_PLAN, SESSION_PRESETS, presetFor } from "@/lib/session-plans";
 import type { ActivityMeasures } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Iniciar temporizador
@@ -22,21 +27,41 @@ export function StartTimerDialog({
   open,
   onOpenChange,
   sectionId,
+  methodId,
+  title,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sectionId?: string | null;
+  methodId?: string;
+  title?: string;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="Iniciar temporizador" description="Elegí en qué vas a trabajar. Podés pausarlo cuando quieras.">
-        <StartTimerForm initialSectionId={sectionId} onDone={() => onOpenChange(false)} />
+      <DialogContent title="Empezar una sesión" description="Elegí en qué vas a trabajar y cómo. Podés pausar cuando quieras.">
+        <StartTimerForm
+          key={`${sectionId}|${methodId}|${title}`}
+          initialSectionId={sectionId}
+          initialMethodId={methodId}
+          initialTitle={title}
+          onDone={() => onOpenChange(false)}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-export function StartTimerForm({ initialSectionId, onDone }: { initialSectionId?: string | null; onDone?: () => void }) {
+export function StartTimerForm({
+  initialSectionId,
+  initialMethodId,
+  initialTitle,
+  onDone,
+}: {
+  initialSectionId?: string | null;
+  initialMethodId?: string;
+  initialTitle?: string;
+  onDone?: () => void;
+}) {
   const { active } = useActiveSections();
   const sectionMap = useSectionMap();
   const { timer } = useTimerState();
@@ -46,16 +71,17 @@ export function StartTimerForm({ initialSectionId, onDone }: { initialSectionId?
   const [picked, setPicked] = useState<string | null | undefined>(initialSectionId);
   const sectionId = picked === undefined ? (active[0]?.id ?? null) : picked;
   const setSectionId = setPicked;
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(initialTitle ?? "");
+  const [methodId, setMethodId] = useState(presetFor(initialMethodId).methodId);
   // Evita que el contenido cambie durante la animación de cierre.
   const [started, setStarted] = useState(false);
 
   if (timer && !started) {
     return (
-      <EmptyState emoji="⏱️"
+      <EmptyState
         compact
-        icon={TimerIcon}
-        title="Ya tenés un temporizador en curso"
+        illustration={<TimerIllustration />}
+        title="Ya tenés una sesión en curso"
         description="Terminalo o descartalo antes de empezar otro."
         action={<Button onClick={onDone}>Entendido</Button>}
       />
@@ -68,8 +94,10 @@ export function StartTimerForm({ initialSectionId, onDone }: { initialSectionId?
         e.preventDefault();
         if (started) return;
         setStarted(true);
-        actions.start({ sectionId, title: title.trim() });
-        toast.success("Temporizador iniciado", {
+        const plan = presetFor(methodId);
+        saveSessionPlan(plan);
+        actions.start({ sectionId, title: title.trim() || (plan.focusMinutes ? plan.label : "") });
+        toast.success(plan.focusMinutes ? `${plan.label}: ${plan.focusMinutes} minutos de foco` : "Sesión iniciada", {
           description: sectionId ? sectionMap.get(sectionId)?.name : undefined,
         });
         onDone?.();
@@ -85,8 +113,31 @@ export function StartTimerForm({ initialSectionId, onDone }: { initialSectionId?
         aria-label="Descripción"
         autoComplete="off"
       />
-      <Button type="submit" size="lg" className="w-full">
-        <Play className="fill-current" /> Iniciar
+      <div>
+        <p className="mb-2 text-[13px] font-semibold">Modo</p>
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Modo de la sesión">
+          {SESSION_PRESETS.map((p) => (
+            <button
+              key={p.methodId}
+              type="button"
+              role="radio"
+              aria-checked={methodId === p.methodId}
+              onClick={() => setMethodId(p.methodId)}
+              className={cn(
+                "rounded-2xl border px-3.5 py-2.5 text-left transition-all active:scale-[0.98]",
+                methodId === p.methodId ? "border-primary bg-primary-soft" : "border-border hover:bg-muted",
+              )}
+            >
+              <span className={cn("block text-sm font-semibold", methodId === p.methodId && "text-primary-text")}>{p.label}</span>
+              <span className="block text-xs text-muted-foreground">
+                {p.focusMinutes ? `${p.focusMinutes} min + ${p.breakMinutes} de descanso` : "Sin bloques, a tu ritmo"}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <Button type="submit" variant="gradient" size="xl" className="w-full">
+        <Play className="fill-current" /> Empezar
       </Button>
     </form>
   );
@@ -126,10 +177,10 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
 
   if (!timer && !closing) {
     return (
-      <EmptyState emoji="⏱️"
+      <EmptyState
         compact
-        icon={TimerIcon}
-        title="No hay temporizador activo"
+        illustration={<TimerIllustration />}
+        title="No hay una sesión en curso"
         description="Puede que lo hayas terminado desde otro dispositivo."
         action={<Button onClick={onDone}>Cerrar</Button>}
       />
@@ -157,8 +208,9 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
         distanceKm: measures.distanceKm ?? null,
         reps: measures.reps ?? null,
       });
-      toast.success(`+${formatDuration(durationSeconds, { seconds: durationSeconds < 60 })} registrados`, {
-        description: title.trim() || defaultTitle,
+      saveSessionPlan(FREE_PLAN);
+      toast.success(`${formatDuration(durationSeconds, { seconds: durationSeconds < 60 })} registrados`, {
+        description: `${title.trim() || defaultTitle}. ${rewardMessage("session")}`,
       });
       onDone();
     } catch {
@@ -175,7 +227,8 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
     setClosing(true);
     try {
       await actions.discard();
-      toast("Temporizador descartado");
+      saveSessionPlan(FREE_PLAN);
+      toast("Sesión descartada");
       onDone();
     } catch {
       setClosing(false);
@@ -190,8 +243,8 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
         void save();
       }}
     >
-      <div className="rounded-2xl bg-muted/60 px-4 py-3 text-center">
-        <p className="text-3xl font-semibold tabular tracking-tight">{formatClock(durationSeconds)}</p>
+      <div className="rounded-2xl bg-muted/60 px-4 py-4 text-center">
+        <p className="font-display text-[40px] font-semibold leading-none tabular">{formatClock(durationSeconds)}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {elapsed > 86400 ? "El temporizador superó 24 h; ajustá la duración real." : "Tiempo a registrar"}
         </p>
@@ -234,8 +287,8 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
           <Button variant="outline" onClick={onDone} disabled={actions.finishing}>
             Seguir midiendo
           </Button>
-          <Button type="submit" loading={actions.finishing}>
-            Guardar actividad
+          <Button type="submit" variant="gradient" loading={actions.finishing}>
+            Guardar sesión
           </Button>
         </div>
       </DialogFooter>

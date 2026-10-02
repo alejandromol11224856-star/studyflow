@@ -1,60 +1,59 @@
 # StudyFlow
 
-Sistema personal de productividad, hábitos y objetivos. Cada día responde una pregunta:
-**"¿qué tengo que hacer hoy?"**. Sirve para cualquier área (estudio, trabajo, gimnasio,
+Sistema personal de estudio, hábitos y objetivos. *Un poco todos los días termina siendo
+muchísimo.* Cada día responde dos preguntas: **"¿qué tengo que hacer hoy?"** y **"¿estoy
+mejorando?"**. Sirve para cualquier área (estudio, trabajo, gimnasio,
 idiomas, lectura, meditación…) y está preparado para convertirse en un producto con planes
 Free / Pro / Premium.
 
 ## Funciones
 
-- **Hoy**: arriba de todo, saludo, racha 🔥, nivel ⭐, un mensaje motivador, el objetivo del
-  día con su anillo de progreso y un botón grande **Comenzar sesión**. Debajo: objetivos y
-  hábitos para marcar en un toque, las actividades de hoy y tus áreas (▶ para empezar).
-- **Progreso**: nivel y XP, tiempo de la semana/mes vs. el período anterior, cumplimiento del
-  objetivo diario, racha, mejor día, últimos 7 días y próximos logros. Las estadísticas
-  completas quedan a un toque ("Ver estadísticas completas").
-- **Bienvenida + tutorial interactivo**: la primera vez se ofrece un recorrido de 5 pasos que
-  resalta los elementos reales (objetivo, temporizador, áreas, hábitos, progreso). Se puede
-  saltar y repetir desde Ajustes.
-- **Registro sin fricción**: pantalla "Revisá tu correo" (con "Abrir Gmail", reenvío con espera
-  y "Cambiar email"), confirmación con botón grande que no se rompe por los escáneres de
-  correo, y emails con la marca StudyFlow (ver "Emails de autenticación").
-- **Dashboard personalizable**: tarjetas para mostrar, ocultar y reordenar (temporizador,
-  racha, nivel, calendario, estadísticas…); se sincroniza entre dispositivos.
-- **Áreas 100% personalizables**: nombre, ícono (sugerido según el nombre), color,
-  descripción, objetivo con métrica, activar/pausar, archivar y orden de aparición. No hay
-  categorías predefinidas.
-- **Objetivos por métrica**: tiempo, veces, páginas, distancia o repeticiones; diarios,
-  semanales o mensuales; generales o por área (Programación → 2 h, Lectura → 30 páginas,
-  Running → 5 km, Flexiones → 100). Los de tiempo mantienen la cuenta regresiva en vivo.
+- **Hoy**: saludo con tu nombre, racha y nivel, un mensaje según tu día (nunca culposo), el
+  **anillo del día** con cuánto falta, chips para fijar la meta en un toque, la tarjeta
+  **Continuar** (sesión en curso, retomar la última o empezar un bloque de 25 min), lo que toca
+  hoy (hábitos y objetivos para marcar), lo registrado y tus **Áreas** con un botón para empezar.
+- **Progreso**: responde "¿Estoy mejorando?" con una frase y la tendencia vs. la semana o el mes
+  anterior. Gráfico de las últimas semanas/meses, constancia, objetivo diario, racha, nivel y XP,
+  reparto por área con su variación, récords y próximos logros. Las estadísticas completas y el
+  calendario quedan a un toque.
+- **Métodos**: 8 de estudio (Pomodoro, Deep Work, Time Blocking, Active Recall, Repetición
+  espaciada, Feynman, Interleaving, Leitner) y 6 de hábitos (Habit Stacking, Regla de los 2
+  minutos, Intenciones de implementación, Diseño del entorno, Hábito mínimo, No cortes la
+  cadena). Cada uno con qué es, cómo funciona, cuándo usarlo, un ejemplo y un botón para
+  empezarlo ("Comenzar Pomodoro" abre el temporizador con bloques 25/5).
+- **Temporizador con modos**: Libre, Pomodoro 25/5, Bloque 50/10 y Deep Work 90/15. Avisa al
+  terminar cada bloque (en la app y, si lo permitís, como notificación). Pausa/continuar,
+  sobrevive a recargas y se puede seguir desde otro dispositivo.
+- **Onboarding en tres preguntas**: ¿qué querés mejorar?, ¿cuánto tiempo por día? y ¿cuál es
+  tu objetivo? Con eso se crean tus áreas, el objetivo diario y (si elegiste Hábitos) un primer
+  hábito. Después, un recorrido opcional que resalta los elementos reales de Hoy.
+- **Registro con código**: el email trae un **código de 6 dígitos** para escribir en la app (y
+  también un botón, por si preferís el enlace). Lo mismo para recuperar la contraseña. Reenvío
+  con espera, "Cambiar email" y mensajes claros si algo vence.
+- **Objetivos en una frase**: "Quiero dedicar 3 h por día a Programación." Tiempo, veces,
+  páginas, distancia o repeticiones; diarios, semanales o mensuales; generales o por área.
   Están **versionados por fecha**: cambiar una meta no altera el historial.
-- **Actividades** con tiempo y/o medidas (páginas, km, repeticiones), notas, edición,
-  borrado con "Deshacer", búsqueda sin importar acentos y filtros.
-- **Hábitos**: todos los días, días fijos o N veces por semana. Racha actual y mejor,
-  cumplimiento semanal y mensual, recordatorio por hábito, pausar, archivar y ordenar.
-- **Temporizador** con pausa/continuar, guardado en la base: sobrevive a recargas y se
-  puede seguir desde otro dispositivo. Mini-barra flotante en el celular.
-- **XP y niveles** con reglas anti-abuso (ver abajo). Aviso "+8 XP · Sesión completada" al
-  ganar XP y pantalla "🎉 ¡Subiste de nivel!". **28 logros** que se desbloquean solos y quedan
-  guardados con su fecha. **Récords personales** con la fecha en que se consiguieron.
-- **Celebraciones** sobrias: aviso + confeti solo en momentos importantes (objetivo cumplido,
-  nivel nuevo, logro, récord), con límite de frecuencia y respeto por "reducir movimiento".
-- **Mensajes motivadores** variados según tu día (nunca culposos): "Un poco todos los días
-  termina siendo muchísimo.", "🔥 Vas 4 días seguidos.", "🚀 Ya superaste tu objetivo."
-- **Calendario** mensual tipo mapa de calor con días cumplidos y detalle por día.
-- **Estadísticas**: 7 / 30 / 90 días e historial completo. Tiempo por día (o semana/mes),
-  por sección con comparación vs. el período anterior, cumplimiento de objetivos, hábitos,
-  evolución de la racha, tendencia semanal y semana típica. Vista de tabla accesible.
-- **Recordatorios** de hábitos y del objetivo diario (en la app o como notificación del navegador).
-- **Personalización**: tema claro/oscuro/sistema, 7 colores de acento verificados con
-  contraste WCAG AA, celebraciones con o sin confeti.
-- **Onboarding** al crear la cuenta (nombre, qué querés conseguir, tus áreas, objetivo
-  principal y meta diaria). Se puede saltar y repetir desde Ajustes.
-- **Ajustes**: perfil, repetir tutorial, tema y color, idioma, objetivos, notificaciones,
-  plan, datos/exportación y cuenta, con accesos rápidos arriba.
+- **Hábitos**: todos los días, días fijos o N veces por semana. Marcado en un toque con
+  animación, racha actual y mejor, constancia semanal/mensual, **historial de 16 semanas**,
+  recordatorio, pausar, archivar y ordenar.
+- **Calendario**: mapa de calor del mes (tiempo por día), los días cumplidos unidos por una
+  línea que muestra tus rachas, marca de hábitos, los últimos seis meses de un vistazo y el
+  detalle de cada día (tiempo vs. objetivo, hábitos marcables y actividades).
+- **Áreas 100% personalizables**: nombre, ícono (sugerido según el nombre), color,
+  descripción, objetivo con métrica, activar/pausar, archivar y orden. Sin categorías fijas.
+- **Gamificación sobria**: XP derivado de tus datos (ver reglas), niveles, **28 logros**,
+  récords personales, aviso "+25 XP" al ganar XP, pantalla de nivel nuevo y confeti solo en
+  momentos importantes (con límite y respeto por "reducir movimiento").
+- **Actividades** con tiempo y/o medidas, notas, edición, borrado con "Deshacer", búsqueda y filtros.
+- **Estadísticas completas**: 7 / 30 / 90 días e historial, por día/semana/mes y por área,
+  cumplimiento de objetivos y hábitos, evolución de la racha, semana típica y vista de tabla.
+- **Personalización**: tema claro ("papel"), oscuro ("tinta") o del sistema, 7 colores de
+  acento verificados WCAG AA, celebraciones con o sin confeti, tarjetas extra en Hoy.
+- **Ajustes**: perfil, tutorial, tema y color, idioma, objetivos, notificaciones, plan, datos y cuenta.
 - **Exportación** de actividades (CSV) y respaldo completo (JSON).
-- **Mobile first** (barra inferior Hoy · Progreso · ＋ · Hábitos · Más, botones grandes) y
-  **PWA** instalable desde Chrome/Edge, con atajos "Comenzar sesión" y "Registrar actividad".
+- **Mobile first** (barra inferior Hoy · Progreso · ＋ · Hábitos · Más, hojas inferiores,
+  áreas táctiles grandes, safe areas) y **PWA** instalable con atajos (Comenzar sesión,
+  Pomodoro, Registrar, Hábitos).
 
 ### Reglas
 
@@ -69,6 +68,15 @@ Free / Pro / Premium.
   - Objetivos cumplidos (diario 25, semanal 60, mensual 150; por sección 10/20/50), con tope por período.
   - 5 XP por hábito completado (máximo 8 por día), bonus por días seguidos y XP de los logros.
 - **Niveles**: cada nivel pide un poco más que el anterior (100, 140, 180… XP).
+
+## Identidad visual
+
+- **Papel y tinta**: fondo cálido tipo papel en claro (#f4f0e8) y verde tinta en oscuro
+  (#0e1412). Acento **pino** (#0f6e5c) por defecto; ámbar para XP y coral para la racha.
+- **Tipografía**: Fraunces para títulos y números, Plus Jakarta Sans para la interfaz.
+- **Íconos e ilustraciones propias** (SVG): eslabones para la racha, chispa para XP, insignia
+  de nivel, brote, camino, cadena, cumbre… Íconos de interfaz de Lucide. Sin emojis como
+  iconografía. Licencias en [ASSETS.md](ASSETS.md).
 
 ## Stack
 
@@ -89,28 +97,32 @@ src/
   app/
     (auth)/                login, register, check-email ("Revisá tu correo"), confirm-email
                            (confirmación con botón), forgot-password, reset-password
-    (app)/                 dashboard (Hoy), progress, habits, goals, calendar, stats,
-                           achievements, activities, sections (Áreas), settings
+    (app)/                 dashboard (Hoy), progress, methods, habits, goals, calendar,
+                           stats, achievements, activities, sections (Áreas), settings
     (focus)/onboarding/    configuración inicial a pantalla completa
     auth/callback/         enlaces PKCE (?code=) y compatibilidad con enlaces viejos
     pwa/[icon]/            íconos de la app instalable (192, 512 y maskable)
   proxy.ts                 refresco de sesión + redirecciones (reemplaza a middleware en Next 16)
   components/
-    ui/                    primitivas (Button, Card, Dialog, Switch, ProgressRing…)
+    ui/                    primitivas (Button, Card, Dialog, Switch, DayRing…)
+    brand/                 marcas (racha, XP, nivel) e ilustraciones SVG propias
     layout/                shell, navegación, recordatorios, protección de rutas
-    auth/                  formularios y flujo de email (reenvío con espera, abrir Gmail)
+    auth/                  formularios, código de 6 dígitos (OtpInput) y flujo de email
     celebrations/          celebraciones, +XP, "¡Subiste de nivel!" y observador de progreso
     dashboard/             Hoy (resumen principal), widgets y personalización
     gamification/          chips de racha y nivel, tarjetas de datos
     onboarding/            configuración inicial, bienvenida y tutorial interactivo
-    progress/              pantalla Progreso
+    progress/              pantalla Progreso ("¿Estoy mejorando?")
+    methods/               métodos de estudio y de hábitos (lista y detalle)
     dialogs/               actividad, temporizador, sección, objetivo, hábito
     habits/ goals/ achievements/ stats/ calendar/ sections/ settings/ onboarding/
   hooks/                   datos (React Query), temporizador, métricas en vivo, progresión
   lib/
     data/                  Repository (interfaz) + implementaciones Supabase y local
     domain/                lógica pura y testeada: objetivos, métricas, rachas, hábitos,
-                           estadísticas, XP/niveles/logros, récords, mensajes
+                           estadísticas, XP/niveles/logros, récords, mensajes, tendencias
+    methods.ts             contenido de los métodos (qué es, cómo, cuándo, ejemplo)
+    session-plans.ts       modos del temporizador (Pomodoro, Bloque, Deep Work) y bloques
     preferences.ts         widgets, acento, recordatorios, onboarding (validación tolerante)
     notifications.ts       canales de notificación (in-app y navegador; listo para push)
     plans.ts               planes Free/Pro/Premium
@@ -180,38 +192,39 @@ npm run typecheck
 
 ## Emails de autenticación
 
-### Por qué cambiamos las plantillas
+### Cómo funciona
 
-El enlace por defecto de Supabase (`{{ .ConfirmationURL }}`) se **consume con el primer clic o
-visita**. Dos cosas lo rompen y terminan en "El enlace no es válido o expiró":
+Cada correo trae **dos caminos**:
 
-1. **Escáneres de enlaces** (antivirus del correo, Outlook Safe Links, filtros corporativos):
-   abren el enlace antes que la persona y lo gastan.
-2. **Otro navegador u otro dispositivo** (registrarse en la PC y abrir el correo en el celular,
-   o en el navegador interno de la app de Gmail): con PKCE, el canje necesita una cookie que
-   solo existe en el navegador donde se hizo el registro.
+1. **Un código de 6 dígitos** (`{{ .Token }}`) que la persona escribe en la app
+   (`/check-email` al registrarse, `/forgot-password` al recuperar). Es lo más robusto:
+   funciona en cualquier dispositivo y ningún escáner de correo lo puede "gastar".
+2. **Un botón** con un `token_hash` que lleva a una página propia (`/confirm-email` o
+   `/reset-password`) que **no usa el enlace al abrirse**: la persona toca un botón grande y
+   recién ahí se verifica.
 
-Las plantillas de StudyFlow mandan un `token_hash` a una página propia (`/confirm-email` o
-`/reset-password`) que **no usa el enlace al abrirse**: la persona toca un botón grande
-("CONFIRMAR MI EMAIL") y recién ahí se verifica. Un escáner no toca botones, y funciona en
-cualquier dispositivo. Si igual llega un enlace viejo o vencido, la app explica qué pasó y
-ofrece reenviar el correo.
+Por qué no usar el enlace por defecto de Supabase (`{{ .ConfirmationURL }}`): se **consume con
+el primer clic o visita**. Los escáneres de enlaces (antivirus, Outlook Safe Links) lo abren
+antes que la persona, y con PKCE solo funciona en el mismo navegador donde se hizo el registro.
 
 ### Paso a paso (Supabase → Authentication → Emails / Email Templates)
 
 | Plantilla | Asunto (Subject) | Cuerpo (pegar el HTML completo) |
 |---|---|---|
-| **Confirm signup** | `🚀 Terminá tu registro en StudyFlow` | `supabase/templates/confirm-signup.html` |
-| **Reset password** | `🔐 Creá una nueva contraseña para StudyFlow` | `supabase/templates/reset-password.html` |
+| **Confirm signup** | `Tu código para entrar a StudyFlow` | `supabase/templates/confirm-signup.html` |
+| **Reset password** | `Creá una nueva contraseña para StudyFlow` | `supabase/templates/reset-password.html` |
 
-Los enlaces usan `{{ .RedirectTo }}`, así la misma plantilla sirve para `localhost` y para
-producción (la app indica a dónde volver). Si Supabase no reconoce la URL de redirección, usa
-la *Site URL* y la app redirige sola a la página correcta.
+Las plantillas incluyen `{{ .Token }}` (el código) y `{{ .TokenHash }}` (el botón). Los enlaces
+usan `{{ .RedirectTo }}`, así la misma plantilla sirve para `localhost` y para producción. Si
+Supabase no reconoce la URL de redirección, usa la *Site URL* y la app redirige sola.
+
+> El largo del código lo define **Email OTP Length** (por defecto 6). Si lo cambiás, la app
+> acepta igual códigos de hasta 10 dígitos.
 
 ### Vencimiento de los enlaces
 
 En **Authentication → Providers → Email** (o *Sign In / Providers → Email*), el campo
-**Email OTP Expiration** define cuánto dura el enlace. Por defecto es **3600 s (1 hora)** y el
+**Email OTP Expiration** define cuánto duran el código y el enlace. Por defecto es **3600 s (1 hora)** y el
 máximo es 86400 s (24 h). Recomendación: **subirlo a 86400 (24 h)** para que nadie se quede
 afuera por abrir el correo al día siguiente. Sigue siendo seguro: el enlace es de un solo uso
 y queda invalidado al pedir uno nuevo. (Aplica también a "olvidé mi contraseña".)
@@ -260,12 +273,12 @@ Alternativa sin SQL: **Authentication → Users → ⋮ → Delete user**.
 ### Probar el registro desde cero
 
 1. Borrá la cuenta de prueba (sección anterior) o usá un email nuevo.
-2. Andá a `/register`, completá nombre, email y contraseña → se abre **"📬 ¡Revisá tu correo!"**.
-3. Abrí el correo (en cualquier dispositivo) → tocá **🚀 TERMINAR REGISTRO** → en StudyFlow
-   tocá **CONFIRMAR MI EMAIL** → ✅ "¡Email confirmado!" → configuración inicial → Hoy.
-4. En Hoy aparece "¡Bienvenido a StudyFlow! 👋": tocá **🚀 Sí, mostrarme** para el tutorial.
-5. Probá también: "Reenviar correo" (espera de 60 s), "Cambiar email", cerrar sesión y entrar,
-   y "¿La olvidaste?" → correo → **CREAR NUEVA CONTRASEÑA**.
+2. Andá a `/register` y completá nombre, email y contraseña → se abre **"Revisá tu correo"**.
+3. Escribí el **código de 6 dígitos** del correo (o tocá el botón del correo y después
+   **Confirmar mi email**) → configuración inicial en tres preguntas → Hoy.
+4. Elegí **Ver un recorrido rápido** para el tutorial, o **Empezar** para ir directo.
+5. Probá también: "Reenviar código" (espera de 60 s), "Cambiar email", cerrar sesión y entrar,
+   y "¿La olvidaste?" → código del correo → nueva contraseña.
 
 ## Publicar en Internet (Vercel)
 

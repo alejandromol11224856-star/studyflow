@@ -112,3 +112,15 @@ export function streakSeries(completedDates: Set<DateKey>, from: DateKey, to: Da
     return { key, total: run };
   });
 }
+
+/** Racha más larga dentro de un rango (sin contar lo que venía de antes). */
+export function longestRunInRange(completedDates: Set<DateKey>, from: DateKey, to: DateKey) {
+  if (from > to) return 0;
+  let best = 0;
+  let run = 0;
+  for (const key of eachDayKeys(from, to)) {
+    run = completedDates.has(key) ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}

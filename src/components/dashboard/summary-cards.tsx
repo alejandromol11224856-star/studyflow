@@ -89,7 +89,7 @@ export function WeekCard({ className }: { className?: string }) {
         {totals.isLoading ? (
           <Skeleton className="h-[200px] w-full" />
         ) : current === 0 ? (
-          <EmptyState emoji="📊"
+          <EmptyState
             compact
             icon={ChartColumn}
             className="h-[200px] py-0"
@@ -126,7 +126,7 @@ export function WeekCard({ className }: { className?: string }) {
 // ---------------------------------------------------------------------------
 // Actividades recientes (con el reparto de hoy arriba)
 // ---------------------------------------------------------------------------
-/** 📚 Lo que ya registraste hoy (con un empujón amable si todavía no hay nada). */
+/** Lo que ya registraste hoy (con un empujón amable si todavía no hay nada). */
 export function TodayActivitiesCard({ className }: { className?: string }) {
   const today = useToday();
   const dialogs = useDialogs();
@@ -138,7 +138,7 @@ export function TodayActivitiesCard({ className }: { className?: string }) {
     <Card className={cn("flex flex-col", className)}>
       <CardHeader>
         <div>
-          <CardTitle>📚 Actividades de hoy</CardTitle>
+          <CardTitle>Actividades de hoy</CardTitle>
           <CardDescription>{items.length ? `${items.length} ${items.length === 1 ? "actividad" : "actividades"} · ${formatDuration(total)}` : "Lo que hagas hoy aparece acá"}</CardDescription>
         </div>
         <Link href="/activities" className={buttonVariants({ variant: "ghost", size: "sm" })}>
@@ -154,18 +154,17 @@ export function TodayActivitiesCard({ className }: { className?: string }) {
         ) : items.length === 0 ? (
           <EmptyState
             compact
-            emoji="🌱"
             title="No tenés actividades todavía"
             description={
               <>
                 Empezá con una sesión de 10 minutos.
                 <br />
-                Tu primera racha empieza hoy 🚀
+                Tu primera racha empieza hoy.
               </>
             }
             action={
               <Button variant="gradient" size="lg" onClick={() => dialogs.openStartTimer()}>
-                <Play className="fill-current" /> EMPEZAR
+                <Play className="fill-current" /> Empezar
               </Button>
             }
           />
@@ -210,7 +209,7 @@ export function RecentActivitiesCard({ className }: { className?: string }) {
             <Skeleton className="h-10" />
           </div>
         ) : items.length === 0 ? (
-          <EmptyState emoji="🌱"
+          <EmptyState
             compact
             icon={NotebookPen}
             title="No tenés actividades todavía"
@@ -363,8 +362,8 @@ export function SectionsCard({ className }: { className?: string }) {
     <Card className={className} data-tour="areas">
       <CardHeader>
         <div>
-          <CardTitle>🧩 Tus áreas</CardTitle>
-          <CardDescription>Tocá ▶ para empezar una sesión</CardDescription>
+          <CardTitle>Tus áreas</CardTitle>
+          <CardDescription>Tocá el botón de play para empezar una sesión</CardDescription>
         </div>
         <Button variant="ghost" size="icon-sm" aria-label="Nueva área" onClick={() => dialogs.openSectionForm()}>
           <Plus />
@@ -379,7 +378,6 @@ export function SectionsCard({ className }: { className?: string }) {
         ) : active.length === 0 ? (
           <EmptyState
             compact
-            emoji="🧩"
             title="Creá tu primera área"
             description="Programación, Gym, Inglés, Lectura… lo que quieras medir, con su ícono y color."
             action={

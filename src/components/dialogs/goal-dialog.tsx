@@ -3,14 +3,17 @@
 import { Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { METRIC_ICONS, METRIC_TILE_LABEL, METRIC_VERB } from "@/components/goals/metric-icon";
+import { SectionIconGlyph } from "@/components/sections/section-visuals";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { DurationInput } from "@/components/ui/duration-input";
-import { Field, Input, Select } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/misc";
 import { useActiveSections, useGoals, useSectionMap, useSetGoal, useToday } from "@/hooks/use-data";
-import { GOAL_PERIODS, PERIOD_LABEL, goalTargetFor } from "@/lib/domain/goals";
-import { GOAL_METRICS, METRIC_EMOJI, METRIC_META, PERIOD_SUFFIX, formatTarget } from "@/lib/domain/metrics";
+import { GOAL_PERIODS, goalTargetFor } from "@/lib/domain/goals";
+import { GOAL_METRICS, METRIC_META, PERIOD_SUFFIX, formatTarget } from "@/lib/domain/metrics";
+import { sectionColor } from "@/lib/sections";
 import type { GoalMetric, GoalPeriod } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +31,8 @@ const TIME_CONFIG: Record<GoalPeriod, { presets: number[]; maxHours: number; fal
   monthly: { presets: [1200, 2400, 3600, 4800, 6000, 9000], maxHours: 744, fallback: 2400 },
 };
 
+const PERIOD_OPTION: Record<GoalPeriod, string> = { daily: "Por día", weekly: "Por semana", monthly: "Por mes" };
+
 export function GoalDialog({
   open,
   onOpenChange,
@@ -39,13 +44,26 @@ export function GoalDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        title={options.lock ? "Editar objetivo" : "Nuevo objetivo"}
-        description={options.lock ? undefined : "Tiempo, veces, páginas, distancia o repeticiones: lo que quieras medir."}
-      >
+      <DialogContent title={options.lock ? "Editar objetivo" : "Nuevo objetivo"} description={options.lock ? undefined : "Armá la frase y listo."}>
         <GoalForm key={JSON.stringify(options)} options={options} onDone={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
+  );
+}
+
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-all active:scale-95",
+        active ? "border-transparent bg-ink text-background" : "border-border bg-card text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -65,14 +83,21 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
   const current = goalTargetFor(goals.data ?? [], period, sectionId, today, metric);
   const fallback = metric === "time" ? TIME_CONFIG[period].fallback : 0;
   const target = drafts[scopeKey] ?? (current || fallback);
-  const sectionName = sectionId ? (sectionMap.get(sectionId)?.name ?? "Área") : "Todas las áreas";
+  const sectionName = sectionId ? (sectionMap.get(sectionId)?.name ?? "Área") : null;
   const valid = metric === "time" ? target >= 1 : target > 0;
+
+  // La frase del objetivo, en vivo: "Quiero dedicar 3h por día a Programación."
+  const sentence = valid
+    ? `Quiero ${METRIC_VERB[metric]} ${formatTarget(metric, target)} ${PERIOD_SUFFIX[period]}${
+        sectionName ? `${metric === "time" ? " a" : " en"} ${sectionName}` : ""
+      }.`
+    : `Quiero ${METRIC_VERB[metric]}…`;
 
   async function save(value: number) {
     try {
       await setGoal.mutateAsync({ sectionId, period, metric, target: value, effectiveFrom: today });
       toast.success(value > 0 ? "Objetivo guardado" : "Objetivo eliminado", {
-        description: value > 0 ? `${sectionName} · ${formatTarget(metric, value)} ${PERIOD_SUFFIX[period]}` : undefined,
+        description: value > 0 ? sentence : undefined,
       });
       onDone();
     } catch {
@@ -82,76 +107,66 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
 
   return (
     <form
-      className="space-y-5"
+      className="space-y-6"
       onSubmit={(e) => {
         e.preventDefault();
         if (valid) void save(target);
       }}
     >
-      {options.lock ? (
-        <div className="rounded-xl bg-muted/60 px-3.5 py-2.5 text-sm">
-          <span className="font-medium">{sectionName}</span>
-          <span className="text-muted-foreground">
-            {" "}
-            · {PERIOD_LABEL[period]} · {METRIC_META[metric].label}
-          </span>
-        </div>
-      ) : (
-        <>
-          <Field label="¿Para qué?">
-            {(id) => (
-              <Select id={id} value={sectionId ?? ""} onChange={(e) => setSectionId(e.target.value || null)}>
-                <option value="">Todas las áreas (objetivo general)</option>
-                {active.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Field>
+      <p className="font-display text-[26px] font-semibold leading-snug" aria-live="polite">
+        {sentence}
+      </p>
 
-          <div className="space-y-1.5">
-            <p className="text-[13px] font-semibold">Qué medir</p>
-            <div className="grid grid-cols-5 gap-1.5">
+      {!options.lock && (
+        <>
+          <div>
+            <p className="mb-2 text-[13px] font-semibold">¿En qué?</p>
+            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none sm:-mx-6 sm:px-6">
+              <Chip active={sectionId === null} onClick={() => setSectionId(null)}>
+                En general
+              </Chip>
+              {active.map((s) => (
+                <Chip key={s.id} active={sectionId === s.id} onClick={() => setSectionId(s.id)}>
+                  <span style={{ color: sectionId === s.id ? undefined : sectionColor(s.color) }} className="[&_svg]:size-4">
+                    <SectionIconGlyph icon={s.icon} />
+                  </span>
+                  {s.name}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-2 text-[13px] font-semibold">¿Qué medís?</p>
+            <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Qué medir">
               {GOAL_METRICS.map((m) => {
+                const Icon = METRIC_ICONS[m];
                 return (
                   <button
                     key={m}
                     type="button"
-                    aria-pressed={metric === m}
+                    role="radio"
+                    aria-checked={metric === m}
+                    aria-label={METRIC_META[m].label}
                     onClick={() => setMetric(m)}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-2xl border px-1 py-3 text-[11px] font-bold transition-all active:scale-95",
-                      metric === m
-                        ? "border-primary bg-primary-soft text-primary-text shadow-sm"
-                        : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
+                      "flex flex-col items-center gap-1.5 rounded-2xl border px-1 py-3 text-[11px] font-semibold transition-all active:scale-95",
+                      metric === m ? "border-primary bg-primary-soft text-primary-text" : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    <span aria-hidden className="text-2xl leading-none">
-                      {METRIC_EMOJI[m]}
-                    </span>
-                    {METRIC_META[m].label}
+                    <Icon className="size-5" aria-hidden />
+                    {METRIC_TILE_LABEL[m]}
                   </button>
                 );
               })}
             </div>
-            <p className="text-xs text-muted-foreground">{METRIC_META[metric].hint}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{METRIC_META[metric].hint}</p>
           </div>
-
-          <SegmentedControl
-            className="w-full"
-            value={period}
-            onChange={setPeriod}
-            options={GOAL_PERIODS.map((p) => ({ value: p, label: PERIOD_LABEL[p] }))}
-          />
         </>
       )}
 
       <div>
-        <p className="mb-2 text-[13px] font-medium">
-          {current ? `Meta actual: ${formatTarget(metric, current)}` : "Meta"}
-        </p>
+        <p className="mb-2 text-[13px] font-semibold">{current ? `¿Cuánto? (hoy: ${formatTarget(metric, current)})` : "¿Cuánto?"}</p>
         {metric === "time" ? (
           <DurationInput
             key={scopeKey}
@@ -177,31 +192,26 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
                 const n = Number(e.target.value.replace(",", "."));
                 setDrafts((d) => ({ ...d, [scopeKey]: Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : 0 }));
               }}
-              className="pr-28 tabular"
+              className="h-14 pr-32 font-display text-[22px] tabular"
             />
-            <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-              {METRIC_META[metric].unit} {PERIOD_SUFFIX[period]}
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
+              {METRIC_META[metric].unit}
             </span>
           </div>
         )}
       </div>
 
-      {valid && (
-        <p className="rounded-xl border border-dashed border-border px-3.5 py-2.5 text-sm">
-          <span className="text-muted-foreground">Tu objetivo:</span>{" "}
-          <span className="font-medium">
-            {sectionName} · {formatTarget(metric, target)} {PERIOD_SUFFIX[period]}
-          </span>
-        </p>
+      {!options.lock && (
+        <div>
+          <p className="mb-2 text-[13px] font-semibold">¿Cada cuánto?</p>
+          <SegmentedControl className="w-full" value={period} onChange={setPeriod} options={GOAL_PERIODS.map((p) => ({ value: p, label: PERIOD_OPTION[p] }))} />
+        </div>
       )}
 
-      <div className="flex gap-2.5 rounded-xl bg-muted/70 p-3 text-xs text-muted-foreground">
+      <p className="flex gap-2.5 text-xs text-muted-foreground">
         <Info className="mt-px size-4 shrink-0" />
-        <p>
-          Se aplica desde hoy. Los días anteriores conservan el objetivo que tenían, así tu historial de cumplimiento no
-          se altera.
-        </p>
-      </div>
+        Se aplica desde hoy. Los días anteriores conservan su objetivo, así tu historial no cambia.
+      </p>
 
       <DialogFooter className="sm:justify-between">
         {current > 0 ? (
@@ -211,8 +221,8 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
         ) : (
           <span className="hidden sm:block" />
         )}
-        <Button type="submit" loading={setGoal.isPending} disabled={!valid}>
-          Guardar objetivo
+        <Button type="submit" variant="gradient" size="lg" loading={setGoal.isPending} disabled={!valid}>
+          {current > 0 ? "Guardar objetivo" : "Crear objetivo"}
         </Button>
       </DialogFooter>
     </form>

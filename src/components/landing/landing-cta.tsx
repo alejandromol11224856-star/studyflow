@@ -30,16 +30,16 @@ export function LandingCta({ variant }: { variant: "header" | "hero" | "dark" })
 
   if (variant === "header") {
     return authed ? (
-      <Link href="/dashboard" className={buttonVariants({ size: "sm" })}>
-        Ir al dashboard
+      <Link href="/dashboard" className={buttonVariants({ variant: "ink", size: "sm" })}>
+        Abrir StudyFlow
       </Link>
     ) : (
       <>
         <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
           Iniciar sesión
         </Link>
-        <Link href="/register" className={buttonVariants({ size: "sm", className: "hidden sm:inline-flex" })}>
-          Empezar gratis
+        <Link href="/register" className={buttonVariants({ variant: "ink", size: "sm", className: "hidden sm:inline-flex" })}>
+          Empezar
         </Link>
       </>
     );
@@ -49,7 +49,7 @@ export function LandingCta({ variant }: { variant: "header" | "hero" | "dark" })
     return (
       <Link
         href={authed ? "/dashboard" : "/register"}
-        className={buttonVariants({ size: "lg", className: "bg-white text-[#0c0a1d] shadow-none hover:bg-white/90" })}
+        className={buttonVariants({ size: "lg", className: "bg-[#f4f0e8] text-[#0f1714] shadow-none hover:bg-white" })}
       >
         {authed ? "Abrir StudyFlow" : "Crear mi cuenta"} <ArrowRight />
       </Link>
@@ -58,11 +58,11 @@ export function LandingCta({ variant }: { variant: "header" | "hero" | "dark" })
 
   return (
     <>
-      <Link href={authed ? "/dashboard" : "/register"} className={buttonVariants({ size: "lg", className: "w-full sm:w-auto" })}>
-        {authed ? "Ir a mi dashboard" : "Empezar gratis"} <ArrowRight />
+      <Link href={authed ? "/dashboard" : "/register"} className={buttonVariants({ variant: "gradient", size: "xl", className: "w-full sm:w-auto" })}>
+        {authed ? "Abrir StudyFlow" : "Empezar gratis"} <ArrowRight />
       </Link>
       {!authed && (
-        <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "lg", className: "w-full sm:w-auto" }))}>
+        <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "xl", className: "w-full sm:w-auto" }))}>
           Ya tengo cuenta
         </Link>
       )}

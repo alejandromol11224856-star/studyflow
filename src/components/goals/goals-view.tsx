@@ -3,7 +3,7 @@
 import { Check, Minus, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SegmentedControl, Skeleton } from "@/components/ui/misc";
@@ -29,12 +29,13 @@ export function GoalsView() {
   const { statuses, isLoading } = useGoalStatuses();
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-10">
       <PageHeader
+        eyebrow="Lo que te proponés"
         title="Objetivos"
-        description="Tiempo, veces, páginas, distancia o repeticiones. Diarios, semanales o mensuales."
+        description="«Quiero dedicar 3 h por día a Programación.» Tiempo, veces, páginas, distancia o repeticiones."
         actions={
-          <Button onClick={() => dialogs.openGoalDialog({ sectionId: null })}>
+          <Button variant="gradient" onClick={() => dialogs.openGoalDialog({ sectionId: null })}>
             <Plus /> Nuevo objetivo
           </Button>
         }
@@ -44,17 +45,10 @@ export function GoalsView() {
         const list = statuses.filter((s) => s.goal.period === group.period);
         return (
           <section key={group.period}>
-            <div className="mb-3 flex items-baseline justify-between gap-2">
-              <h2 className="text-sm font-semibold">
-                {group.title}
-                {list.length > 0 && (
-                  <span className="ml-1.5 text-xs font-normal text-muted-foreground tabular">
-                    {list.filter((s) => s.progress.completed).length}/{list.length} cumplidos
-                  </span>
-                )}
-              </h2>
-              <p className="hidden text-xs text-muted-foreground sm:block">{group.description}</p>
-            </div>
+            <SectionTitle
+              title={group.title}
+              hint={list.length > 0 ? `${list.filter((s) => s.progress.completed).length} de ${list.length} cumplidos · ${group.description.toLowerCase()}` : group.description}
+            />
             {isLoading ? (
               <Skeleton className="h-28" />
             ) : (

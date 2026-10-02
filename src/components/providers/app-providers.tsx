@@ -37,9 +37,17 @@ function ThemedToaster() {
     <Toaster
       theme={resolvedTheme === "dark" ? "dark" : "light"}
       position="top-center"
-      richColors
       closeButton
-      toastOptions={{ className: "font-sans" }}
+      toastOptions={{
+        classNames: {
+          toast: "font-sans !rounded-2xl !border-border !bg-popover !text-foreground !shadow-elevated !gap-3 !px-4 !py-3.5",
+          title: "!text-[14.5px] !font-semibold",
+          description: "!text-[13px] !text-muted-foreground",
+          success: "[&_[data-icon]]:!text-success",
+          error: "[&_[data-icon]]:!text-danger",
+          closeButton: "!border-border !bg-card !text-muted-foreground",
+        },
+      }}
       offset={16}
       mobileOffset={{ top: 12 }}
     />

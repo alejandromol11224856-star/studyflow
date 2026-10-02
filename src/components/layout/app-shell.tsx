@@ -16,6 +16,7 @@ import { TimerDocumentTitle } from "./goal-watcher";
 import { LogoMark } from "./logo";
 import { MobileHeader, MobileTabBar, Sidebar } from "./navigation";
 import { ReminderScheduler } from "./reminder-scheduler";
+import { SessionPlanWatcher } from "./session-plan-watcher";
 import { TimerMiniBar } from "./timer-widgets";
 
 const BANNER_KEY = "studyflow:local-banner-dismissed";
@@ -137,6 +138,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
       <MobileTabBar />
       <ProgressWatcher />
       <ReminderScheduler />
+      <SessionPlanWatcher />
       <TimerDocumentTitle />
     </div>
   );

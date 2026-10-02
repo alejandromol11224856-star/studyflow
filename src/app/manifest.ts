@@ -10,15 +10,15 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "StudyFlow",
     short_name: "StudyFlow",
-    description: "Objetivos, hábitos, rachas y XP para estudiar, entrenar y ser más constante.",
+    description: "Un poco todos los días termina siendo muchísimo. Objetivos, hábitos, métodos de estudio y progreso claro.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",
     display_override: ["standalone", "minimal-ui"],
     orientation: "portrait",
-    // Pantalla de inicio (splash) en Android: fondo + ícono + nombre.
-    background_color: "#0b0a12",
-    theme_color: "#5b4ef5",
+    // Pantalla de inicio (splash) en Android: fondo "tinta" + ícono pino + nombre.
+    background_color: "#0e1412",
+    theme_color: "#0f6e5c",
     lang: "es-AR",
     dir: "ltr",
     categories: ["productivity", "education", "lifestyle"],
@@ -31,9 +31,9 @@ export default function manifest(): MetadataRoute.Manifest {
     // Atajos al mantener presionado el ícono de la app.
     shortcuts: [
       { name: "Comenzar sesión", short_name: "Comenzar", url: "/dashboard?action=timer", icons: [icon192] },
+      { name: "Empezar un Pomodoro", short_name: "Pomodoro", url: "/dashboard?action=pomodoro", icons: [icon192] },
       { name: "Registrar actividad", short_name: "Registrar", url: "/dashboard?action=log", icons: [icon192] },
       { name: "Hábitos", url: "/habits", icons: [icon192] },
-      { name: "Progreso", url: "/progress", icons: [icon192] },
     ],
   };
 }

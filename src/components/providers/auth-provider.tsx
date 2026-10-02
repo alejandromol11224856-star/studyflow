@@ -20,6 +20,7 @@ interface AuthContextValue {
   sendPasswordReset: (email: string) => Promise<void>;
   resendConfirmation: (email: string) => Promise<void>;
   verifyEmailLink: (tokenHash: string, type: EmailLinkType) => Promise<AuthUser>;
+  verifyEmailCode: (email: string, code: string, kind: "signup" | "recovery") => Promise<AuthUser>;
   updatePassword: (password: string) => Promise<void>;
 }
 
@@ -80,6 +81,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       resendConfirmation: (email) => service.resendConfirmation(email),
       async verifyEmailLink(tokenHash, type) {
         const u = await service.verifyEmailLink(tokenHash, type);
+        applyUser(u);
+        return u;
+      },
+      async verifyEmailCode(email, code, kind) {
+        const u = await service.verifyEmailCode(email, code, kind);
         applyUser(u);
         return u;
       },

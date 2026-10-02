@@ -645,6 +645,17 @@ export function createSupabaseAuthService(): AuthService {
       if (error) throw error;
     },
 
+    async verifyEmailCode(email, code, kind) {
+      const token = code.replace(/\D/g, "");
+      let { data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token, type: kind === "recovery" ? "recovery" : "email" });
+      // Proyectos con la confirmación de alta "clásica": el mismo código, con el tipo anterior.
+      if (error && kind === "signup") ({ data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token, type: "signup" }));
+      if (error) throw error;
+      const user = toAuthUser(data.user);
+      if (!user) throw new AppError("No se pudo abrir la sesión. Iniciá sesión con tu email y contraseña.");
+      return user;
+    },
+
     async verifyEmailLink(tokenHash, type) {
       // "signup" quedó obsoleto en verifyOtp: el equivalente es "email".
       const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type === "signup" ? "email" : type });

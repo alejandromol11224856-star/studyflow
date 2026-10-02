@@ -97,6 +97,8 @@ export interface AuthService {
    * llamarse cuando la persona toca el botón de confirmar (nunca al cargar).
    */
   verifyEmailLink(tokenHash: string, type: EmailLinkType): Promise<AuthUser>;
+  /** Verifica el código de 6 dígitos del email (alta de cuenta o recuperación) y abre la sesión. */
+  verifyEmailCode(email: string, code: string, kind: "signup" | "recovery"): Promise<AuthUser>;
   updatePassword(password: string): Promise<void>;
   onChange(callback: (user: AuthUser | null) => void): () => void;
   createRepository(user: AuthUser): Repository;

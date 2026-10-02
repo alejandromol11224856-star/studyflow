@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/components/providers/app-providers";
 import { ACCENT_STORAGE_KEY } from "@/lib/preferences";
 import "./globals.css";
 
-// Plus Jakarta Sans: amigable y moderna, con cifras tabulares para los números.
+// Interfaz: Plus Jakarta Sans (clara, cifras tabulares). Marca: Fraunces, una serif
+// suave y humana para saludos, títulos y números grandes.
 const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"] });
+const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], axes: ["SOFT", "opsz"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,14 +24,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f4fb" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0a12" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f0e8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1412" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="es" suppressHydrationWarning className={`${jakarta.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
         {/* Aplica el color de acento guardado antes del primer pintado (evita parpadeo). */}
         <script

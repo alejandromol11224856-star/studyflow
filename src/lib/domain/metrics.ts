@@ -35,9 +35,6 @@ export const METRIC_META: Record<
   reps: { label: "Repeticiones", unit: "repeticiones", hint: "Ej: Flexiones → 100 por día", step: 1, max: 1000000, placeholder: "100" },
 };
 
-/** Emoji de cada métrica (para elegirla de un vistazo). */
-export const METRIC_EMOJI: Record<GoalMetric, string> = { time: "⏱️", count: "🔁", pages: "📖", distance: "📍", reps: "💪" };
-
 export const PERIOD_SUFFIX: Record<GoalPeriod, string> = {
   daily: "por día",
   weekly: "por semana",

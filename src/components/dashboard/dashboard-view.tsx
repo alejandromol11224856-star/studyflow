@@ -1,20 +1,24 @@
 "use client";
 
-import { ArrowRight, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createElement, useEffect, useState } from "react";
+import { SproutIllustration } from "@/components/brand/illustrations";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { ProductTour, WelcomeDialog } from "@/components/onboarding/product-tour";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useGoals, useHabits, usePreferences, useProfile, useSections, useUpdatePreferences } from "@/hooks/use-data";
-import { widgetDefinition } from "@/lib/preferences";
+import { HOY_NATIVE_WIDGETS, widgetDefinition } from "@/lib/preferences";
+import { AreasStrip } from "./areas-strip";
+import { ContinueCard } from "./continue-card";
 import { CustomizeDashboardDialog } from "./customize-dialog";
-import { TodayHero } from "./today-hero";
+import { DayHeader, DayProgress } from "./today-hero";
+import { TodayPanel } from "./today-panel";
 import { SPAN_CLASS, WIDGET_COMPONENTS } from "./widgets";
 
-/** Invitación a configurar la cuenta si todavía está vacía. */
+/** Invitación a la configuración inicial si la cuenta todavía está vacía. */
 function SetupCard() {
   const prefs = usePreferences();
   const sections = useSections();
@@ -24,20 +28,15 @@ function SetupCard() {
   const empty = loaded && !sections.data!.length && !habits.data!.length && !goals.data!.length;
   if (!empty || prefs.onboarding.completedAt || prefs.onboarding.skippedAt) return null;
   return (
-    <Card className="relative overflow-hidden p-5 animate-slide-up sm:p-6">
-      <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-primary-soft opacity-80 blur-3xl" />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-bold text-primary-text">
-            <Sparkles className="size-3.5" /> Empezá en 1 minuto
-          </span>
-          <h2 className="mt-3 text-lg font-bold tracking-tight">Armemos tu StudyFlow</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Tus áreas, tu objetivo principal y una meta diaria. Todo editable después.</p>
-        </div>
-        <Link href="/onboarding" className={buttonVariants({ variant: "gradient", size: "lg", className: "shrink-0" })}>
-          Empezar <ArrowRight />
-        </Link>
+    <Card className="flex flex-col items-center gap-4 p-6 text-center animate-slide-up sm:flex-row sm:text-left">
+      <SproutIllustration className="w-28 shrink-0" />
+      <div className="flex-1">
+        <h2 className="font-display text-[22px] font-semibold">Armemos tu StudyFlow</h2>
+        <p className="mt-1 text-[15px] text-muted-foreground">Tres preguntas y queda listo: qué querés mejorar, cuánto tiempo y para qué.</p>
       </div>
+      <Link href="/onboarding" className={buttonVariants({ variant: "gradient", size: "lg", className: "shrink-0" })}>
+        Empezar <ArrowRight />
+      </Link>
     </Card>
   );
 }
@@ -65,8 +64,7 @@ function OnboardingGuide({ startTour }: { startTour: boolean }) {
     return () => window.clearTimeout(id);
   }, [requested]);
 
-  const save = (key: "tourCompletedAt" | "tourDismissedAt") =>
-    updatePrefs.mutate({ onboarding: { [key]: new Date().toISOString() } });
+  const save = (key: "tourCompletedAt" | "tourDismissedAt") => updatePrefs.mutate({ onboarding: { [key]: new Date().toISOString() } });
 
   return (
     <>
@@ -98,17 +96,22 @@ function OnboardingGuide({ startTour }: { startTour: boolean }) {
   );
 }
 
+/**
+ * Hoy: el corazón de StudyFlow. Arriba, cómo vas y qué hacer ahora; después,
+ * lo que te toca hoy y tus áreas. Nada más, salvo las tarjetas que agregues.
+ */
 export function DashboardView({ startTour = false, action = null }: { startTour?: boolean; action?: string | null }) {
   const router = useRouter();
   const dialogs = useDialogs();
   const { widgets } = usePreferences();
   const [customizing, setCustomizing] = useState(false);
-  const visible = widgets.filter((w) => w.visible);
+  const extras = widgets.filter((w) => w.visible && !HOY_NATIVE_WIDGETS.has(w.id));
 
   // Accesos directos (atajos de la app instalada, "Repetir tutorial"): ejecutar y limpiar la URL.
   useEffect(() => {
     if (!startTour && !action) return;
     if (action === "timer") dialogs.openStartTimer();
+    else if (action === "pomodoro") dialogs.openStartTimer(undefined, { methodId: "pomodoro" });
     else if (action === "log") dialogs.openActivityForm();
     router.replace("/dashboard", { scroll: false });
     // Solo al llegar con esos parámetros.
@@ -116,28 +119,29 @@ export function DashboardView({ startTour = false, action = null }: { startTour?
   }, [startTour, action]);
 
   return (
-    <div className="space-y-4">
-      <TodayHero />
-      <SetupCard />
+    <div className="mx-auto max-w-5xl space-y-10 pb-4 sm:space-y-12">
+      <DayHeader />
 
-      {visible.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-sm text-muted-foreground">Ocultaste todas las tarjetas de abajo.</p>
-          <Button className="mt-4" variant="outline" onClick={() => setCustomizing(true)}>
-            <SlidersHorizontal /> Elegir qué ver
-          </Button>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 animate-slide-up [grid-auto-flow:dense] sm:gap-4 lg:grid-cols-6">
-          {visible.map((w) =>
-            createElement(WIDGET_COMPONENTS[w.id], { key: w.id, className: SPAN_CLASS[widgetDefinition(w.id).span] }),
-          )}
+      <div className="-mt-2 space-y-4">
+        <SetupCard />
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
+          <DayProgress />
+          <ContinueCard />
+        </div>
+      </div>
+
+      <TodayPanel />
+      <AreasStrip />
+
+      {extras.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 [grid-auto-flow:dense] sm:gap-4 lg:grid-cols-6">
+          {extras.map((w) => createElement(WIDGET_COMPONENTS[w.id], { key: w.id, className: SPAN_CLASS[widgetDefinition(w.id).span] }))}
         </div>
       )}
 
-      <div className="flex justify-center pt-2">
+      <div className="flex justify-center">
         <Button variant="ghost" size="sm" onClick={() => setCustomizing(true)}>
-          <SlidersHorizontal /> Personalizar esta pantalla
+          <SlidersHorizontal /> Personalizar Hoy
         </Button>
       </div>
 

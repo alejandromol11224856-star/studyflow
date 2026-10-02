@@ -44,9 +44,22 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   consumen). `/confirm-email` y `/reset-password` lo verifican solo al tocar el botón
   (`verifyEmailLink`). `?code=` (PKCE) se canjea en `/auth/callback`. Lógica pura en
   `src/lib/auth-links.ts` (con tests). Plantillas en `supabase/templates/`.
-- Identidad visual: tokens en `globals.css` (`--gradient-*`, `--xp*`, `--streak*`); botones
-  `variant="gradient"` + `size="xl"` para la acción principal de cada pantalla. Todo color nuevo
-  de texto debe pasar WCAG AA en claro y oscuro.
+- Identidad visual (V4, "papel y tinta"): tokens en `globals.css` (`--ink`, `--xp*`,
+  `--streak*`, `--heat-*`); acento por defecto `pine`. Títulos con `font-display` (Fraunces) y
+  `PageHeader`/`SectionTitle` (`components/layout/page-header.tsx`). Acción principal de cada
+  pantalla: `variant="gradient"` (o `ink`). Todo color nuevo de texto debe pasar WCAG AA en
+  claro y oscuro.
+- Iconografía: Lucide para la interfaz y las marcas/ilustraciones propias de
+  `components/brand/` (racha = `StreakMark`, XP = `XpMark`, nivel = `LevelBadge`). **No usar
+  emojis como íconos** ni en títulos; `EmptyState` prefiere `illustration`. Recursos externos
+  solo con licencia comercial clara y anotados en `ASSETS.md`.
+- No resolver problemas de diseño agregando tarjetas: jerarquía con tipografía y espacio
+  (`StatTile` sin caja, listas con `divide-y`).
+- Métodos: contenido en `lib/methods.ts`; "Comenzar X" abre `openStartTimer(undefined, { methodId })`
+  y los modos del temporizador viven en `lib/session-plans.ts` (plan en localStorage, del lado
+  del cliente; no toca la base).
+- Auth por código: `verifyEmailCode` (Repository) con `OtpInput`; las plantillas de email deben
+  conservar `{{ .Token }}` y el botón con `{{ .TokenHash }}`.
 - Tutorial: los elementos resaltados llevan `data-tour="..."` (ver `TOUR_STEPS` en
   `components/onboarding/product-tour.tsx`). Si movés uno, mantené el atributo. Contenedores
   decorativos que contengan targets: `overflow-clip` (no `overflow-hidden`).

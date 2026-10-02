@@ -15,11 +15,11 @@ import { FinishTimerDialog, StartTimerDialog } from "./timer-dialogs";
 
 interface DialogsContextValue {
   openActivityForm: (options?: ActivityFormOptions) => void;
-  openStartTimer: (sectionId?: string | null) => void;
+  openStartTimer: (sectionId?: string | null, options?: { methodId?: string; title?: string }) => void;
   openFinishTimer: () => void;
   openSectionForm: (section?: Section) => void;
   openGoalDialog: (options: GoalDialogOptions) => void;
-  openHabitForm: (habit?: Habit) => void;
+  openHabitForm: (habit?: Habit, options?: { name?: string }) => void;
   openQuickAdd: () => void;
 }
 
@@ -27,11 +27,11 @@ const DialogsContext = createContext<DialogsContextValue | null>(null);
 
 type State =
   | { type: "activity"; options: ActivityFormOptions }
-  | { type: "start-timer"; sectionId?: string | null }
+  | { type: "start-timer"; sectionId?: string | null; methodId?: string; title?: string }
   | { type: "finish-timer" }
   | { type: "section"; section?: Section }
   | { type: "goal"; options: GoalDialogOptions }
-  | { type: "habit"; habit?: Habit }
+  | { type: "habit"; habit?: Habit; name?: string }
   | { type: "quick-add" }
   | null;
 
@@ -55,11 +55,11 @@ export function DialogsProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<DialogsContextValue>(
     () => ({
       openActivityForm: (options = {}) => open({ type: "activity", options }),
-      openStartTimer: (sectionId) => open({ type: "start-timer", sectionId }),
+      openStartTimer: (sectionId, options) => open({ type: "start-timer", sectionId, methodId: options?.methodId, title: options?.title }),
       openFinishTimer: () => open({ type: "finish-timer" }),
       openSectionForm: (section) => open({ type: "section", section }),
       openGoalDialog: (options) => open({ type: "goal", options }),
-      openHabitForm: (habit) => open({ type: "habit", habit }),
+      openHabitForm: (habit, options) => open({ type: "habit", habit, name: options?.name }),
       openQuickAdd: () => open({ type: "quick-add" }),
     }),
     [open],
@@ -80,6 +80,8 @@ export function DialogsProvider({ children }: { children: React.ReactNode }) {
         open={isOpen("start-timer")}
         onOpenChange={onOpenChange}
         sectionId={last.type === "start-timer" ? last.sectionId : undefined}
+        methodId={last.type === "start-timer" ? last.methodId : undefined}
+        title={last.type === "start-timer" ? last.title : undefined}
       />
       <FinishTimerDialog open={isOpen("finish-timer")} onOpenChange={onOpenChange} />
       <SectionFormDialog
@@ -93,7 +95,12 @@ export function DialogsProvider({ children }: { children: React.ReactNode }) {
         onOpenChange={onOpenChange}
         options={last.type === "goal" ? last.options : { sectionId: null }}
       />
-      <HabitFormDialog open={isOpen("habit")} onOpenChange={onOpenChange} habit={last.type === "habit" ? last.habit : undefined} />
+      <HabitFormDialog
+        open={isOpen("habit")}
+        onOpenChange={onOpenChange}
+        habit={last.type === "habit" ? last.habit : undefined}
+        draftName={last.type === "habit" ? last.name : undefined}
+      />
       <QuickAddDialog open={isOpen("quick-add")} onOpenChange={onOpenChange} actions={value} />
     </DialogsContext.Provider>
   );

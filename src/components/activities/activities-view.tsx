@@ -1,6 +1,7 @@
 "use client";
 
-import { NotebookPen, Play, Plus, Search, SearchX } from "lucide-react";
+import { TimerIllustration } from "@/components/brand/illustrations";
+import { Play, Plus, Search, SearchX } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { PageHeader } from "@/components/layout/page-header";
@@ -149,7 +150,7 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
       ) : groups.length === 0 ? (
         <Card>
           {filtered ? (
-            <EmptyState emoji="🔎"
+            <EmptyState
               icon={SearchX}
               title="Sin resultados"
               description="No hay actividades que coincidan con los filtros. Probá con otros."
@@ -167,14 +168,14 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
               }
             />
           ) : (
-            <EmptyState emoji="🌱"
-              icon={NotebookPen}
+            <EmptyState
+              illustration={<TimerIllustration />}
               title="No tenés actividades todavía"
-              description="Empezá con una sesión de 10 minutos. Tu primera racha empieza hoy 🚀"
+              description="Empezá con una sesión de 10 minutos. Tu primera racha empieza hoy."
               action={
                 <>
                   <Button variant="gradient" size="lg" onClick={() => dialogs.openStartTimer()}>
-                    <Play className="fill-current" /> EMPEZAR
+                    <Play className="fill-current" /> Empezar
                   </Button>
                   <Button variant="outline" size="lg" onClick={() => dialogs.openActivityForm()}>
                     <Plus /> Registrar actividad

@@ -66,7 +66,7 @@ function StreakWidget({ className }: { className?: string }) {
   const today = useToday();
   const days = Array.from({ length: 14 }, (_, i) => addDaysKey(today, i - 13));
   return (
-    <MiniCard title="🔥 Racha" icon={Flame} href="/calendar" className={className}>
+    <MiniCard title="Racha" icon={Flame} href="/calendar" className={className}>
       {streaks.isLoading ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
@@ -97,7 +97,7 @@ function StreakWidget({ className }: { className?: string }) {
 function LevelWidget({ className }: { className?: string }) {
   const { progression } = useProgression();
   return (
-    <MiniCard title="⭐ Nivel" icon={Sparkles} href="/progress" className={className}>
+    <MiniCard title="Nivel" icon={Sparkles} href="/progress" className={className}>
       {!progression ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
@@ -165,12 +165,12 @@ function HabitsWidget({ className }: { className?: string }) {
   const dialogs = useDialogs();
   return (
     <Card className={className}>
-      <WidgetHeader title="🔥 Semana de hábitos" description="Tu semana de un vistazo" href="/habits" />
+      <WidgetHeader title="Semana de hábitos" description="Tu semana de un vistazo" href="/habits" />
       <CardContent className="pt-3">
         {habits.isLoading ? (
           <Skeleton className="h-24" />
         ) : habits.statuses.length === 0 ? (
-          <EmptyState emoji="🔥"
+          <EmptyState
             compact
             icon={ListChecks}
             title="Todavía no tenés hábitos"
@@ -249,7 +249,7 @@ function AchievementsWidget({ className }: { className?: string }) {
     .slice(0, 2);
   return (
     <Card className={className}>
-      <WidgetHeader title="🏆 Próximos logros" description={progression ? `${progression.achievements.filter((a) => a.earned).length} de ${progression.achievements.length}` : undefined} href="/achievements" />
+      <WidgetHeader title="Próximos logros" description={progression ? `${progression.achievements.filter((a) => a.earned).length} de ${progression.achievements.length}` : undefined} href="/achievements" />
       <CardContent className="space-y-3 pt-3">
         {!progression ? (
           <Skeleton className="h-24" />
@@ -276,7 +276,7 @@ function AchievementsWidget({ className }: { className?: string }) {
                 </span>
               </div>
             ))}
-            {recent.length === 0 && next.length === 0 && <EmptyState emoji="🏆" compact icon={Trophy} title="¡Todos los logros desbloqueados!" />}
+            {recent.length === 0 && next.length === 0 && <EmptyState compact icon={Trophy} title="Todos los logros desbloqueados" />}
           </>
         )}
       </CardContent>

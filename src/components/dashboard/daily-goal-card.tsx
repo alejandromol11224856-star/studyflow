@@ -96,9 +96,9 @@ export function DailyGoalCard({ className }: { className?: string }) {
       <CardContent className="relative pt-5">
         {completed ? (
           <div key="done" className="animate-pop">
-            <p className="text-[28px] font-semibold leading-tight tracking-tight sm:text-4xl">🎉 Objetivo diario cumplido</p>
+            <p className="text-[28px] font-semibold leading-tight tracking-tight sm:text-4xl">Objetivo diario cumplido.</p>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {extra > 0 ? `Sumaste ${formatDuration(extra)} extra. ¡Imparable!` : "Llegaste justo a tu meta. ¡Bien ahí!"}
+              {extra > 0 ? `Sumaste ${formatDuration(extra)} extra.` : "Llegaste justo a tu meta."}
             </p>
           </div>
         ) : (

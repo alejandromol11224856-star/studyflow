@@ -3,13 +3,16 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { SummitIllustration } from "@/components/brand/illustrations";
+import { LevelBadge, XpMark } from "@/components/brand/marks";
 import { Button } from "@/components/ui/button";
 import { usePreferences } from "@/hooks/use-data";
+import { rewardMessage } from "@/lib/domain/motivation";
 
 export interface Celebration {
   title: string;
   description?: string;
-  /** major: confeti (si está activado) · minor: solo el aviso. */
+  /** major: con una lluvia breve de papelitos (si está activado) · minor: solo el aviso. */
   tone: "major" | "minor";
 }
 
@@ -17,7 +20,7 @@ interface CelebrationContextValue {
   celebrate: (celebration: Celebration) => void;
   /** Aviso flotante "+20 XP · Sesión completada". */
   showXp: (amount: number, reason: string) => void;
-  /** Pantalla "¡Subiste de nivel!" (con confeti si está activado). */
+  /** Pantalla "Subiste de nivel" (con papelitos si está activado). */
   levelUp: (level: number, title: string) => void;
 }
 
@@ -33,24 +36,25 @@ interface Piece {
   size: number;
 }
 
-const CONFETTI_COLORS = ["var(--sec-blue)", "var(--sec-orange)", "var(--sec-aqua)", "var(--sec-yellow)", "var(--sec-magenta)", "var(--primary-text)"];
+// Colores de la marca: acento, sol, coral y papel. Pocos papelitos, breves.
+const CONFETTI_COLORS = ["var(--primary)", "var(--xp)", "var(--streak)", "var(--primary-text)", "#f4f0e8"];
 
 function makeConfetti(): Piece[] {
-  return Array.from({ length: 70 }, (_, id) => ({
+  return Array.from({ length: 36 }, (_, id) => ({
     id,
-    left: Math.random() * 100,
-    delay: Math.random() * 0.35,
-    duration: 1.8 + Math.random() * 1.3,
+    left: 10 + Math.random() * 80,
+    delay: Math.random() * 0.25,
+    duration: 1.5 + Math.random() * 0.9,
     color: CONFETTI_COLORS[id % CONFETTI_COLORS.length],
     rotate: Math.random() * 360,
-    size: 6 + Math.random() * 6,
+    size: 6 + Math.random() * 5,
   }));
 }
 
 function Confetti({ pieces }: { pieces: Piece[] }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-[80] overflow-hidden" aria-hidden>
-      <style>{`@keyframes sf-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1 } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0.2 } }`}</style>
+      <style>{`@keyframes sf-fall { 0% { transform: translateY(-8vh) rotate(0deg); opacity: 1 } 100% { transform: translateY(70vh) rotate(540deg); opacity: 0 } }`}</style>
       {pieces.map((p) => (
         <span
           key={p.id}
@@ -58,7 +62,7 @@ function Confetti({ pieces }: { pieces: Piece[] }) {
           style={{
             left: `${p.left}%`,
             width: p.size,
-            height: p.size * 0.45,
+            height: p.size * 0.42,
             background: p.color,
             rotate: `${p.rotate}deg`,
             animation: `sf-fall ${p.duration}s cubic-bezier(.25,.6,.4,1) ${p.delay}s both`,
@@ -75,6 +79,7 @@ interface XpPill {
   reason: string;
 }
 
+/** Píldora de XP: tinta, chispa ámbar y un número que se nota. */
 function XpPillLayer({ pill }: { pill: XpPill | null }) {
   return (
     <div
@@ -84,45 +89,41 @@ function XpPillLayer({ pill }: { pill: XpPill | null }) {
       {pill && (
         <div
           key={pill.key}
-          className="inline-flex max-w-full items-center gap-2 rounded-full bg-[image:var(--gradient-xp)] px-4 py-2.5 text-sm font-extrabold text-[#1c1300] shadow-lg shadow-amber-500/30 animate-float-in"
+          className="inline-flex max-w-full items-center gap-2.5 rounded-full bg-ink py-2 pl-2.5 pr-4 text-sm text-background shadow-elevated animate-float-in"
         >
-          <span aria-hidden>⭐</span>
-          <span className="tabular">+{pill.amount} XP</span>
-          <span className="truncate font-semibold opacity-80">· {pill.reason}</span>
+          <span className="flex size-7 items-center justify-center rounded-full bg-xp text-[#1c1300]">
+            <XpMark className="size-3.5" />
+          </span>
+          <span className="font-display text-[17px] font-semibold tabular">+{pill.amount} XP</span>
+          <span className="truncate font-medium opacity-75">{pill.reason}</span>
         </div>
       )}
     </div>
   );
 }
 
-function LevelUpDialog({ level, onClose }: { level: { level: number; title: string } | null; onClose: () => void }) {
+function LevelUpDialog({ level, onClose }: { level: { level: number; title: string; line: string } | null; onClose: () => void }) {
   return (
     <DialogPrimitive.Root open={Boolean(level)} onOpenChange={(o) => !o && onClose()}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-[70] bg-[#0b0a12]/60 backdrop-blur-sm" />
+        <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-[70] bg-[#0b0f0d]/55 backdrop-blur-sm" />
         <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[75] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 outline-none">
           {level && (
-            <div className="relative overflow-hidden rounded-[32px] border border-border bg-card px-6 pb-6 pt-8 text-center shadow-elevated animate-float-in">
-              <div aria-hidden className="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-primary-soft blur-3xl" />
-              <div className="relative">
-                <DialogPrimitive.Title className="text-sm font-extrabold uppercase tracking-[0.18em] text-xp-text">
-                  🎉 ¡Subiste de nivel!
-                </DialogPrimitive.Title>
-                <div className="mx-auto mt-6 flex size-28 items-center justify-center rounded-[36px] bg-[image:var(--gradient-primary)] text-5xl font-extrabold text-primary-foreground shadow-xl shadow-primary/30 animate-pop">
-                  {level.level}
-                </div>
-                <p className="mt-5 text-2xl font-bold tracking-tight">
-                  Nivel {level.level} · {level.title}
-                </p>
-                <DialogPrimitive.Description className="mt-2 text-[15px] text-muted-foreground">
-                  La constancia rinde. Cada sesión suma, y se nota. 💪
-                </DialogPrimitive.Description>
-                <DialogPrimitive.Close asChild>
-                  <Button variant="gradient" size="xl" className="mt-7 w-full">
-                    ¡Vamos! 🚀
-                  </Button>
-                </DialogPrimitive.Close>
+            <div className="relative overflow-hidden rounded-[30px] border border-border bg-card px-6 pb-6 pt-7 text-center shadow-elevated animate-float-in">
+              <SummitIllustration className="mx-auto w-36" />
+              <div className="-mt-6 flex justify-center">
+                <LevelBadge level={level.level} size={68} className="animate-pop" />
               </div>
+              <DialogPrimitive.Title className="eyebrow mt-4 !text-xp-text">Subiste de nivel</DialogPrimitive.Title>
+              <p className="mt-1.5 font-display text-[30px] font-semibold leading-tight">
+                Nivel {level.level} · {level.title}
+              </p>
+              <DialogPrimitive.Description className="mt-2 text-[15px] text-muted-foreground">{level.line}</DialogPrimitive.Description>
+              <DialogPrimitive.Close asChild>
+                <Button variant="ink" size="xl" className="mt-6 w-full">
+                  Seguir
+                </Button>
+              </DialogPrimitive.Close>
             </div>
           )}
         </DialogPrimitive.Content>
@@ -132,28 +133,28 @@ function LevelUpDialog({ level, onClose }: { level: { level: number; title: stri
 }
 
 /**
- * Punto único para celebrar: avisos, +XP, subida de nivel y, solo en momentos
- * importantes, confeti (como máximo uno cada pocos segundos, nunca con
- * "reducir movimiento" activado o si el usuario eligió celebraciones sutiles).
+ * Punto único para celebrar: avisos, +XP, subida de nivel y, solo en
+ * momentos importantes, una lluvia breve de papelitos (como máximo una cada
+ * pocos segundos, nunca con "reducir movimiento" o con celebraciones sutiles).
  */
 export function CelebrationProvider({ children }: { children: React.ReactNode }) {
   const { celebrations } = usePreferences();
   const [confetti, setConfetti] = useState<Piece[] | null>(null);
   const [pill, setPill] = useState<XpPill | null>(null);
-  const [level, setLevel] = useState<{ level: number; title: string } | null>(null);
+  const [level, setLevel] = useState<{ level: number; title: string; line: string } | null>(null);
   const lastConfetti = useRef(0);
 
   const burst = useCallback(() => {
     if (celebrations !== "full") return;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || Date.now() - lastConfetti.current < 5000) return;
+    if (reduced || Date.now() - lastConfetti.current < 6000) return;
     lastConfetti.current = Date.now();
     setConfetti(makeConfetti());
   }, [celebrations]);
 
   const celebrate = useCallback(
     (c: Celebration) => {
-      toast.success(c.title, { description: c.description, duration: c.tone === "major" ? 7000 : 4500 });
+      toast.success(c.title, { description: c.description, duration: c.tone === "major" ? 6500 : 4500 });
       if (c.tone === "major") burst();
     },
     [burst],
@@ -163,15 +164,13 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
     if (amount <= 0) return;
     // Si llegan varios seguidos (sesión + logro), se suman en un solo aviso con el primer motivo.
     setPill((prev) =>
-      prev && Date.now() - prev.key < 2500
-        ? { key: Date.now(), amount: prev.amount + amount, reason: prev.reason }
-        : { key: Date.now(), amount, reason },
+      prev && Date.now() - prev.key < 2500 ? { key: Date.now(), amount: prev.amount + amount, reason: prev.reason } : { key: Date.now(), amount, reason },
     );
   }, []);
 
   const levelUp = useCallback(
     (lvl: number, title: string) => {
-      setLevel({ level: lvl, title });
+      setLevel({ level: lvl, title, line: rewardMessage("level", lvl) });
       burst();
     },
     [burst],
@@ -179,7 +178,7 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!confetti) return;
-    const id = window.setTimeout(() => setConfetti(null), 3500);
+    const id = window.setTimeout(() => setConfetti(null), 3000);
     return () => window.clearTimeout(id);
   }, [confetti]);
 

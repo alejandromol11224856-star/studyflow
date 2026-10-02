@@ -3,6 +3,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { METRIC_ICONS, METRIC_TILE_LABEL } from "@/components/goals/metric-icon";
 import { ColorPicker, IconPicker, SectionAvatar } from "@/components/sections/section-visuals";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
@@ -17,7 +18,7 @@ import {
   useToday,
   useUpdateSection,
 } from "@/hooks/use-data";
-import { GOAL_METRICS, METRIC_EMOJI, METRIC_META } from "@/lib/domain/metrics";
+import { GOAL_METRICS, METRIC_META } from "@/lib/domain/metrics";
 import { canCreateSection, getPlan } from "@/lib/plans";
 import {
   DEFAULT_SECTION_COLOR,
@@ -112,7 +113,7 @@ function SectionForm({ section, onDone }: { section?: Section; onDone: (created?
         if (target > 0) {
           await setGoal.mutateAsync({ sectionId: created.id, period: "daily", metric: goalMetric, target, effectiveFrom: today });
         }
-        toast.success(`Área "${created.name}" creada 🎉`);
+        toast.success(`Área "${created.name}" creada`, { description: "Ya podés empezar una sesión en ella." });
         onDone(created);
       }
     } catch {
@@ -197,27 +198,29 @@ function SectionForm({ section, onDone }: { section?: Section; onDone: (created?
       {!section && (
         <div className="space-y-2 rounded-3xl border border-border p-4">
           <p className="text-[13px] font-semibold">
-            🎯 Objetivo diario <span className="font-normal text-muted-foreground">(opcional)</span>
+            Objetivo diario <span className="font-normal text-muted-foreground">(opcional)</span>
           </p>
           <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Qué medir">
-            {GOAL_METRICS.map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="radio"
-                aria-checked={goalMetric === m}
-                onClick={() => setGoalMetric(m)}
-                className={cn(
-                  "flex flex-col items-center gap-1 rounded-2xl border px-1 py-2.5 text-[11px] font-bold transition-all active:scale-95",
-                  goalMetric === m ? "border-primary bg-primary-soft text-primary-text" : "border-border text-muted-foreground hover:bg-muted",
-                )}
-              >
-                <span aria-hidden className="text-xl leading-none">
-                  {METRIC_EMOJI[m]}
-                </span>
-                {METRIC_META[m].label}
-              </button>
-            ))}
+            {GOAL_METRICS.map((m) => {
+              const Icon = METRIC_ICONS[m];
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  role="radio"
+                  aria-checked={goalMetric === m}
+                  aria-label={METRIC_META[m].label}
+                  onClick={() => setGoalMetric(m)}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 rounded-2xl border px-1 py-2.5 text-[11px] font-semibold transition-all active:scale-95",
+                    goalMetric === m ? "border-primary bg-primary-soft text-primary-text" : "border-border text-muted-foreground hover:bg-muted",
+                  )}
+                >
+                  <Icon className="size-5" aria-hidden />
+                  {METRIC_TILE_LABEL[m]}
+                </button>
+              );
+            })}
           </div>
           <p className="text-xs text-muted-foreground">{METRIC_META[goalMetric].hint}</p>
           {goalMetric === "time" ? (

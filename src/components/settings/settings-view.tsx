@@ -1,6 +1,23 @@
 "use client";
 
-import { Bell, Check, Cloud, Crown, Download, HardDrive, LogOut, RotateCcw, Target } from "lucide-react";
+import {
+  Bell,
+  Check,
+  Cloud,
+  Compass,
+  Crown,
+  Download,
+  HardDrive,
+  Languages,
+  LockKeyhole,
+  LogOut,
+  type LucideIcon,
+  Palette,
+  Play,
+  RotateCcw,
+  Target,
+  UserRound,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,21 +44,21 @@ import { cn } from "@/lib/utils";
 import { fieldErrors, resetPasswordSchema } from "@/lib/validation";
 
 const SECTIONS = [
-  { id: "perfil", label: "👤 Perfil" },
-  { id: "tutorial", label: "🧭 Tutorial" },
-  { id: "apariencia", label: "🎨 Tema y color" },
-  { id: "idioma", label: "🌎 Idioma" },
-  { id: "objetivos", label: "🎯 Objetivos" },
-  { id: "notificaciones", label: "🔔 Notificaciones" },
-  { id: "datos", label: "💾 Datos" },
-  { id: "cuenta", label: "🔐 Cuenta" },
+  { id: "perfil", label: "Perfil" },
+  { id: "tutorial", label: "Tutorial" },
+  { id: "apariencia", label: "Tema y color" },
+  { id: "idioma", label: "Idioma" },
+  { id: "objetivos", label: "Objetivos" },
+  { id: "notificaciones", label: "Notificaciones" },
+  { id: "datos", label: "Datos" },
+  { id: "cuenta", label: "Cuenta" },
 ];
 
 export function SettingsView() {
   const { data: profile, isLoading } = useProfile();
   return (
-    <div className="max-w-3xl space-y-4">
-      <PageHeader title="⚙️ Ajustes" description="Tu perfil, el tutorial, apariencia, objetivos, notificaciones y datos." />
+    <div className="mx-auto max-w-3xl space-y-4">
+      <PageHeader eyebrow="Tu cuenta" title="Ajustes" description="Tu perfil, el tutorial, apariencia, objetivos, notificaciones y datos." />
       {/* Accesos rápidos: en el celular evitan scrollear toda la página. */}
       <nav aria-label="Apartados de ajustes" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:px-0">
         {SECTIONS.map((s) => (
@@ -69,13 +86,13 @@ export function SettingsView() {
 
 function SettingsCard({
   id,
-  emoji,
+  icon: Icon,
   title,
   description,
   children,
 }: {
   id?: string;
-  emoji?: string;
+  icon?: LucideIcon;
   title: string;
   description?: string;
   children: React.ReactNode;
@@ -84,13 +101,13 @@ function SettingsCard({
     <Card id={id} className="scroll-mt-20 lg:scroll-mt-6">
       <CardHeader>
         <div className="flex items-start gap-3">
-          {emoji && (
-            <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted text-xl">
-              {emoji}
+          {Icon && (
+            <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground">
+              <Icon className="size-[18px]" />
             </span>
           )}
           <div>
-            <CardTitle className="text-base">{title}</CardTitle>
+            <CardTitle className="font-display text-lg font-semibold">{title}</CardTitle>
             {description && <CardDescription className="text-sm">{description}</CardDescription>}
           </div>
         </div>
@@ -102,10 +119,10 @@ function SettingsCard({
 
 function TutorialCard() {
   return (
-    <SettingsCard id="tutorial" emoji="🧭" title="Tutorial" description="Volvé a ver cómo funciona StudyFlow, paso a paso.">
+    <SettingsCard id="tutorial" icon={Compass} title="Tutorial" description="Volvé a ver cómo funciona StudyFlow, paso a paso.">
       <div className="flex flex-col gap-2 sm:flex-row">
         <Link href="/dashboard?tour=1" className={buttonVariants({ variant: "gradient" })}>
-          🚀 Repetir tutorial
+          <Play /> Repetir tutorial
         </Link>
         <Link href="/onboarding" className={buttonVariants({ variant: "outline" })}>
           <RotateCcw /> Repetir configuración inicial
@@ -117,7 +134,7 @@ function TutorialCard() {
 
 function LanguageCard() {
   return (
-    <SettingsCard id="idioma" emoji="🌎" title="Idioma">
+    <SettingsCard id="idioma" icon={Languages} title="Idioma">
       <Field label="Idioma de la app" hint="Por ahora StudyFlow está disponible solo en español.">
         {(id, d) => (
           <Select id={id} aria-describedby={d} value="es-AR" disabled onChange={() => undefined}>
@@ -134,7 +151,7 @@ function GoalsCard() {
   const { statuses, isLoading } = useGoalStatuses();
   const global = statuses.filter((s) => s.goal.sectionId === null);
   return (
-    <SettingsCard id="objetivos" emoji="🎯" title="Objetivos" description="Tus metas generales. Las de cada área se editan en esa área.">
+    <SettingsCard id="objetivos" icon={Target} title="Objetivos" description="Tus metas generales. Las de cada área se editan en esa área.">
       {isLoading ? (
         <Skeleton className="h-16" />
       ) : global.length === 0 ? (
@@ -182,7 +199,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
     weekStartsOn !== profile.weekStartsOn;
 
   return (
-    <SettingsCard id="perfil" emoji="👤" title="Perfil" description="La zona horaria define cuándo empieza tu día (y se reinician los objetivos).">
+    <SettingsCard id="perfil" icon={UserRound} title="Perfil" description="La zona horaria define cuándo empieza tu día (y se reinician los objetivos).">
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -254,7 +271,7 @@ function AppearanceCard() {
   const accent = profile?.preferences.accent ?? "violet";
   const celebrations = profile?.preferences.celebrations ?? "full";
   return (
-    <SettingsCard id="apariencia" emoji="🎨" title="Tema y color" description="Claro u oscuro, color principal y celebraciones. Todos los colores mantienen buen contraste.">
+    <SettingsCard id="apariencia" icon={Palette} title="Tema y color" description="Claro u oscuro, color principal y celebraciones. Todos los colores mantienen buen contraste.">
       <div className="space-y-5">
         <div>
           <p className="mb-2 text-[13px] font-medium">Tema</p>
@@ -309,7 +326,7 @@ function RemindersCard() {
   const reminders = profile?.preferences.reminders ?? { enabled: true, dailyGoalTime: null };
 
   return (
-    <SettingsCard id="notificaciones" emoji="🔔" title="Notificaciones y recordatorios" description="Avisos de hábitos (a la hora que elijas en cada uno) y de tu objetivo diario.">
+    <SettingsCard id="notificaciones" icon={Bell} title="Notificaciones y recordatorios" description="Avisos de hábitos (a la hora que elijas en cada uno) y de tu objetivo diario.">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -354,7 +371,7 @@ function PlanCard() {
   const { data: profile } = useProfile();
   const plan = getPlan(profile?.plan);
   return (
-    <SettingsCard id="plan" emoji="👑" title="Plan">
+    <SettingsCard id="plan" icon={Crown} title="Plan">
       <div className="flex items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-text">
           <Crown className="size-5" />
@@ -456,7 +473,7 @@ function DataCard() {
   }
 
   return (
-    <SettingsCard id="datos" emoji="💾" title="Tus datos y exportación" description="Descargá todo lo que registraste cuando quieras.">
+    <SettingsCard id="datos" icon={HardDrive} title="Tus datos y exportación" description="Descargá todo lo que registraste cuando quieras.">
       <div className="mb-4 flex items-center gap-3 rounded-xl bg-muted/60 p-3 text-sm">
         {mode === "supabase" ? <Cloud className="size-4 shrink-0 text-success" /> : <HardDrive className="size-4 shrink-0 text-warning" />}
         <span>
@@ -504,7 +521,7 @@ function AccountCard() {
   }
 
   return (
-    <SettingsCard id="cuenta" emoji="🔐" title="Cuenta" description={user?.email}>
+    <SettingsCard id="cuenta" icon={LockKeyhole} title="Cuenta" description={user?.email}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Nueva contraseña" error={errors.password}>

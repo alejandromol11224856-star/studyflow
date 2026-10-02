@@ -3,11 +3,12 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "./spinner";
 
 const VARIANTS = {
-  primary:
-    "bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary-hover hover:shadow-md hover:shadow-primary/25 active:scale-[0.97]",
-  /** Acción principal de una pantalla: relleno con gradiente y un poco de brillo. */
+  primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:scale-[0.97]",
+  /** Acción principal de una pantalla: acento con una leve profundidad (sin brillos). */
   gradient:
-    "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-110 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.97]",
+    "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_6px_16px_-8px_var(--primary)] hover:brightness-110 active:scale-[0.97]",
+  /** Neutro fuerte (tinta): para acciones importantes que no deben competir con el acento. */
+  ink: "bg-ink text-background shadow-sm hover:opacity-90 active:scale-[0.97]",
   secondary: "bg-muted text-foreground hover:bg-border/70 active:scale-[0.97]",
   outline: "border border-border bg-card text-foreground hover:border-foreground/15 hover:bg-muted active:scale-[0.97]",
   ghost: "text-foreground hover:bg-muted active:scale-[0.97]",
