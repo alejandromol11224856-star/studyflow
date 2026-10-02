@@ -52,7 +52,7 @@ export function StartTimerForm({ initialSectionId, onDone }: { initialSectionId?
 
   if (timer && !started) {
     return (
-      <EmptyState
+      <EmptyState emoji="⏱️"
         compact
         icon={TimerIcon}
         title="Ya tenés un temporizador en curso"
@@ -126,7 +126,7 @@ function FinishTimerForm({ onDone }: { onDone: () => void }) {
 
   if (!timer && !closing) {
     return (
-      <EmptyState
+      <EmptyState emoji="⏱️"
         compact
         icon={TimerIcon}
         title="No hay temporizador activo"

@@ -182,7 +182,7 @@ function HabitForm({ habit, onDone }: { habit?: Habit; onDone: () => void }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Sección (opcional)" hint="Para verlo junto a esa área.">
+        <Field label="Área (opcional)" hint="Para verlo junto a esa área.">
           {(id) => (
             <Select id={id} value={sectionId ?? ""} onChange={(e) => setSectionId(e.target.value || null)}>
               <option value="">Ninguna</option>

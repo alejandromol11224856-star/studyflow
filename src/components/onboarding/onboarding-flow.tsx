@@ -14,12 +14,12 @@ import { SECTION_SUGGESTIONS, guessSectionIcon, nextSectionColor } from "@/lib/s
 import { cn } from "@/lib/utils";
 
 const INTENTS = [
-  { id: "study", label: "Estudiar mejor", areas: ["Estudio", "Lectura"] },
-  { id: "fitness", label: "Entrenar más", areas: ["Gimnasio", "Deporte"] },
-  { id: "language", label: "Aprender un idioma", areas: ["Idiomas"] },
-  { id: "work", label: "Ser más productivo", areas: ["Trabajo", "Proyecto personal"] },
-  { id: "wellbeing", label: "Cuidar mi bienestar", areas: ["Meditación"] },
-  { id: "create", label: "Crear o aprender algo nuevo", areas: ["Programación", "Música", "Escritura"] },
+  { id: "study", label: "📚 Estudiar mejor", areas: ["Estudio", "Lectura"] },
+  { id: "fitness", label: "💪 Entrenar más", areas: ["Gimnasio", "Deporte"] },
+  { id: "language", label: "🗣️ Aprender un idioma", areas: ["Idiomas"] },
+  { id: "work", label: "💼 Ser más productivo", areas: ["Trabajo", "Proyecto personal"] },
+  { id: "wellbeing", label: "🧘 Cuidar mi bienestar", areas: ["Meditación"] },
+  { id: "create", label: "🎨 Crear o aprender algo nuevo", areas: ["Programación", "Música", "Escritura"] },
 ];
 
 const DAILY_OPTIONS = [0, 30, 60, 120, 180, 240];
@@ -92,7 +92,7 @@ export function OnboardingFlow() {
         await setGoal.mutateAsync({ sectionId: null, period: "daily", metric: "time", target: dailyMinutes, effectiveFrom: today });
       }
       await updatePrefs.mutateAsync({ onboarding: { completedAt: new Date().toISOString(), intents } });
-      toast.success("¡Listo! Tu sistema está armado", { description: "Empezá por lo que tenés para hoy." });
+      toast.success("¡Listo! Tu StudyFlow está armado 🎉", { description: "Empezá por lo que tenés para hoy." });
       router.replace("/dashboard");
     } catch {
       setBusy(false);
@@ -111,7 +111,7 @@ export function OnboardingFlow() {
       <ol className="mt-8 flex gap-2" aria-label="Pasos">
         {STEPS.map((label, i) => (
           <li key={label} className="flex-1">
-            <span className={cn("block h-1.5 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-muted")} />
+            <span className={cn("block h-2 rounded-full transition-colors duration-500", i <= step ? "bg-[image:var(--gradient-primary)]" : "bg-muted")} />
             <span className={cn("mt-1.5 block text-xs", i === step ? "font-medium text-foreground" : "text-muted-foreground")}>{label}</span>
           </li>
         ))}
@@ -120,7 +120,7 @@ export function OnboardingFlow() {
       <div key={step} className="mt-8 flex-1 animate-slide-up">
         {step === 0 && (
           <>
-            <h1 className="text-2xl font-semibold tracking-tight">Contanos un poco de vos</h1>
+            <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">👋 Contanos un poco de vos</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Esto nos ayuda a sugerirte un buen punto de partida.</p>
             <Field label="¿Cómo te llamás?" className="mt-6">
               {(id) => <Input id={id} value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Tu nombre" />}
@@ -136,7 +136,7 @@ export function OnboardingFlow() {
                     aria-pressed={on}
                     onClick={() => setIntents((prev) => (on ? prev.filter((x) => x !== i.id) : [...prev, i.id]))}
                     className={cn(
-                      "flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all",
+                      "flex min-h-14 items-center justify-between rounded-2xl border px-4 py-3 text-left text-[15px] font-semibold transition-all active:scale-[0.98]",
                       on ? "border-primary bg-primary-soft text-primary-text" : "border-border bg-card hover:bg-muted",
                     )}
                   >
@@ -151,7 +151,7 @@ export function OnboardingFlow() {
 
         {step === 1 && (
           <>
-            <h1 className="text-2xl font-semibold tracking-tight">¿Qué áreas querés medir?</h1>
+            <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">🧩 ¿Qué áreas querés medir?</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Escribí las tuyas o tocá una sugerencia. Podés cambiar todo después.</p>
             <form
               className="mt-6 flex gap-2"
@@ -201,7 +201,7 @@ export function OnboardingFlow() {
                       key={a}
                       type="button"
                       onClick={() => addArea(a)}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-sm transition hover:bg-muted"
+                      className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-semibold transition hover:bg-muted active:scale-95"
                     >
                       <Plus className="size-3.5 text-muted-foreground" /> {a}
                     </button>
@@ -214,7 +214,7 @@ export function OnboardingFlow() {
 
         {step === 2 && (
           <>
-            <h1 className="text-2xl font-semibold tracking-tight">Tu objetivo</h1>
+            <h1 className="text-[28px] font-extrabold leading-tight tracking-tight">🎯 Tu objetivo</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Lo vas a ver todos los días en Hoy, como recordatorio de para qué hacés esto.</p>
             <Field label="Objetivo principal" hint="Opcional. Ej: Aprobar los finales de diciembre, correr 10 km, leer 20 libros este año." className="mt-6">
               {(id) => <Input id={id} value={mainGoal} onChange={(e) => setMainGoal(e.target.value)} maxLength={160} placeholder="¿Qué querés lograr?" />}
@@ -228,8 +228,8 @@ export function OnboardingFlow() {
                   aria-pressed={dailyMinutes === m}
                   onClick={() => setDailyMinutes(m)}
                   className={cn(
-                    "h-10 rounded-xl border px-4 text-sm font-medium transition-all",
-                    dailyMinutes === m ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-muted",
+                    "h-12 rounded-2xl border px-5 text-[15px] font-bold transition-all active:scale-95",
+                    dailyMinutes === m ? "border-transparent bg-[image:var(--gradient-primary)] text-primary-foreground shadow-md shadow-primary/25" : "border-border bg-card hover:bg-muted",
                   )}
                 >
                   {m ? formatMinutes(m) : "Sin meta"}
@@ -246,12 +246,12 @@ export function OnboardingFlow() {
           <ArrowLeft /> Atrás
         </Button>
         {step < STEPS.length - 1 ? (
-          <Button size="lg" onClick={() => setStep((s) => s + 1)}>
+          <Button variant="gradient" size="lg" onClick={() => setStep((s) => s + 1)}>
             Siguiente <ArrowRight />
           </Button>
         ) : (
-          <Button size="lg" onClick={() => void finish()} loading={busy}>
-            Empezar <ArrowRight />
+          <Button variant="gradient" size="lg" onClick={() => void finish()} loading={busy}>
+            Empezar 🚀
           </Button>
         )}
       </footer>

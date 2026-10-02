@@ -12,7 +12,7 @@ import {
 import { type GoalStatus, useGoalStatuses, useHabitStatuses, useProgression, useStreaks } from "@/hooks/use-metrics";
 import { PERIOD_NOUN, goalSummary } from "@/lib/domain/goals";
 import { formatTarget } from "@/lib/domain/metrics";
-import { ACHIEVEMENTS, levelTitle } from "@/lib/domain/progression";
+import { ACHIEVEMENTS, type XpBreakdown, levelTitle } from "@/lib/domain/progression";
 import { bestDayBefore } from "@/lib/domain/records";
 import { formatDuration } from "@/lib/format";
 import { useCelebrations } from "./celebration-provider";
@@ -41,11 +41,24 @@ function writeNumber(key: string, value: number) {
  * app está abierta (al recargar no se repiten celebraciones). También guarda
  * los logros que se desbloquean.
  */
+/** Motivo del XP ganado según qué categoría creció más (en orden de importancia). */
+function xpReason(prev: XpBreakdown, next: XpBreakdown) {
+  const delta = (k: keyof XpBreakdown) => next[k] - prev[k];
+  if (delta("goals") > 0) return "Objetivo cumplido";
+  if (delta("achievements") > 0) return "Logro desbloqueado";
+  if (delta("habits") > 0) return "Hábito completado";
+  if (delta("time") > 0 || delta("activities") > 0) return "Sesión completada";
+  if (delta("streaks") > 0) return "Racha en marcha";
+  return "¡Bien hecho!";
+}
+
 export function ProgressWatcher() {
   const { user } = useAuth();
-  const { celebrate } = useCelebrations();
+  const { celebrate, showXp, levelUp } = useCelebrations();
   const today = useToday();
   const sectionMap = useSectionMap();
+  const streaks = useStreaks();
+  const streakNow = streaks.current;
 
   // --- Objetivos cumplidos -------------------------------------------------
   const { statuses, isLoading: goalsLoading } = useGoalStatuses();
@@ -66,10 +79,11 @@ export function ProgressWatcher() {
       } else {
         // El de tiempo diario es "el" objetivo diario; los demás se nombran por su meta.
         const isMainDaily = s.goal.period === "daily" && s.goal.metric === "time";
+        const streakNote = s.goal.period === "daily" && streakNow >= 2 ? ` 🔥 Vas ${streakNow} días seguidos.` : " ¡Seguí así!";
         celebrate({
           tone: "major",
           title: isMainDaily ? "🎉 Objetivo diario cumplido" : `🎉 Objetivo ${label} cumplido: ${formatTarget(s.goal.metric, s.goal.target)}`,
-          description: `Llegaste a ${formatTarget(s.goal.metric, s.goal.target)} ${PERIOD_NOUN[s.goal.period]}. ¡Seguí así!`,
+          description: `Llegaste a ${formatTarget(s.goal.metric, s.goal.target)} ${PERIOD_NOUN[s.goal.period]}.${streakNote}`,
         });
       }
     }
@@ -101,7 +115,7 @@ export function ProgressWatcher() {
         }
         for (const a of added) {
           const def = ACHIEVEMENTS.find((d) => d.code === a.code);
-          if (def) celebrate({ tone: "major", title: `Logro desbloqueado: ${def.title}`, description: def.xp ? `${def.description} +${def.xp} XP` : def.description });
+          if (def) celebrate({ tone: "major", title: `🏆 Logro desbloqueado: ${def.title}`, description: def.xp ? `${def.description} +${def.xp} XP` : def.description });
         }
       },
       onSettled: () => {
@@ -118,15 +132,25 @@ export function ProgressWatcher() {
     if (!user || level === undefined || !settled) return;
     const key = `studyflow:last-level:${user.id}`;
     const last = readNumber(key);
-    if (last !== null && level > last) {
-      celebrate({ tone: "major", title: `Subiste al nivel ${level}`, description: `${levelTitle(level)}. La constancia rinde.` });
-    }
+    if (last !== null && level > last) levelUp(level, levelTitle(level));
     if (last === null || level !== last) writeNumber(key, level);
-  }, [level, settled, user, celebrate]);
+  }, [level, settled, user, levelUp]);
+
+  // --- +XP: aviso flotante cuando el XP sube mientras la app está abierta ----
+  const xp = progression?.xp;
+  const xpTotal = xp?.total;
+  const prevXp = useRef<XpBreakdown | null>(null);
+  useEffect(() => {
+    if (!xp) return;
+    const prev = prevXp.current;
+    prevXp.current = xp;
+    if (prev && xp.total > prev.total) showXp(xp.total - prev.total, xpReason(prev, xp));
+    // Solo cuando cambia el total (el objeto se recalcula en cada render de datos).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [xpTotal, showXp]);
 
   // --- Récords: mejor día y mejor racha ------------------------------------
   const totals = useDailyTotals();
-  const streaks = useStreaks();
   const previousBestDay = totals.data ? bestDayBefore(totals.data, today) : 0;
   const todaySeconds = streaks.byDate.get(today) ?? 0;
   const prevToday = useRef<{ day: string; seconds: number } | null>(null);
@@ -147,7 +171,7 @@ export function ProgressWatcher() {
     const prev = prevStreak.current;
     prevStreak.current = { current: streakCurrent, best: streakBest };
     if (prev && prev.best >= 3 && streakCurrent > prev.best) {
-      celebrate({ tone: "major", title: `Nueva mejor racha: ${streakCurrent} días`, description: "Superaste tu récord de constancia." });
+      celebrate({ tone: "major", title: `🔥 Nueva mejor racha: ${streakCurrent} días`, description: "Superaste tu récord de constancia." });
     }
   }, [streakCurrent, streakBest, streaksLoading, celebrate]);
 

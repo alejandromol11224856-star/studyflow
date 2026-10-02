@@ -195,7 +195,7 @@ function DayPanel({
         {activities.isLoading ? (
           <Skeleton className="my-3 h-20" />
         ) : items.length === 0 ? (
-          <EmptyState compact icon={CalendarDays} title="Sin actividades este día" />
+          <EmptyState emoji="🌤️" compact icon={CalendarDays} title="Día libre" />
         ) : (
           <div className="divide-y divide-border">
             {items.map((a) => (

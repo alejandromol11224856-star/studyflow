@@ -3,7 +3,7 @@ import { RegisterForm } from "@/components/auth/auth-forms";
 
 export const metadata: Metadata = { title: "Crear cuenta" };
 
-export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const { next } = await searchParams;
-  return <RegisterForm next={next} />;
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string; edit?: string }> }) {
+  const { next, edit } = await searchParams;
+  return <RegisterForm next={next} editing={edit === "1"} />;
 }

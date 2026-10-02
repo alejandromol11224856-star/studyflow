@@ -19,7 +19,7 @@ export function ErrorView({ error, retry }: { error: Error & { digest?: string }
       </div>
       <h1 className="mt-5 text-xl font-semibold tracking-tight">Algo salió mal</h1>
       <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        {getErrorMessage(error, "No pudimos cargar esta sección. Probá de nuevo en unos segundos.")}
+        {getErrorMessage(error, "No pudimos cargar esta página. Probá de nuevo en unos segundos.")}
       </p>
       <div className="mt-6 flex gap-2">
         <Button onClick={() => retry()}>

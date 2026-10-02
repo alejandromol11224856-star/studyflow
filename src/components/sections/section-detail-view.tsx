@@ -45,13 +45,13 @@ export function SectionDetailView({ id }: { id: string }) {
   if (!section) {
     return (
       <Card>
-        <EmptyState
+        <EmptyState emoji="🧭"
           icon={SearchX}
-          title="No encontramos esta sección"
+          title="No encontramos esta área"
           description="Puede que la hayas eliminado."
           action={
             <Link href="/sections" className={buttonVariants({ variant: "outline" })}>
-              Ver mis secciones
+              Ver mis áreas
             </Link>
           }
         />
@@ -86,7 +86,7 @@ function SectionDetail({ section }: { section: Section }) {
   return (
     <div className="space-y-4">
       <Link href="/sections" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> Secciones
+        <ArrowLeft className="size-4" /> Áreas
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -101,7 +101,7 @@ function SectionDetail({ section }: { section: Section }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="icon" aria-label="Editar sección" onClick={() => dialogs.openSectionForm(section)}>
+          <Button variant="outline" size="icon" aria-label="Editar área" onClick={() => dialogs.openSectionForm(section)}>
             <Pencil />
           </Button>
           <Button variant="outline" onClick={() => dialogs.openActivityForm({ sectionId: section.id })}>
@@ -115,7 +115,7 @@ function SectionDetail({ section }: { section: Section }) {
 
       {!section.isActive && (
         <p className="rounded-xl bg-warning-soft px-4 py-2.5 text-sm text-warning">
-          Sección pausada: no aparece en Hoy ni en el temporizador. Activala desde “Editar”.
+          Área pausada: no aparece en Hoy ni en el temporizador. Activala desde “Editar”.
         </p>
       )}
 
@@ -158,7 +158,7 @@ function SectionDetail({ section }: { section: Section }) {
           value={`${streaks.current} ${pluralize(streaks.current, "día")}`}
           hint={streaks.todayCompleted ? "Hoy cumplido ✓" : "Días seguidos cumplidos"}
         />
-        <StatTile icon={Trophy} label="Mejor racha" value={`${streaks.best} ${pluralize(streaks.best, "día")}`} hint="Récord en esta sección" />
+        <StatTile icon={Trophy} label="Mejor racha" value={`${streaks.best} ${pluralize(streaks.best, "día")}`} hint="Récord en esta área" />
         <StatTile icon={Clock} label="Tiempo total" value={formatDuration(all.seconds)} hint={`Este mes: ${formatDuration(monthTotal.seconds)}`} />
         <StatTile icon={NotebookPen} label="Actividades" value={all.count} hint={`Este mes: ${monthTotal.count}`} />
       </div>
@@ -221,11 +221,11 @@ function SectionDetail({ section }: { section: Section }) {
           {recent.isLoading ? (
             <Skeleton className="h-24" />
           ) : items.length === 0 ? (
-            <EmptyState
+            <EmptyState emoji="🌱"
               compact
               icon={NotebookPen}
               title="Todavía no hay actividades"
-              description="Iniciá el temporizador o registrá tiempo en esta sección."
+              description="Tocá Comenzar sesión o registrá algo que ya hiciste en esta área."
             />
           ) : (
             <div className="divide-y divide-border">

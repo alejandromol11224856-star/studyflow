@@ -21,7 +21,7 @@ import type { WidgetId, WidgetSpan } from "@/lib/preferences";
 import { sectionColor } from "@/lib/sections";
 import { cn, pluralize } from "@/lib/utils";
 import { DailyGoalCard } from "./daily-goal-card";
-import { CalendarCard, RecentActivitiesCard, SectionsCard, WeekCard } from "./summary-cards";
+import { CalendarCard, RecentActivitiesCard, SectionsCard, TodayActivitiesCard, WeekCard } from "./summary-cards";
 import { TimerCard } from "./timer-card";
 import { TodayPanel } from "./today-panel";
 
@@ -53,7 +53,7 @@ function MiniCard({
     </>
   );
   return href ? (
-    <Link href={href} className={cn("block rounded-2xl border border-border bg-card p-4 shadow-card transition hover:shadow-elevated", className)}>
+    <Link href={href} className={cn("lift block rounded-3xl border border-border bg-card p-4 shadow-card", className)}>
       {content}
     </Link>
   ) : (
@@ -66,7 +66,7 @@ function StreakWidget({ className }: { className?: string }) {
   const today = useToday();
   const days = Array.from({ length: 14 }, (_, i) => addDaysKey(today, i - 13));
   return (
-    <MiniCard title="Racha" icon={Flame} href="/calendar" className={className}>
+    <MiniCard title="🔥 Racha" icon={Flame} href="/calendar" className={className}>
       {streaks.isLoading ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
@@ -82,7 +82,7 @@ function StreakWidget({ className }: { className?: string }) {
                 title={`${capitalize(formatKey(d, "EEE d"))}: ${streaks.completedDates.has(d) ? "cumplido" : "no cumplido"}`}
                 className={cn(
                   "h-5 flex-1 rounded-[3px]",
-                  streaks.completedDates.has(d) ? "bg-primary-text" : "bg-muted",
+                  streaks.completedDates.has(d) ? "bg-streak" : "bg-muted",
                   d === today && "ring-1 ring-foreground/50",
                 )}
               />
@@ -97,7 +97,7 @@ function StreakWidget({ className }: { className?: string }) {
 function LevelWidget({ className }: { className?: string }) {
   const { progression } = useProgression();
   return (
-    <MiniCard title="Nivel" icon={Sparkles} href="/achievements" className={className}>
+    <MiniCard title="⭐ Nivel" icon={Sparkles} href="/progress" className={className}>
       {!progression ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
@@ -109,7 +109,7 @@ function LevelWidget({ className }: { className?: string }) {
           <p className="text-xs text-muted-foreground tabular">
             {progression.level.current} / {progression.level.needed} XP
           </p>
-          <Progress className="mt-3 h-2" value={progression.level.ratio} label="Progreso al siguiente nivel" />
+          <Progress className="mt-3 h-2" tone="xp" value={progression.level.ratio} label="Progreso al siguiente nivel" />
         </>
       )}
     </MiniCard>
@@ -165,15 +165,15 @@ function HabitsWidget({ className }: { className?: string }) {
   const dialogs = useDialogs();
   return (
     <Card className={className}>
-      <WidgetHeader title="Hábitos" description="Tu semana de un vistazo" href="/habits" />
+      <WidgetHeader title="🔥 Semana de hábitos" description="Tu semana de un vistazo" href="/habits" />
       <CardContent className="pt-3">
         {habits.isLoading ? (
           <Skeleton className="h-24" />
         ) : habits.statuses.length === 0 ? (
-          <EmptyState
+          <EmptyState emoji="🔥"
             compact
             icon={ListChecks}
-            title="Sin hábitos todavía"
+            title="Todavía no tenés hábitos"
             description="Meditar, leer, entrenar… algo que quieras hacer seguido."
             action={
               <Button size="sm" variant="soft" onClick={() => dialogs.openHabitForm()}>
@@ -249,7 +249,7 @@ function AchievementsWidget({ className }: { className?: string }) {
     .slice(0, 2);
   return (
     <Card className={className}>
-      <WidgetHeader title="Logros" description={progression ? `${progression.achievements.filter((a) => a.earned).length} de ${progression.achievements.length}` : undefined} href="/achievements" />
+      <WidgetHeader title="🏆 Próximos logros" description={progression ? `${progression.achievements.filter((a) => a.earned).length} de ${progression.achievements.length}` : undefined} href="/achievements" />
       <CardContent className="space-y-3 pt-3">
         {!progression ? (
           <Skeleton className="h-24" />
@@ -276,7 +276,7 @@ function AchievementsWidget({ className }: { className?: string }) {
                 </span>
               </div>
             ))}
-            {recent.length === 0 && next.length === 0 && <EmptyState compact icon={Trophy} title="¡Todos los logros desbloqueados!" />}
+            {recent.length === 0 && next.length === 0 && <EmptyState emoji="🏆" compact icon={Trophy} title="¡Todos los logros desbloqueados!" />}
           </>
         )}
       </CardContent>
@@ -308,7 +308,7 @@ function StatsWidget({ className }: { className?: string }) {
               return (
                 <li key={d.sectionId ?? NO_SECTION_KEY}>
                   <div className="flex justify-between text-sm">
-                    <span className="truncate">{s?.name ?? "Sin sección"}</span>
+                    <span className="truncate">{s?.name ?? "Sin área"}</span>
                     <span className="shrink-0 font-medium tabular">
                       {formatDuration(d.seconds)} <span className="text-xs font-normal text-muted-foreground">{formatPercent(d.seconds / total)}</span>
                     </span>
@@ -331,6 +331,7 @@ function StatsWidget({ className }: { className?: string }) {
 // ---------------------------------------------------------------------------
 export const WIDGET_COMPONENTS: Record<WidgetId, ComponentType<{ className?: string }>> = {
   today: TodayPanel,
+  "activities-today": TodayActivitiesCard,
   "daily-goal": DailyGoalCard,
   timer: TimerCard,
   streak: StreakWidget,

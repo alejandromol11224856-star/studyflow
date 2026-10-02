@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, Clock, Hash, Info, Repeat, Route } from "lucide-react";
+import { Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Field, Input, Select } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/misc";
 import { useActiveSections, useGoals, useSectionMap, useSetGoal, useToday } from "@/hooks/use-data";
 import { GOAL_PERIODS, PERIOD_LABEL, goalTargetFor } from "@/lib/domain/goals";
-import { GOAL_METRICS, METRIC_META, PERIOD_SUFFIX, formatTarget } from "@/lib/domain/metrics";
+import { GOAL_METRICS, METRIC_EMOJI, METRIC_META, PERIOD_SUFFIX, formatTarget } from "@/lib/domain/metrics";
 import type { GoalMetric, GoalPeriod } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +21,6 @@ export interface GoalDialogOptions {
   /** true: editar ese objetivo puntual (sección/período/métrica fijos). */
   lock?: boolean;
 }
-
-const METRIC_ICONS = { time: Clock, count: Repeat, pages: BookOpenText, distance: Route, reps: Hash } satisfies Record<
-  GoalMetric,
-  typeof Clock
->;
 
 const TIME_CONFIG: Record<GoalPeriod, { presets: number[]; maxHours: number; fallback: number }> = {
   daily: { presets: [30, 60, 120, 180, 240, 300], maxHours: 24, fallback: 120 },
@@ -70,7 +65,7 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
   const current = goalTargetFor(goals.data ?? [], period, sectionId, today, metric);
   const fallback = metric === "time" ? TIME_CONFIG[period].fallback : 0;
   const target = drafts[scopeKey] ?? (current || fallback);
-  const sectionName = sectionId ? (sectionMap.get(sectionId)?.name ?? "Sección") : "Todas las secciones";
+  const sectionName = sectionId ? (sectionMap.get(sectionId)?.name ?? "Área") : "Todas las áreas";
   const valid = metric === "time" ? target >= 1 : target > 0;
 
   async function save(value: number) {
@@ -106,7 +101,7 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
           <Field label="¿Para qué?">
             {(id) => (
               <Select id={id} value={sectionId ?? ""} onChange={(e) => setSectionId(e.target.value || null)}>
-                <option value="">Todas las secciones (objetivo general)</option>
+                <option value="">Todas las áreas (objetivo general)</option>
                 {active.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -117,10 +112,9 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
           </Field>
 
           <div className="space-y-1.5">
-            <p className="text-[13px] font-medium">Qué medir</p>
+            <p className="text-[13px] font-semibold">Qué medir</p>
             <div className="grid grid-cols-5 gap-1.5">
               {GOAL_METRICS.map((m) => {
-                const Icon = METRIC_ICONS[m];
                 return (
                   <button
                     key={m}
@@ -128,13 +122,15 @@ function GoalForm({ options, onDone }: { options: GoalDialogOptions; onDone: () 
                     aria-pressed={metric === m}
                     onClick={() => setMetric(m)}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-xl border px-1 py-2.5 text-[11px] font-medium transition-all",
+                      "flex flex-col items-center gap-1 rounded-2xl border px-1 py-3 text-[11px] font-bold transition-all active:scale-95",
                       metric === m
-                        ? "border-primary bg-primary-soft text-primary-text"
+                        ? "border-primary bg-primary-soft text-primary-text shadow-sm"
                         : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    <Icon className="size-[18px]" />
+                    <span aria-hidden className="text-2xl leading-none">
+                      {METRIC_EMOJI[m]}
+                    </span>
                     {METRIC_META[m].label}
                   </button>
                 );

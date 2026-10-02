@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { EmailLinkType } from "@/lib/auth-links";
 import { DATA_MODE } from "@/lib/config";
 import { type Repository, type SignUpInput, getAuthService } from "@/lib/data";
 import type { AuthUser } from "@/lib/types";
@@ -17,6 +18,8 @@ interface AuthContextValue {
   signUp: (input: SignUpInput) => Promise<{ sessionCreated: boolean }>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
+  resendConfirmation: (email: string) => Promise<void>;
+  verifyEmailLink: (tokenHash: string, type: EmailLinkType) => Promise<AuthUser>;
   updatePassword: (password: string) => Promise<void>;
 }
 
@@ -74,6 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         applyUser(null);
       },
       sendPasswordReset: (email) => service.sendPasswordReset(email),
+      resendConfirmation: (email) => service.resendConfirmation(email),
+      async verifyEmailLink(tokenHash, type) {
+        const u = await service.verifyEmailLink(tokenHash, type);
+        applyUser(u);
+        return u;
+      },
       updatePassword: (password) => service.updatePassword(password),
     }),
     [user, status, repo, service, applyUser, queryClient],

@@ -207,10 +207,10 @@ export function HabitsView() {
         </div>
       ) : ordered.length === 0 ? (
         <Card>
-          <EmptyState
+          <EmptyState emoji="🔥"
             icon={ListChecks}
             title="Creá tu primer hábito"
-            description="Meditar, leer, entrenar, tomar agua… algo chico que quieras sostener todos los días o algunas veces por semana."
+            description="Meditar, leer, entrenar, tomar agua… algo chico que quieras sostener. Cada día que lo marques suma a tu racha."
             action={
               <Button onClick={() => dialogs.openHabitForm()}>
                 <Plus /> Nuevo hábito

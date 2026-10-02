@@ -84,18 +84,18 @@ export function TimerCard({ className }: { className?: string }) {
                 ) : (
                   <SectionDot color={null} />
                 )}
-                <span className="truncate font-medium">{section?.name ?? "Sin sección"}</span>
+                <span className="truncate font-medium">{section?.name ?? "Sin área"}</span>
                 <ChevronDown className="size-3.5 text-muted-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
-                <DropdownMenuLabel>Cambiar sección</DropdownMenuLabel>
+                <DropdownMenuLabel>Cambiar área</DropdownMenuLabel>
                 {active.map((s) => (
                   <DropdownMenuItem key={s.id} onSelect={() => actions.update({ sectionId: s.id })}>
                     <SectionDot color={s.color} /> {s.name}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuItem onSelect={() => actions.update({ sectionId: null })}>
-                  <SectionDot color={null} /> Sin sección
+                  <SectionDot color={null} /> Sin área
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

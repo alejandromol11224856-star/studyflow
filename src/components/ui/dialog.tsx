@@ -37,13 +37,13 @@ export function DialogContent({
 }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-50 bg-black/45 backdrop-blur-[2px]" />
+      <DialogPrimitive.Overlay className="dialog-overlay fixed inset-0 z-50 bg-[#0b0a12]/50 backdrop-blur-[3px]" />
       <DialogPrimitive.Content
         onOpenAutoFocus={onOpenAutoFocus}
         className={cn(
           "dialog-content fixed z-50 flex max-h-[92dvh] w-full flex-col overflow-hidden border border-border bg-popover shadow-elevated outline-none",
-          "inset-x-0 bottom-0 rounded-t-3xl",
-          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
+          "inset-x-0 bottom-0 rounded-t-[28px]",
+          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[28px]",
           SIZE[size],
           className,
         )}
@@ -51,7 +51,7 @@ export function DialogContent({
         <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border sm:hidden" aria-hidden />
         <div className={cn("flex items-start justify-between gap-4 px-5 pt-4 sm:px-6 sm:pt-6", hideHeader && "sr-only")}>
           <div className="min-w-0">
-            <DialogPrimitive.Title className="text-base font-semibold tracking-tight">{title}</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="text-lg font-bold tracking-tight">{title}</DialogPrimitive.Title>
             {description ? (
               <DialogPrimitive.Description className="mt-1 text-sm text-muted-foreground">
                 {description}
@@ -61,7 +61,7 @@ export function DialogContent({
             )}
           </div>
           <DialogPrimitive.Close
-            className="-mr-1.5 -mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="-mr-1.5 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
             aria-label="Cerrar"
           >
             <X className="size-4" />

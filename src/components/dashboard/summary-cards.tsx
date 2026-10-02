@@ -6,8 +6,8 @@ import {
   ArrowUpRight,
   CalendarDays,
   ChartColumn,
-  Layers,
   NotebookPen,
+  Play,
   Plus,
 } from "lucide-react";
 import Link from "next/link";
@@ -89,12 +89,12 @@ export function WeekCard({ className }: { className?: string }) {
         {totals.isLoading ? (
           <Skeleton className="h-[200px] w-full" />
         ) : current === 0 ? (
-          <EmptyState
+          <EmptyState emoji="📊"
             compact
             icon={ChartColumn}
             className="h-[200px] py-0"
             title="Sin actividad esta semana"
-            description="Cuando registres tiempo vas a ver cada día desglosado por sección."
+            description="Cuando registres tiempo vas a ver cada día desglosado por área."
           />
         ) : (
           <>
@@ -115,7 +115,7 @@ export function WeekCard({ className }: { className?: string }) {
               <span className="font-medium">Objetivo semanal · {formatMinutes(weekly.target)}</span>
               <span className="tabular text-muted-foreground">{formatPercent(weekly.progress.ratio)}</span>
             </div>
-            <Progress value={weekly.progress.ratio} barClassName={weekly.progress.completed ? "bg-success" : undefined} />
+            <Progress value={weekly.progress.ratio} tone={weekly.progress.completed ? "success" : "primary"} />
           </div>
         )}
       </CardContent>
@@ -126,6 +126,61 @@ export function WeekCard({ className }: { className?: string }) {
 // ---------------------------------------------------------------------------
 // Actividades recientes (con el reparto de hoy arriba)
 // ---------------------------------------------------------------------------
+/** 📚 Lo que ya registraste hoy (con un empujón amable si todavía no hay nada). */
+export function TodayActivitiesCard({ className }: { className?: string }) {
+  const today = useToday();
+  const dialogs = useDialogs();
+  const activities = useActivities({ from: today, to: today, limit: 8 });
+  const items = activities.data?.items ?? [];
+  const total = items.reduce((acc, a) => acc + a.durationSeconds, 0);
+
+  return (
+    <Card className={cn("flex flex-col", className)}>
+      <CardHeader>
+        <div>
+          <CardTitle>📚 Actividades de hoy</CardTitle>
+          <CardDescription>{items.length ? `${items.length} ${items.length === 1 ? "actividad" : "actividades"} · ${formatDuration(total)}` : "Lo que hagas hoy aparece acá"}</CardDescription>
+        </div>
+        <Link href="/activities" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+          Historial <ArrowRight />
+        </Link>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col pt-2">
+        {activities.isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+          </div>
+        ) : items.length === 0 ? (
+          <EmptyState
+            compact
+            emoji="🌱"
+            title="No tenés actividades todavía"
+            description={
+              <>
+                Empezá con una sesión de 10 minutos.
+                <br />
+                Tu primera racha empieza hoy 🚀
+              </>
+            }
+            action={
+              <Button variant="gradient" size="lg" onClick={() => dialogs.openStartTimer()}>
+                <Play className="fill-current" /> EMPEZAR
+              </Button>
+            }
+          />
+        ) : (
+          <div className="divide-y divide-border">
+            {items.map((a) => (
+              <ActivityItem key={a.id} activity={a} className="py-1.5" />
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function RecentActivitiesCard({ className }: { className?: string }) {
   const today = useToday();
   const dialogs = useDialogs();
@@ -155,10 +210,10 @@ export function RecentActivitiesCard({ className }: { className?: string }) {
             <Skeleton className="h-10" />
           </div>
         ) : items.length === 0 ? (
-          <EmptyState
+          <EmptyState emoji="🌱"
             compact
             icon={NotebookPen}
-            title="Todavía no registraste actividades"
+            title="No tenés actividades todavía"
             description="Iniciá el temporizador o cargá algo que ya hiciste."
             action={
               <Button size="sm" variant="soft" onClick={() => dialogs.openActivityForm()}>
@@ -177,7 +232,7 @@ export function RecentActivitiesCard({ className }: { className?: string }) {
                       key={d.sectionId ?? "none"}
                       className="h-full first:rounded-l-full last:rounded-r-full"
                       style={{ width: `${(d.seconds / total) * 100}%`, background: sectionColor(byId.get(d.sectionId ?? "")?.color) }}
-                      title={`${byId.get(d.sectionId ?? "")?.name ?? "Sin sección"}: ${formatDuration(d.seconds)}`}
+                      title={`${byId.get(d.sectionId ?? "")?.name ?? "Sin área"}: ${formatDuration(d.seconds)}`}
                     />
                   ))}
                 </div>
@@ -187,7 +242,7 @@ export function RecentActivitiesCard({ className }: { className?: string }) {
                     return (
                       <li key={d.sectionId ?? "none"} className="flex items-center gap-1.5">
                         <span className="size-2 rounded-[3px]" style={{ background: sectionColor(s?.color) }} />
-                        {s?.name ?? "Sin sección"} <b className="font-medium text-foreground">{formatDuration(d.seconds)}</b>
+                        {s?.name ?? "Sin área"} <b className="font-medium text-foreground">{formatDuration(d.seconds)}</b>
                       </li>
                     );
                   })}
@@ -253,42 +308,51 @@ export function CalendarCard({ className }: { className?: string }) {
 // Secciones con su progreso de hoy
 // ---------------------------------------------------------------------------
 function SectionRow({ section }: { section: Section }) {
+  const dialogs = useDialogs();
   const daily = useGoalProgress("daily", section.id, "time");
   const weekly = useGoalProgress("weekly", section.id, "time");
   const hasDaily = daily.target > 0;
   const goal = hasDaily ? daily : weekly.target > 0 ? weekly : null;
 
   return (
-    <Link
-      href={`/sections/${section.id}`}
-      className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-muted/70"
-    >
-      <SectionAvatar section={section} size="md" />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-2">
-          <p className="truncate text-sm font-medium">{section.name}</p>
-          <p className="shrink-0 text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">{formatDuration(daily.progress.done)}</span> hoy
-          </p>
-        </div>
-        {goal ? (
-          <div className="mt-1.5 flex items-center gap-2">
-            <Progress
-              value={goal.progress.ratio}
-              color={goal.progress.completed ? "var(--success)" : sectionColor(section.color)}
-              className="h-1.5"
-            />
-            <span className="w-24 shrink-0 text-right text-[11px] text-muted-foreground">
-              {goal.progress.completed ? "✓ Cumplido" : `${formatMinutes(goal.target)} ${hasDaily ? "/día" : "/sem"}`}
-            </span>
+    <div className="flex items-center gap-1 rounded-2xl transition hover:bg-muted/70">
+      <Link href={`/sections/${section.id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-2">
+        <SectionAvatar section={section} size="md" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="truncate text-[15px] font-semibold">{section.name}</p>
+            <p className="shrink-0 text-xs text-muted-foreground">
+              <span className="font-bold text-foreground">{formatDuration(daily.progress.done)}</span> hoy
+            </p>
           </div>
-        ) : (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {formatDuration(weekly.progress.done)} esta semana · sin objetivo de tiempo
-          </p>
-        )}
-      </div>
-    </Link>
+          {goal ? (
+            <div className="mt-1.5 flex items-center gap-2">
+              <Progress
+                value={goal.progress.ratio}
+                color={goal.progress.completed ? "var(--success)" : sectionColor(section.color)}
+                className="h-2"
+              />
+              <span className="w-24 shrink-0 text-right text-[11px] font-medium text-muted-foreground">
+                {goal.progress.completed ? "✓ Cumplido" : `${formatMinutes(goal.target)} ${hasDaily ? "/día" : "/sem"}`}
+              </span>
+            </div>
+          ) : (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {formatDuration(weekly.progress.done)} esta semana
+            </p>
+          )}
+        </div>
+      </Link>
+      <Button
+        variant="soft"
+        size="icon"
+        className="mr-1.5 shrink-0 rounded-full"
+        aria-label={`Empezar una sesión de ${section.name}`}
+        onClick={() => dialogs.openStartTimer(section.id)}
+      >
+        <Play className="fill-current" />
+      </Button>
+    </div>
   );
 }
 
@@ -296,13 +360,13 @@ export function SectionsCard({ className }: { className?: string }) {
   const { active, isLoading } = useActiveSections();
   const dialogs = useDialogs();
   return (
-    <Card className={className}>
+    <Card className={className} data-tour="areas">
       <CardHeader>
         <div>
-          <CardTitle>Tus secciones</CardTitle>
-          <CardDescription>Progreso de hoy por área</CardDescription>
+          <CardTitle>🧩 Tus áreas</CardTitle>
+          <CardDescription>Tocá ▶ para empezar una sesión</CardDescription>
         </div>
-        <Button variant="ghost" size="icon-sm" aria-label="Nueva sección" onClick={() => dialogs.openSectionForm()}>
+        <Button variant="ghost" size="icon-sm" aria-label="Nueva área" onClick={() => dialogs.openSectionForm()}>
           <Plus />
         </Button>
       </CardHeader>
@@ -315,12 +379,12 @@ export function SectionsCard({ className }: { className?: string }) {
         ) : active.length === 0 ? (
           <EmptyState
             compact
-            icon={Layers}
-            title="Sin secciones"
-            description="Creá áreas como Estudio, Gimnasio o Inglés para ver tu progreso por separado."
+            emoji="🧩"
+            title="Creá tu primera área"
+            description="Programación, Gym, Inglés, Lectura… lo que quieras medir, con su ícono y color."
             action={
-              <Button size="sm" variant="soft" onClick={() => dialogs.openSectionForm()}>
-                <Plus /> Nueva sección
+              <Button variant="soft" onClick={() => dialogs.openSectionForm()}>
+                <Plus /> Nueva área
               </Button>
             }
           />

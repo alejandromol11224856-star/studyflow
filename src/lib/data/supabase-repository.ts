@@ -609,7 +609,10 @@ export function createSupabaseAuthService(): AuthService {
         password,
         options: {
           data: { display_name: displayName.trim(), timezone },
-          emailRedirectTo: `${origin()}/auth/callback?next=/onboarding`,
+          // Sin query string: la plantilla del email agrega ?token_hash=...&type=email
+          // (ver supabase/templates). Con la plantilla por defecto, Supabase
+          // redirige acá con ?code= y /confirm-email lo resuelve igual.
+          emailRedirectTo: `${origin()}/confirm-email`,
         },
       });
       if (error) throw error;
@@ -628,9 +631,27 @@ export function createSupabaseAuthService(): AuthService {
 
     async sendPasswordReset(email) {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${origin()}/auth/callback?next=/reset-password`,
+        redirectTo: `${origin()}/reset-password`,
       });
       if (error) throw error;
+    },
+
+    async resendConfirmation(email) {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: { emailRedirectTo: `${origin()}/confirm-email` },
+      });
+      if (error) throw error;
+    },
+
+    async verifyEmailLink(tokenHash, type) {
+      // "signup" quedó obsoleto en verifyOtp: el equivalente es "email".
+      const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type === "signup" ? "email" : type });
+      if (error) throw error;
+      const user = toAuthUser(data.user);
+      if (!user) throw new AppError("No se pudo abrir la sesión. Iniciá sesión con tu email y contraseña.");
+      return user;
     },
 
     async updatePassword(password) {

@@ -92,7 +92,7 @@ function LevelCard() {
         <ul className="relative mt-2 grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-2 animate-fade-in">
           <li>· 10 XP por hora registrada (máximo 12 h por día).</li>
           <li>· {XP_RULES.activityXp} XP por actividad, hasta {XP_RULES.maxActivitiesPerDay} por día (si el día suma 10 min o una medida real).</li>
-          <li>· Objetivo diario general: {XP_RULES.goalXp.daily.global} XP · por sección: {XP_RULES.goalXp.daily.section} XP.</li>
+          <li>· Objetivo diario general: {XP_RULES.goalXp.daily.global} XP · por área: {XP_RULES.goalXp.daily.section} XP.</li>
           <li>· Objetivo semanal: {XP_RULES.goalXp.weekly.global} XP · mensual: {XP_RULES.goalXp.monthly.global} XP.</li>
           <li>· {XP_RULES.habitXp} XP por hábito completado (hasta {XP_RULES.maxHabitChecksPerDay} por día).</li>
           <li>· Cada día cumplido suma más cuanto más larga es tu racha (hasta 14 XP).</li>
@@ -207,7 +207,7 @@ function RecordsGrid() {
   if (items.every((i) => !i.value)) {
     return (
       <Card>
-        <EmptyState icon={Trophy} title="Todavía no hay récords" description="Registrá actividades y cumplí objetivos: tus mejores marcas aparecen acá." />
+        <EmptyState emoji="🏅" icon={Trophy} title="Tus récords te esperan" description="Registrá actividades y cumplí objetivos: tus mejores marcas aparecen acá." />
       </Card>
     );
   }

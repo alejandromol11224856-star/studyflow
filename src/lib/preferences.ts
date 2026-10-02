@@ -19,20 +19,26 @@ export interface WidgetDefinition {
   defaultVisible: boolean;
 }
 
+/**
+ * El resumen de "Hoy" (saludo, racha, objetivo y botón Comenzar) siempre va
+ * arriba; estos widgets van debajo. Por defecto solo lo del día: las
+ * estadísticas se suman desde "Personalizar" o se ven en Progreso.
+ */
 export const WIDGETS = [
-  { id: "today", title: "Hoy", description: "Objetivos y hábitos del día con tu progreso", span: "full", defaultVisible: true },
-  { id: "daily-goal", title: "Objetivo diario", description: "Cuenta regresiva de tu meta de tiempo", span: "half", defaultVisible: true },
-  { id: "timer", title: "Temporizador", description: "Medí tu tiempo en vivo", span: "half", defaultVisible: true },
-  { id: "streak", title: "Racha", description: "Racha actual, mejor racha y últimos días", span: "third", defaultVisible: true },
-  { id: "level", title: "Nivel y XP", description: "Tu nivel y lo que falta para el próximo", span: "third", defaultVisible: true },
-  { id: "total-time", title: "Tiempo total", description: "Horas acumuladas y actividades", span: "third", defaultVisible: true },
-  { id: "recent", title: "Actividades recientes", description: "Tus últimas actividades y el reparto de hoy", span: "half", defaultVisible: true },
-  { id: "weekly", title: "Progreso semanal", description: "Tiempo por día de esta semana", span: "half", defaultVisible: true },
-  { id: "habits", title: "Hábitos", description: "Tu semana de hábitos de un vistazo", span: "half", defaultVisible: true },
-  { id: "calendar", title: "Calendario", description: "Mapa de calor del mes", span: "half", defaultVisible: true },
-  { id: "goals", title: "Objetivos", description: "Progreso semanal y mensual", span: "half", defaultVisible: false },
-  { id: "sections", title: "Secciones", description: "Progreso de hoy por área", span: "half", defaultVisible: false },
-  { id: "achievements", title: "Logros", description: "Últimos logros y los próximos", span: "half", defaultVisible: false },
+  { id: "today", title: "Objetivos y hábitos", description: "Lo que te toca hoy, para marcar en un toque", span: "full", defaultVisible: true },
+  { id: "activities-today", title: "Actividades de hoy", description: "Lo que ya registraste hoy", span: "half", defaultVisible: true },
+  { id: "sections", title: "Tus áreas", description: "Empezá una sesión en un toque", span: "half", defaultVisible: true },
+  { id: "achievements", title: "Próximos logros", description: "Lo que estás por desbloquear", span: "half", defaultVisible: false },
+  { id: "daily-goal", title: "Cuenta regresiva", description: "Tiempo que falta para tu objetivo diario", span: "half", defaultVisible: false },
+  { id: "timer", title: "Temporizador", description: "Medí tu tiempo en vivo", span: "half", defaultVisible: false },
+  { id: "streak", title: "Racha", description: "Racha actual, mejor racha y últimos días", span: "third", defaultVisible: false },
+  { id: "level", title: "Nivel y XP", description: "Tu nivel y lo que falta para el próximo", span: "third", defaultVisible: false },
+  { id: "total-time", title: "Tiempo total", description: "Horas acumuladas y actividades", span: "third", defaultVisible: false },
+  { id: "recent", title: "Actividades recientes", description: "Tus últimas actividades y el reparto de hoy", span: "half", defaultVisible: false },
+  { id: "weekly", title: "Progreso semanal", description: "Tiempo por día de esta semana", span: "half", defaultVisible: false },
+  { id: "habits", title: "Semana de hábitos", description: "Tu semana de hábitos de un vistazo", span: "half", defaultVisible: false },
+  { id: "calendar", title: "Calendario", description: "Mapa de calor del mes", span: "half", defaultVisible: false },
+  { id: "goals", title: "Objetivos de la semana y el mes", description: "Progreso semanal y mensual", span: "half", defaultVisible: false },
   { id: "stats", title: "Estadísticas", description: "Distribución del tiempo del mes", span: "half", defaultVisible: false },
 ] as const satisfies readonly WidgetDefinition[];
 
@@ -105,6 +111,9 @@ const onboardingSchema = z.object({
   completedAt: z.string().nullable().catch(null),
   skippedAt: z.string().nullable().catch(null),
   intents: z.array(z.string().max(40)).max(12).catch([]),
+  /** Tutorial interactivo: terminado o descartado ("Ahora no" / "Saltar"). */
+  tourCompletedAt: z.string().nullable().catch(null),
+  tourDismissedAt: z.string().nullable().catch(null),
 });
 
 export interface Preferences {
@@ -121,7 +130,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   widgets: defaultWidgets(),
   reminders: { enabled: true, dailyGoalTime: null },
   celebrations: "full",
-  onboarding: { completedAt: null, skippedAt: null, intents: [] },
+  onboarding: { completedAt: null, skippedAt: null, intents: [], tourCompletedAt: null, tourDismissedAt: null },
 };
 
 export function parsePreferences(raw: unknown): Preferences {

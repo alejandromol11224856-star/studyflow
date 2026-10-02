@@ -116,6 +116,7 @@ export function AuthGate({ children, fallback }: { children: React.ReactNode; fa
 function ShellContent({ children }: { children: React.ReactNode }) {
   const { mode } = useAuth();
   const { timer } = useTimerState();
+  const pathname = usePathname();
   return (
     <div className="min-h-dvh lg:pl-64">
       <Sidebar />
@@ -123,11 +124,14 @@ function ShellContent({ children }: { children: React.ReactNode }) {
       <main
         className={cn(
           "mx-auto max-w-6xl px-4 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8",
-          timer ? "pb-[calc(10rem+env(safe-area-inset-bottom))]" : "pb-[calc(6.5rem+env(safe-area-inset-bottom))]",
+          timer ? "pb-[calc(10.5rem+env(safe-area-inset-bottom))]" : "pb-[calc(7rem+env(safe-area-inset-bottom))]",
         )}
       >
         {mode === "local" && <LocalModeBanner />}
-        {children}
+        {/* Transición suave entre páginas (se reinicia con cada ruta). */}
+        <div key={pathname} className="animate-page-in">
+          {children}
+        </div>
       </main>
       <TimerMiniBar />
       <MobileTabBar />

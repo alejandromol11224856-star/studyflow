@@ -3,37 +3,53 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------
-   Design tokens
+   Design tokens — identidad "Friendly Gamified Productivity"
    Todos los colores de la UI salen de estas variables, así el modo
-   claro/oscuro se resuelve en un solo lugar.
+   claro/oscuro se resuelve en un solo lugar. Los pares texto/fondo
+   están verificados con contraste WCAG AA (>= 4.5:1).
 ---------------------------------------------------------------- */
 :root {
-  --background: #f7f7f8;
-  --foreground: #0b0b0f;
+  --background: #f5f4fb;
+  --foreground: #14112b;
   --card: #ffffff;
-  --card-foreground: #0b0b0f;
+  --card-foreground: #14112b;
   --popover: #ffffff;
-  --muted: #f1f1f4;
-  --muted-foreground: #6b6b76;
-  --subtle: #f7f7f9;
-  --border: #e6e6ea;
-  --input: #e2e2e8;
+  --muted: #f0eff8;
+  --muted-foreground: #5f5c78;
+  --subtle: #f8f7fd;
+  --border: #e6e4f0;
+  --input: #dcd9ea;
   /* Acento (ver bloque [data-accent] más abajo). --primary = relleno con texto
-     blanco; --primary-text = acento usado como texto/ícono sobre superficies.
-     Todos los pares validados con contraste WCAG AA. */
+     blanco; --primary-text = acento usado como texto/ícono sobre superficies. */
   --primary: #5b4ef5;
   --primary-text: #4f42e3;
   --primary-foreground: #ffffff;
   --primary-hover: color-mix(in srgb, var(--primary) 86%, black);
   --primary-soft: color-mix(in srgb, var(--primary) 10%, var(--card));
   --ring: var(--primary);
-  --success: #12a36d;
-  --success-soft: #e3f7ee;
-  --warning: #d98b06;
-  --warning-soft: #fdf3dc;
-  --danger: #e5484d;
-  --danger-soft: #fdeaea;
-  --shadow-color: 220 20% 10%;
+  --success: #0b7a51;
+  --success-soft: #e4f6ed;
+  --warning: #955b07;
+  --warning-soft: #fdf3df;
+  --danger: #c62a35;
+  --danger-soft: #fdeced;
+  --shadow-color: 248 40% 18%;
+
+  /* Gamificación: XP (ámbar) y racha (fuego). *-text para texto, el resto para rellenos. */
+  --xp: #f59e0b;
+  --xp-text: #b45309;
+  --xp-soft: color-mix(in srgb, var(--xp) 14%, var(--card));
+  --streak: #f97316;
+  --streak-text: #c2410c;
+  --streak-soft: color-mix(in srgb, var(--streak) 12%, var(--card));
+
+  /* Gradientes. El de acento solo oscurece (el texto blanco mantiene el contraste). */
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 78%, black) 100%);
+  --gradient-xp: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  --gradient-streak: linear-gradient(135deg, #fb923c 0%, #f43f5e 100%);
+  --gradient-success: linear-gradient(90deg, #34d399 0%, #10b981 100%);
+  --glow-primary: color-mix(in srgb, var(--primary) 9%, transparent);
+  --glow-warm: color-mix(in srgb, #f59e0b 7%, transparent);
 
   /* Paleta categórica de secciones (validada para daltonismo, modo claro) */
   --sec-blue: #2a78d6;
@@ -58,16 +74,16 @@
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #f4f4f6;
-  --card: #111114;
-  --card-foreground: #f4f4f6;
-  --popover: #16161a;
-  --muted: #1b1b20;
-  --muted-foreground: #9a9aa6;
-  --subtle: #141418;
-  --border: #25252b;
-  --input: #2c2c33;
+  --background: #0b0a12;
+  --foreground: #f3f2fa;
+  --card: #15131f;
+  --card-foreground: #f3f2fa;
+  --popover: #1b1928;
+  --muted: #1e1c2b;
+  --muted-foreground: #a4a1ba;
+  --subtle: #12101b;
+  --border: #2a2739;
+  --input: #34314a;
   --primary: #5f53e8;
   --primary-text: #a29bff;
   --primary-foreground: #ffffff;
@@ -80,7 +96,16 @@
   --warning-soft: #2d2410;
   --danger: #f2555a;
   --danger-soft: #2e1415;
-  --shadow-color: 0 0% 0%;
+  --shadow-color: 250 50% 2%;
+
+  --xp: #f5a524;
+  --xp-text: #fbbf24;
+  --xp-soft: color-mix(in srgb, var(--xp) 14%, var(--card));
+  --streak: #ea580c;
+  --streak-text: #fb923c;
+  --streak-soft: color-mix(in srgb, var(--streak) 14%, var(--card));
+  --glow-primary: color-mix(in srgb, var(--primary) 16%, transparent);
+  --glow-warm: color-mix(in srgb, #f59e0b 5%, transparent);
 
   /* Misma paleta, con los pasos validados para superficie oscura */
   --sec-blue: #3987e5;
@@ -141,26 +166,36 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-xp: var(--xp);
+  --color-xp-text: var(--xp-text);
+  --color-xp-soft: var(--xp-soft);
+  --color-streak: var(--streak);
+  --color-streak-text: var(--streak-text);
+  --color-streak-soft: var(--streak-soft);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.04), 0 1px 3px hsl(var(--shadow-color) / 0.04);
-  --shadow-elevated: 0 8px 30px hsl(var(--shadow-color) / 0.12), 0 2px 6px hsl(var(--shadow-color) / 0.06);
+  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.04), 0 6px 20px -8px hsl(var(--shadow-color) / 0.08);
+  --shadow-elevated: 0 14px 40px -12px hsl(var(--shadow-color) / 0.18), 0 2px 6px hsl(var(--shadow-color) / 0.05);
 
   --animate-fade-in: fade-in 0.25s ease-out both;
-  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-scale-in: scale-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-pop: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-page-in: page-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-flame: flame 2.4s ease-in-out infinite;
+  --animate-float-in: float-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-bounce-soft: bounce-soft 2.6s ease-in-out infinite;
 
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
   @keyframes scale-in {
@@ -179,6 +214,22 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.45; }
   }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flame {
+    0%, 100% { transform: rotate(-3deg) scale(1); }
+    50% { transform: rotate(3deg) scale(1.08); }
+  }
+  @keyframes float-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes bounce-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
 }
 
 @layer base {
@@ -193,10 +244,17 @@
     color-scheme: dark;
   }
   body {
-    background: var(--background);
+    /* Brillo sutil arriba (acento + cálido): da calidez sin distraer. */
+    background:
+      radial-gradient(900px 460px at 88% -140px, var(--glow-primary), transparent 70%),
+      radial-gradient(700px 380px at -8% -120px, var(--glow-warm), transparent 70%),
+      var(--background);
+    background-repeat: no-repeat;
     color: var(--foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
   }
   ::selection {
     background: color-mix(in srgb, var(--primary) 25%, transparent);
@@ -243,6 +301,17 @@
   animation: var(--animate-shimmer);
 }
 
+/* Tarjetas que se "levantan" al pasar el mouse (solo con puntero fino). */
+@utility lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-elevated);
+    }
+  }
+}
+
 /* Animaciones de Radix (dialogs / menús) basadas en data-state.
    En móvil el diálogo entra como hoja inferior; en escritorio, con escala. */
 .dialog-overlay[data-state="open"] { animation: fade-in 0.2s ease-out; }
@@ -276,6 +345,7 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

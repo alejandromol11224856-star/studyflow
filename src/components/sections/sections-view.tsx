@@ -65,7 +65,7 @@ function SectionActions({ section, onDelete }: { section: Section; onDelete: () 
             onSelect={() =>
               update.mutate(
                 { id: section.id, patch: { isActive: !section.isActive } },
-                { onSuccess: () => toast.success(section.isActive ? "Sección pausada" : "Sección activada") },
+                { onSuccess: () => toast.success(section.isActive ? "Área pausada" : "Área activada") },
               )
             }
           >
@@ -76,7 +76,7 @@ function SectionActions({ section, onDelete }: { section: Section; onDelete: () 
           onSelect={() =>
             update.mutate(
               { id: section.id, patch: { archivedAt: archived ? null : new Date().toISOString() } },
-              { onSuccess: () => toast.success(archived ? "Sección restaurada" : "Sección archivada") },
+              { onSuccess: () => toast.success(archived ? "Área restaurada" : "Área archivada") },
             )
           }
         >
@@ -174,7 +174,7 @@ export function SectionsView() {
   return (
     <div>
       <PageHeader
-        title="Secciones"
+        title="🧩 Áreas"
         description="Las áreas de tu vida que querés medir. Nombre, ícono, color y objetivos: todo lo definís vos."
         actions={
           <>
@@ -184,7 +184,7 @@ export function SectionsView() {
               </Button>
             )}
             <Button onClick={() => dialogs.openSectionForm()}>
-              <Plus /> Nueva sección
+              <Plus /> Nueva área
             </Button>
           </>
         }
@@ -198,13 +198,13 @@ export function SectionsView() {
         </div>
       ) : current.length === 0 ? (
         <Card>
-          <EmptyState
+          <EmptyState emoji="🧩"
             icon={Layers}
-            title="Creá tu primera sección"
-            description="Estudio, Trabajo, Gimnasio, Meditación… cualquier área que quieras mejorar."
+            title="Creá tu primera área"
+            description="Programación, Gym, Inglés, Lectura… cualquier área que quieras mejorar, con su ícono, color y objetivo."
             action={
               <Button onClick={() => dialogs.openSectionForm()}>
-                <Plus /> Nueva sección
+                <Plus /> Nueva área
               </Button>
             }
           />
@@ -265,13 +265,13 @@ export function SectionsView() {
         open={Boolean(toDelete)}
         onOpenChange={(o) => !o && setToDelete(null)}
         title={`¿Eliminar "${toDelete?.name}"?`}
-        description="Se borran la sección y sus objetivos. Tus actividades y hábitos se conservan sin sección. Si solo querés ocultarla, archivala o pausala."
-        confirmLabel="Eliminar sección"
+        description="Se borran el área y sus objetivos. Tus actividades y hábitos se conservan sin área. Si solo querés ocultarla, archivala o pausala."
+        confirmLabel="Eliminar área"
         destructive
         onConfirm={async () => {
           if (!toDelete) return;
           await remove.mutateAsync(toDelete.id);
-          toast.success("Sección eliminada");
+          toast.success("Área eliminada");
         }}
       />
     </div>

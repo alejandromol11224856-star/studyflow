@@ -6,9 +6,17 @@ export function Skeleton({ className, ...props }: ComponentProps<"div">) {
   return <div aria-hidden className={cn("skeleton rounded-xl", className)} {...props} />;
 }
 
+const PROGRESS_TONES = {
+  primary: "bg-[image:var(--gradient-primary)]",
+  success: "bg-[image:var(--gradient-success)]",
+  xp: "bg-[image:var(--gradient-xp)]",
+  streak: "bg-[image:var(--gradient-streak)]",
+} as const;
+
 export function Progress({
   value,
   color,
+  tone = "primary",
   className,
   barClassName,
   label,
@@ -16,6 +24,7 @@ export function Progress({
   /** 0..1 */
   value: number;
   color?: string;
+  tone?: keyof typeof PROGRESS_TONES;
   className?: string;
   barClassName?: string;
   label?: string;
@@ -28,10 +37,10 @@ export function Progress({
       aria-valuemax={100}
       aria-valuenow={Math.round(pct)}
       aria-label={label}
-      className={cn("h-2 w-full overflow-hidden rounded-full bg-muted", className)}
+      className={cn("h-2.5 w-full overflow-hidden rounded-full bg-muted", className)}
     >
       <div
-        className={cn("h-full rounded-full bg-primary transition-[width] duration-700 ease-out", barClassName)}
+        className={cn("h-full rounded-full transition-[width] duration-700 ease-out", PROGRESS_TONES[tone], barClassName)}
         style={{ width: `${pct}%`, ...(color ? { background: color } : null) }}
       />
     </div>
@@ -63,15 +72,21 @@ export function Badge({
   );
 }
 
+/**
+ * Estado vacío amable: nunca una pantalla fría. Con `emoji` se muestra un
+ * emoji grande (más cálido); si no, el ícono.
+ */
 export function EmptyState({
   icon: Icon,
+  emoji,
   title,
   description,
   action,
   className,
   compact,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  emoji?: string;
   title: string;
   description?: ReactNode;
   action?: ReactNode;
@@ -79,13 +94,19 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center", compact ? "py-8" : "py-14", className)}>
-      <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary-soft text-primary-text">
-        <Icon className="size-6" />
+    <div className={cn("flex flex-col items-center justify-center px-2 text-center", compact ? "py-7" : "py-12", className)}>
+      <div
+        aria-hidden
+        className={cn(
+          "mb-4 flex items-center justify-center rounded-[22px] bg-primary-soft text-primary-text animate-pop",
+          compact ? "size-14 text-[28px]" : "size-[72px] text-[36px]",
+        )}
+      >
+        {emoji ?? (Icon && <Icon className={compact ? "size-6" : "size-8"} />)}
       </div>
-      <h3 className="text-sm font-semibold">{title}</h3>
-      {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
-      {action && <div className="mt-5">{action}</div>}
+      <h3 className={cn("font-bold tracking-tight", compact ? "text-[15px]" : "text-lg")}>{title}</h3>
+      {description && <div className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</div>}
+      {action && <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
   );
 }
@@ -104,7 +125,7 @@ export function SegmentedControl<T extends string>({
   size?: "sm" | "md";
 }) {
   return (
-    <div role="tablist" className={cn("inline-flex rounded-xl bg-muted p-1", className)}>
+    <div role="tablist" className={cn("inline-flex rounded-[14px] bg-muted p-1", className)}>
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -115,8 +136,8 @@ export function SegmentedControl<T extends string>({
             aria-selected={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              "flex-1 whitespace-nowrap rounded-lg font-medium transition-all",
-              size === "sm" ? "h-7 px-2.5 text-xs" : "h-8 px-3 text-sm",
+              "flex-1 whitespace-nowrap rounded-[10px] font-semibold transition-all",
+              size === "sm" ? "h-8 px-3 text-xs" : "h-9 px-3.5 text-sm",
               active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
             )}
           >

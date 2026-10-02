@@ -23,7 +23,7 @@ const FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Layers,
     title: "Áreas 100% tuyas",
-    text: "Estudio, Trabajo, Gimnasio, Meditación… creás las secciones que quieras, con su ícono, color y metas.",
+    text: "Estudio, Trabajo, Gimnasio, Meditación… creás las áreas que quieras, con su ícono, color y metas.",
   },
   {
     icon: Trophy,

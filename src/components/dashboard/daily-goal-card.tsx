@@ -113,7 +113,7 @@ export function DailyGoalCard({ className }: { className?: string }) {
             value={ratio}
             label="Progreso del objetivo diario"
             className="h-3"
-            barClassName={completed ? "bg-success" : "bg-linear-to-r from-primary/60 to-primary"}
+            tone={completed ? "success" : "primary"}
           />
           <div className="mt-2.5 flex items-center justify-between text-sm">
             <span>

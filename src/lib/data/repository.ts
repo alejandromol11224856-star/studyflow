@@ -1,3 +1,4 @@
+import type { EmailLinkType } from "../auth-links";
 import type { DateKey, DateRange } from "../dates";
 import type {
   ActiveTimer,
@@ -89,6 +90,13 @@ export interface AuthService {
   signUp(input: SignUpInput): Promise<SignUpResult>;
   signOut(): Promise<void>;
   sendPasswordReset(email: string): Promise<void>;
+  /** Vuelve a enviar el email de confirmación de cuenta. */
+  resendConfirmation(email: string): Promise<void>;
+  /**
+   * Usa el enlace de un email (token_hash) y abre la sesión. Solo debe
+   * llamarse cuando la persona toca el botón de confirmar (nunca al cargar).
+   */
+  verifyEmailLink(tokenHash: string, type: EmailLinkType): Promise<AuthUser>;
   updatePassword(password: string): Promise<void>;
   onChange(callback: (user: AuthUser | null) => void): () => void;
   createRepository(user: AuthUser): Repository;

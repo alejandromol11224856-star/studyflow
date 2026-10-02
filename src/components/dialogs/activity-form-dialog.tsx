@@ -129,7 +129,7 @@ function ActivityForm({ options, onDone }: { options: ActivityFormOptions; onDon
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {chipSections.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[13px] font-medium">Sección</p>
+          <p className="text-[13px] font-medium">Área</p>
           <SectionChips sections={chipSections} value={sectionId} onChange={setSectionId} />
         </div>
       )}

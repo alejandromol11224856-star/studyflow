@@ -84,7 +84,7 @@ export function SectionChips({
       ))}
       {allowNone && (
         <button type="button" className={chip(value === null)} onClick={() => onChange(null)} aria-pressed={value === null}>
-          Sin sección
+          Sin área
         </button>
       )}
     </div>

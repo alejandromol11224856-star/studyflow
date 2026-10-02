@@ -21,6 +21,7 @@ export const DATA_MODE: "supabase" | "local" = isSupabaseConfigured ? "supabase"
 /** Rutas que requieren sesión iniciada. */
 export const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/progress",
   "/activities",
   "/sections",
   "/calendar",
@@ -33,4 +34,4 @@ export const PROTECTED_PREFIXES = [
 ];
 
 /** Rutas de autenticación (si ya hay sesión, se redirige al dashboard). */
-export const AUTH_ROUTES = ["/login", "/register", "/forgot-password"];
+export const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/check-email"];

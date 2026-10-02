@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   ArrowDownRight,
   ArrowUpRight,
   CalendarCheck,
@@ -12,6 +13,7 @@ import {
   Table2,
   Target,
 } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   ChartLegend,
@@ -173,15 +175,18 @@ export function StatsView() {
 
   return (
     <div>
+      <Link href="/progress" className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+        <ArrowLeft className="size-4" /> Progreso
+      </Link>
       <PageHeader
-        title="Estadísticas"
+        title="📊 Estadísticas completas"
         description="En qué se va tu tiempo y cómo evoluciona tu constancia."
         actions={<SegmentedControl value={rangeKey} onChange={setRangeKey} options={RANGES.map((r) => ({ value: r.value, label: r.label }))} />}
       />
 
       {empty ? (
         <Card>
-          <EmptyState icon={ChartColumn} title="Todavía no hay datos" description="Registrá algunas actividades y acá vas a ver gráficos de tu progreso." />
+          <EmptyState emoji="📈" icon={ChartColumn} title="Tus estadísticas aparecen acá" description="Registrá algunas actividades y vas a ver gráficos de tu progreso. ¡Empezá hoy!" />
         </Card>
       ) : (
         <div className="space-y-4">
@@ -236,7 +241,7 @@ export function StatsView() {
             <CardHeader>
               <div>
                 <CardTitle>{chartTitle}</CardTitle>
-                <CardDescription>Desglosado por sección</CardDescription>
+                <CardDescription>Desglosado por área</CardDescription>
               </div>
               <button
                 type="button"
@@ -272,13 +277,13 @@ export function StatsView() {
             <Card className="lg:col-span-5">
               <CardHeader>
                 <div>
-                  <CardTitle>Por sección</CardTitle>
+                  <CardTitle>Por área</CardTitle>
                   <CardDescription>{previous ? "Reparto del tiempo y cambio vs. el período anterior" : "Reparto del tiempo"}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="pt-4">
                 {distribution.length === 0 ? (
-                  <EmptyState compact icon={ChartColumn} title="Sin actividad en este período" />
+                  <EmptyState emoji="🌤️" compact icon={ChartColumn} title="Sin actividad en este período" />
                 ) : (
                   <ul className="space-y-3.5">
                     {distribution.map((d) => {
@@ -290,7 +295,7 @@ export function StatsView() {
                           <SectionAvatar section={s} size="sm" />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline justify-between gap-2 text-sm">
-                              <span className="truncate font-medium">{s?.name ?? "Sin sección"}</span>
+                              <span className="truncate font-medium">{s?.name ?? "Sin área"}</span>
                               <span className="shrink-0">
                                 <b className="font-semibold">{formatDuration(d.seconds)}</b>{" "}
                                 <span className="text-xs text-muted-foreground tabular">{formatPercent(d.seconds / total.seconds)}</span>
@@ -322,7 +327,7 @@ export function StatsView() {
               </CardHeader>
               <CardContent className="pt-4">
                 {compliance.length === 0 ? (
-                  <EmptyState compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
+                  <EmptyState emoji="🎯" compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
                 ) : (
                   <StackedBarChart
                     rows={compliance.map((w) => ({ key: w.key, total: w.total, pct: w.total }))}
@@ -374,7 +379,7 @@ export function StatsView() {
               </CardHeader>
               <CardContent className="pt-4">
                 {habitRows.length === 0 ? (
-                  <EmptyState compact icon={ListChecks} title="Sin hábitos en este período" />
+                  <EmptyState emoji="🔥" compact icon={ListChecks} title="Sin hábitos en este período" />
                 ) : (
                   <ul className="space-y-3">
                     {habitRows.map((r) => (
@@ -455,8 +460,8 @@ export function StatsView() {
             />
             <Highlight
               icon={Target}
-              label="Sección principal"
-              value={distribution[0] ? (byId.get(distribution[0].sectionId ?? "")?.name ?? "Sin sección") : "—"}
+              label="Área principal"
+              value={distribution[0] ? (byId.get(distribution[0].sectionId ?? "")?.name ?? "Sin área") : "—"}
               hint={distribution[0] ? `${formatPercent(distribution[0].seconds / total.seconds)} de tu tiempo` : undefined}
             />
           </div>
@@ -492,7 +497,7 @@ function DataTable({
   labelFor: (k: string) => string;
 }) {
   const visible = [...rows].reverse().filter((r) => r.total > 0);
-  if (visible.length === 0) return <EmptyState compact icon={Table2} title="Sin datos en este período" />;
+  if (visible.length === 0) return <EmptyState emoji="📋" compact icon={Table2} title="Sin datos en este período" />;
   return (
     <div className="max-h-[360px] overflow-auto rounded-xl border border-border">
       <table className="w-full min-w-[480px] text-sm">

@@ -40,3 +40,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Celebraciones solo vía `useCelebrations()`; las transiciones se detectan en `ProgressWatcher`.
 - Errores de mutaciones: los muestra el `MutationCache` global; usar `meta: { silent: true }` solo
   si la mutación muestra su propio aviso.
+- Enlaces de email (auth): NUNCA usar un `token_hash` en un GET (los escáneres de correo lo
+  consumen). `/confirm-email` y `/reset-password` lo verifican solo al tocar el botón
+  (`verifyEmailLink`). `?code=` (PKCE) se canjea en `/auth/callback`. Lógica pura en
+  `src/lib/auth-links.ts` (con tests). Plantillas en `supabase/templates/`.
+- Identidad visual: tokens en `globals.css` (`--gradient-*`, `--xp*`, `--streak*`); botones
+  `variant="gradient"` + `size="xl"` para la acción principal de cada pantalla. Todo color nuevo
+  de texto debe pasar WCAG AA en claro y oscuro.
+- Tutorial: los elementos resaltados llevan `data-tour="..."` (ver `TOUR_STEPS` en
+  `components/onboarding/product-tour.tsx`). Si movés uno, mantené el atributo. Contenedores
+  decorativos que contengan targets: `overflow-clip` (no `overflow-hidden`).
+- Celebraciones y XP: `useCelebrations()` → `celebrate`, `showXp`, `levelUp`. El +XP se detecta
+  en `ProgressWatcher` comparando el XP derivado (no se guarda).
+- Textos: el usuario ve "Áreas" (el código y la ruta siguen siendo `sections`). Mensajes
+  motivadores amables, nunca culposos (`lib/domain/motivation.ts`).

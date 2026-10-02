@@ -28,12 +28,15 @@ export const METRIC_META: Record<
   GoalMetric,
   { label: string; unit: string; hint: string; step: number; max: number; placeholder: string }
 > = {
-  time: { label: "Tiempo", unit: "min", hint: "Ej: estudiar 3 horas", step: 1, max: 44640, placeholder: "" },
-  count: { label: "Veces", unit: "veces", hint: "Ej: entrenar 4 veces por semana", step: 1, max: 1000, placeholder: "4" },
-  pages: { label: "Páginas", unit: "páginas", hint: "Ej: leer 30 páginas por día", step: 1, max: 100000, placeholder: "30" },
-  distance: { label: "Distancia", unit: "km", hint: "Ej: caminar 5 km por día", step: 0.1, max: 100000, placeholder: "5" },
-  reps: { label: "Repeticiones", unit: "repeticiones", hint: "Ej: 100 flexiones por día", step: 1, max: 1000000, placeholder: "100" },
+  time: { label: "Tiempo", unit: "min", hint: "Ej: Programación → 2 horas · Inglés → 30 minutos", step: 1, max: 44640, placeholder: "" },
+  count: { label: "Veces", unit: "veces", hint: "Ej: Gym → 4 veces por semana", step: 1, max: 1000, placeholder: "4" },
+  pages: { label: "Páginas", unit: "páginas", hint: "Ej: Lectura → 30 páginas por día", step: 1, max: 100000, placeholder: "30" },
+  distance: { label: "Distancia", unit: "km", hint: "Ej: Running → 5 km", step: 0.1, max: 100000, placeholder: "5" },
+  reps: { label: "Repeticiones", unit: "repeticiones", hint: "Ej: Flexiones → 100 por día", step: 1, max: 1000000, placeholder: "100" },
 };
+
+/** Emoji de cada métrica (para elegirla de un vistazo). */
+export const METRIC_EMOJI: Record<GoalMetric, string> = { time: "⏱️", count: "🔁", pages: "📖", distance: "📍", reps: "💪" };
 
 export const PERIOD_SUFFIX: Record<GoalPeriod, string> = {
   daily: "por día",

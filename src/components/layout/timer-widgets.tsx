@@ -12,7 +12,7 @@ function useTimerLabel() {
   const { timer } = useTimerState();
   const sectionMap = useSectionMap();
   const section = timer?.sectionId ? sectionMap.get(timer.sectionId) : undefined;
-  return { section, label: timer?.title || section?.name || "Sesión sin sección" };
+  return { section, label: timer?.title || section?.name || "Sesión sin área" };
 }
 
 /** Bloque del temporizador en la barra lateral de escritorio. */

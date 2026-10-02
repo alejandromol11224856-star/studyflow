@@ -1,9 +1,10 @@
 "use client";
 
-import { Bell, Check, Cloud, Crown, Download, HardDrive, LogOut, RotateCcw } from "lucide-react";
+import { Bell, Check, Cloud, Crown, Download, HardDrive, LogOut, RotateCcw, Target } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { PageHeader } from "@/components/layout/page-header";
 import { ThemeSwitcher } from "@/components/layout/theme-toggle";
 import { useSignOut } from "@/components/layout/user-menu";
@@ -14,7 +15,9 @@ import { Field, Input, Select } from "@/components/ui/input";
 import { Badge, SegmentedControl, Skeleton } from "@/components/ui/misc";
 import { Switch } from "@/components/ui/switch";
 import { useProfile, useSections, useUpdatePreferences, useUpdateProfile } from "@/hooks/use-data";
+import { useGoalStatuses } from "@/hooks/use-metrics";
 import { type WeekStart, browserTimeZone, isValidTimeZone, listTimeZones } from "@/lib/dates";
+import { goalSummary } from "@/lib/domain/goals";
 import { getErrorMessage } from "@/lib/errors";
 import { type PermissionState, notificationPermission, requestNotificationPermission } from "@/lib/notifications";
 import { PLANS, getPlan } from "@/lib/plans";
@@ -23,13 +26,39 @@ import type { Activity, Profile, Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { fieldErrors, resetPasswordSchema } from "@/lib/validation";
 
+const SECTIONS = [
+  { id: "perfil", label: "👤 Perfil" },
+  { id: "tutorial", label: "🧭 Tutorial" },
+  { id: "apariencia", label: "🎨 Tema y color" },
+  { id: "idioma", label: "🌎 Idioma" },
+  { id: "objetivos", label: "🎯 Objetivos" },
+  { id: "notificaciones", label: "🔔 Notificaciones" },
+  { id: "datos", label: "💾 Datos" },
+  { id: "cuenta", label: "🔐 Cuenta" },
+];
+
 export function SettingsView() {
   const { data: profile, isLoading } = useProfile();
   return (
     <div className="max-w-3xl space-y-4">
-      <PageHeader title="Ajustes" description="Tu perfil, apariencia, recordatorios y datos." />
+      <PageHeader title="⚙️ Ajustes" description="Tu perfil, el tutorial, apariencia, objetivos, notificaciones y datos." />
+      {/* Accesos rápidos: en el celular evitan scrollear toda la página. */}
+      <nav aria-label="Apartados de ajustes" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:px-0">
+        {SECTIONS.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="shrink-0 rounded-full border border-border bg-card px-3.5 py-2 text-[13px] font-semibold shadow-card transition hover:bg-muted active:scale-95"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
       {isLoading || !profile ? <Skeleton className="h-64" /> : <ProfileCard key={profile.id} profile={profile} />}
+      <TutorialCard />
       <AppearanceCard />
+      <LanguageCard />
+      <GoalsCard />
       <RemindersCard />
       <PlanCard />
       <DataCard />
@@ -38,17 +67,103 @@ export function SettingsView() {
   );
 }
 
-function SettingsCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function SettingsCard({
+  id,
+  emoji,
+  title,
+  description,
+  children,
+}: {
+  id?: string;
+  emoji?: string;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <Card>
+    <Card id={id} className="scroll-mt-20 lg:scroll-mt-6">
       <CardHeader>
-        <div>
-          <CardTitle className="text-base">{title}</CardTitle>
-          {description && <CardDescription className="text-sm">{description}</CardDescription>}
+        <div className="flex items-start gap-3">
+          {emoji && (
+            <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted text-xl">
+              {emoji}
+            </span>
+          )}
+          <div>
+            <CardTitle className="text-base">{title}</CardTitle>
+            {description && <CardDescription className="text-sm">{description}</CardDescription>}
+          </div>
         </div>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
+  );
+}
+
+function TutorialCard() {
+  return (
+    <SettingsCard id="tutorial" emoji="🧭" title="Tutorial" description="Volvé a ver cómo funciona StudyFlow, paso a paso.">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Link href="/dashboard?tour=1" className={buttonVariants({ variant: "gradient" })}>
+          🚀 Repetir tutorial
+        </Link>
+        <Link href="/onboarding" className={buttonVariants({ variant: "outline" })}>
+          <RotateCcw /> Repetir configuración inicial
+        </Link>
+      </div>
+    </SettingsCard>
+  );
+}
+
+function LanguageCard() {
+  return (
+    <SettingsCard id="idioma" emoji="🌎" title="Idioma">
+      <Field label="Idioma de la app" hint="Por ahora StudyFlow está disponible solo en español.">
+        {(id, d) => (
+          <Select id={id} aria-describedby={d} value="es-AR" disabled onChange={() => undefined}>
+            <option value="es-AR">Español (Argentina)</option>
+          </Select>
+        )}
+      </Field>
+    </SettingsCard>
+  );
+}
+
+function GoalsCard() {
+  const dialogs = useDialogs();
+  const { statuses, isLoading } = useGoalStatuses();
+  const global = statuses.filter((s) => s.goal.sectionId === null);
+  return (
+    <SettingsCard id="objetivos" emoji="🎯" title="Objetivos" description="Tus metas generales. Las de cada área se editan en esa área.">
+      {isLoading ? (
+        <Skeleton className="h-16" />
+      ) : global.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Todavía no tenés objetivos generales.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {global.map((s) => (
+            <li key={`${s.goal.period}|${s.goal.metric}`} className="flex items-center justify-between gap-3 rounded-2xl bg-muted/60 px-3.5 py-2.5 text-sm">
+              <span className="font-semibold">{goalSummary(s.goal)}</span>
+              <button
+                type="button"
+                className="text-xs font-bold text-primary-text hover:underline"
+                onClick={() => dialogs.openGoalDialog({ sectionId: null, period: s.goal.period, metric: s.goal.metric, lock: true })}
+              >
+                Cambiar
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <Button variant="soft" onClick={() => dialogs.openGoalDialog({ sectionId: null })}>
+          <Target /> Nuevo objetivo
+        </Button>
+        <Link href="/goals" className={buttonVariants({ variant: "outline" })}>
+          Ver todos los objetivos
+        </Link>
+      </div>
+    </SettingsCard>
   );
 }
 
@@ -67,7 +182,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
     weekStartsOn !== profile.weekStartsOn;
 
   return (
-    <SettingsCard title="Perfil" description="La zona horaria define cuándo empieza tu día (y se reinician los objetivos).">
+    <SettingsCard id="perfil" emoji="👤" title="Perfil" description="La zona horaria define cuándo empieza tu día (y se reinician los objetivos).">
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -123,10 +238,7 @@ function ProfileCard({ profile }: { profile: Profile }) {
             )}
           </Field>
         </div>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-          <Link href="/onboarding" className={buttonVariants({ variant: "ghost" })}>
-            <RotateCcw /> Repetir configuración inicial
-          </Link>
+        <div className="flex justify-end">
           <Button type="submit" loading={update.isPending} disabled={!dirty}>
             Guardar cambios
           </Button>
@@ -142,7 +254,7 @@ function AppearanceCard() {
   const accent = profile?.preferences.accent ?? "violet";
   const celebrations = profile?.preferences.celebrations ?? "full";
   return (
-    <SettingsCard title="Apariencia" description="Tema, color principal y celebraciones. Los colores elegibles mantienen buen contraste.">
+    <SettingsCard id="apariencia" emoji="🎨" title="Tema y color" description="Claro u oscuro, color principal y celebraciones. Todos los colores mantienen buen contraste.">
       <div className="space-y-5">
         <div>
           <p className="mb-2 text-[13px] font-medium">Tema</p>
@@ -197,7 +309,7 @@ function RemindersCard() {
   const reminders = profile?.preferences.reminders ?? { enabled: true, dailyGoalTime: null };
 
   return (
-    <SettingsCard title="Recordatorios" description="Avisos de hábitos (a la hora que elijas en cada uno) y de tu objetivo diario.">
+    <SettingsCard id="notificaciones" emoji="🔔" title="Notificaciones y recordatorios" description="Avisos de hábitos (a la hora que elijas en cada uno) y de tu objetivo diario.">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -242,7 +354,7 @@ function PlanCard() {
   const { data: profile } = useProfile();
   const plan = getPlan(profile?.plan);
   return (
-    <SettingsCard title="Plan">
+    <SettingsCard id="plan" emoji="👑" title="Plan">
       <div className="flex items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-text">
           <Crown className="size-5" />
@@ -252,7 +364,7 @@ function PlanCard() {
             Plan {plan.name} <Badge tone="primary">Actual</Badge>
           </p>
           <p className="text-sm text-muted-foreground">{plan.description}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Sin límites de secciones, hábitos ni objetivos.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Sin límites de áreas, hábitos ni objetivos.</p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
@@ -344,7 +456,7 @@ function DataCard() {
   }
 
   return (
-    <SettingsCard title="Tus datos" description="Descargá todo lo que registraste cuando quieras.">
+    <SettingsCard id="datos" emoji="💾" title="Tus datos y exportación" description="Descargá todo lo que registraste cuando quieras.">
       <div className="mb-4 flex items-center gap-3 rounded-xl bg-muted/60 p-3 text-sm">
         {mode === "supabase" ? <Cloud className="size-4 shrink-0 text-success" /> : <HardDrive className="size-4 shrink-0 text-warning" />}
         <span>
@@ -392,7 +504,7 @@ function AccountCard() {
   }
 
   return (
-    <SettingsCard title="Cuenta" description={user?.email}>
+    <SettingsCard id="cuenta" emoji="🔐" title="Cuenta" description={user?.email}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Nueva contraseña" error={errors.password}>

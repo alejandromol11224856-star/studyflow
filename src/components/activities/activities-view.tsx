@@ -1,6 +1,6 @@
 "use client";
 
-import { NotebookPen, Plus, Search, SearchX } from "lucide-react";
+import { NotebookPen, Play, Plus, Search, SearchX } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { PageHeader } from "@/components/layout/page-header";
@@ -102,8 +102,8 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
             type="search"
           />
         </div>
-        <Select value={section} onChange={(e) => setSection(e.target.value)} aria-label="Filtrar por sección">
-          <option value="all">Todas las secciones</option>
+        <Select value={section} onChange={(e) => setSection(e.target.value)} aria-label="Filtrar por área">
+          <option value="all">Todas las áreas</option>
           {activeSections.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
@@ -118,7 +118,7 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
               ))}
             </optgroup>
           )}
-          <option value={NO_SECTION_KEY}>Sin sección</option>
+          <option value={NO_SECTION_KEY}>Sin área</option>
         </Select>
         <Select value={rangeKey} onChange={(e) => setRangeKey(e.target.value as RangeKey)} aria-label="Rango de fechas">
           {RANGE_OPTIONS.map((o) => (
@@ -149,10 +149,10 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
       ) : groups.length === 0 ? (
         <Card>
           {filtered ? (
-            <EmptyState
+            <EmptyState emoji="🔎"
               icon={SearchX}
               title="Sin resultados"
-              description="No hay actividades que coincidan con los filtros."
+              description="No hay actividades que coincidan con los filtros. Probá con otros."
               action={
                 <Button
                   variant="outline"
@@ -167,14 +167,19 @@ export function ActivitiesView({ initialSection }: { initialSection?: string }) 
               }
             />
           ) : (
-            <EmptyState
+            <EmptyState emoji="🌱"
               icon={NotebookPen}
-              title="Tu historial está vacío"
-              description="Registrá tu primera actividad o usá el temporizador desde el inicio."
+              title="No tenés actividades todavía"
+              description="Empezá con una sesión de 10 minutos. Tu primera racha empieza hoy 🚀"
               action={
-                <Button onClick={() => dialogs.openActivityForm()}>
-                  <Plus /> Registrar actividad
-                </Button>
+                <>
+                  <Button variant="gradient" size="lg" onClick={() => dialogs.openStartTimer()}>
+                    <Play className="fill-current" /> EMPEZAR
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => dialogs.openActivityForm()}>
+                    <Plus /> Registrar actividad
+                  </Button>
+                </>
               }
             />
           )}

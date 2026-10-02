@@ -74,7 +74,7 @@ export function ActivityItem({ activity, className }: { activity: Activity; clas
       >
         <p className="truncate text-sm font-medium">{activity.title}</p>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-          <span>{section?.name ?? "Sin sección"}</span>
+          <span>{section?.name ?? "Sin área"}</span>
           {time && (
             <>
               <span aria-hidden>·</span>

@@ -213,7 +213,7 @@ export function createLocalRepository(user: AuthUser): Repository {
     async createSection(input) {
       return mutate((d) => {
         const active = d.sections.filter((s) => !s.archivedAt).length;
-        if (!canCreateSection(d.profile.plan, active)) throw new AppError("Alcanzaste el límite de secciones activas de tu plan.");
+        if (!canCreateSection(d.profile.plan, active)) throw new AppError("Alcanzaste el límite de áreas activas de tu plan.");
         const section: Section = {
           id: uid(),
           name: input.name.trim(),
@@ -237,7 +237,7 @@ export function createLocalRepository(user: AuthUser): Repository {
         const current = d.sections[index];
         if (current.archivedAt && patch.archivedAt === null) {
           const active = d.sections.filter((s) => !s.archivedAt).length;
-          if (!canCreateSection(d.profile.plan, active)) throw new AppError("Alcanzaste el límite de secciones activas de tu plan.");
+          if (!canCreateSection(d.profile.plan, active)) throw new AppError("Alcanzaste el límite de áreas activas de tu plan.");
         }
         const next: Section = {
           ...current,
@@ -548,6 +548,14 @@ export function createLocalAuthService(): AuthService {
 
     async sendPasswordReset() {
       throw new AppError("La recuperación de contraseña por email requiere conectar Supabase.");
+    },
+
+    async resendConfirmation() {
+      throw new AppError("En modo local no hay emails: la cuenta queda activa al crearla.");
+    },
+
+    async verifyEmailLink() {
+      throw new AppError("Los enlaces por email requieren conectar Supabase.");
     },
 
     async updatePassword(password) {

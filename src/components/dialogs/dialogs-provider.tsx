@@ -151,7 +151,7 @@ function QuickAddDialog({
     },
     {
       icon: FolderPlus,
-      title: "Nueva sección",
+      title: "Nueva área",
       description: "Un área que quieras medir",
       onClick: () => actions.openSectionForm(),
     },
