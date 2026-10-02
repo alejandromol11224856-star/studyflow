@@ -128,7 +128,7 @@ export function DayProgress({ className }: { className?: string }) {
         >
           {main ? (
             <>
-              <span className="font-display text-[34px] font-semibold leading-none">{formatMeasure(main.goal.metric, main.progress.done)}</span>
+              <RingValue text={formatMeasure(main.goal.metric, main.progress.done)} />
               <span className="mt-1.5 text-[13px] font-medium text-muted-foreground">de {formatTarget(main.goal.metric, main.goal.target)}</span>
             </>
           ) : (
@@ -205,4 +205,10 @@ export function DayProgress({ className }: { className?: string }) {
       </div>
     </Card>
   );
+}
+
+/** Número central del anillo: se achica si el texto es largo ("12h 45m", "999 págs"), así nunca toca el aro. */
+function RingValue({ text }: { text: string }) {
+  const size = text.length > 8 ? "text-[24px]" : text.length > 6 ? "text-[29px]" : "text-[34px]";
+  return <span className={`max-w-[128px] truncate font-display font-semibold leading-none ${size}`}>{text}</span>;
 }

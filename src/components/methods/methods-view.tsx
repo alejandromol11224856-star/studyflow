@@ -111,7 +111,7 @@ export function MethodsView({ initialKind = "study" }: { initialKind?: MethodKin
   const list = METHODS.filter((m) => m.kind === kind && (kind === "habit" || m.slug !== "pomodoro"));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10 pb-4">
+    <div className="space-y-10 pb-4">
       <PageHeader
         eyebrow="Métodos"
         title="Mejores sistemas, mejores resultados."
@@ -170,7 +170,7 @@ export function MethodsView({ initialKind = "study" }: { initialKind?: MethodKin
 export function MethodDetail({ method }: { method: Method }) {
   const related = METHODS.filter((m) => m.kind === method.kind && m.slug !== method.slug).slice(0, 3);
   return (
-    <article className="mx-auto max-w-3xl pb-6">
+    <article className="max-w-3xl pb-6">
       <Link href="/methods" className="mb-6 inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Métodos
       </Link>

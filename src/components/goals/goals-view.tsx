@@ -29,7 +29,7 @@ export function GoalsView() {
   const { statuses, isLoading } = useGoalStatuses();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10">
+    <div className="space-y-10">
       <PageHeader
         eyebrow="Lo que te proponés"
         title="Objetivos"

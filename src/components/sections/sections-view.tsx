@@ -1,15 +1,16 @@
 "use client";
 
 import { SproutIllustration } from "@/components/brand/illustrations";
+import { StreakMark } from "@/components/brand/marks";
 import {
   Archive,
   ArchiveRestore,
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Check,
   ChevronDown,
   Ellipsis,
-  Flame,
   Pause,
   Pencil,
   Play,
@@ -100,44 +101,53 @@ function SectionCard({ section, onDelete }: { section: Section; onDelete: () => 
   const goal = daily.target ? daily : weekly.target ? weekly : null;
 
   return (
-    <Card className={cn("group relative flex flex-col p-5 transition hover:shadow-elevated", !section.isActive && "opacity-70")}>
-      <div className="flex items-start justify-between gap-3">
-        <Link href={`/sections/${section.id}`} className="flex min-w-0 items-center gap-3 after:absolute after:inset-0 after:rounded-2xl">
+    <Card className={cn("group relative flex flex-col p-5 transition hover:shadow-elevated sm:p-6", !section.isActive && "opacity-70")}>
+      <div className="flex items-center justify-between gap-3">
+        <Link href={`/sections/${section.id}`} className="flex min-w-0 items-center gap-3 after:absolute after:inset-0 after:rounded-3xl">
           <SectionAvatar section={section} size="lg" />
           <div className="min-w-0">
-            <h3 className="flex items-center gap-2 truncate font-semibold tracking-tight">
-              {section.name}
+            <h3 className="flex items-center gap-2 font-semibold">
+              <span className="truncate">{section.name}</span>
               {!section.isActive && <Badge>Pausada</Badge>}
             </h3>
-            <p className="truncate text-xs text-muted-foreground">{section.description || "Sin descripción"}</p>
+            {/* La descripción solo si existe: sin textos de relleno. */}
+            {section.description && <p className="truncate text-xs text-muted-foreground">{section.description}</p>}
           </div>
         </Link>
-        <div className="relative z-10">
+        <div className="relative z-10 -mr-2">
           <SectionActions section={section} onDelete={onDelete} />
         </div>
       </div>
 
-      <dl className="mt-5 grid grid-cols-3 gap-2 text-center">
+      <dl className="mt-5 grid grid-cols-3 gap-3">
         {[
           { label: "Hoy", value: formatDuration(daily.progress.done) },
           { label: "Semana", value: formatDuration(weekly.progress.done) },
           { label: "Total", value: formatDuration(all.seconds) },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl bg-muted/60 px-2 py-2.5">
-            <dt className="text-[11px] text-muted-foreground">{s.label}</dt>
-            <dd className="mt-0.5 truncate text-sm font-semibold">{s.value}</dd>
+          <div key={s.label} className="min-w-0">
+            <dt className="text-xs text-muted-foreground">{s.label}</dt>
+            <dd className="mt-0.5 truncate font-display text-xl font-semibold tabular" title={s.value}>
+              {s.value}
+            </dd>
           </div>
         ))}
       </dl>
 
-      <div className="mt-4 flex items-center justify-between text-xs">
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <Flame className={cn("size-3.5", streaks.current > 0 && "text-primary-text")} />
-          Racha: <b className="font-semibold text-foreground">{streaks.current}</b> {pluralize(streaks.current, "día")}
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4 text-xs">
+        <span className={cn("inline-flex items-center gap-1.5 font-semibold", streaks.current > 0 ? "text-streak-text" : "text-muted-foreground")}>
+          <StreakMark className="size-4" />
+          {streaks.current > 0 ? `${streaks.current} ${pluralize(streaks.current, "día")} ${pluralize(streaks.current, "seguido")}` : "Sin racha todavía"}
         </span>
         {goal && (
-          <span className="text-muted-foreground">
-            {goal.progress.completed ? "✓ Objetivo cumplido" : `Objetivo ${formatMinutes(goal.target)}${daily.target ? "/día" : "/sem"}`}
+          <span className={cn("inline-flex items-center gap-1 truncate", goal.progress.completed ? "font-semibold text-success" : "text-muted-foreground")}>
+            {goal.progress.completed ? (
+              <>
+                <Check className="size-3.5" aria-hidden /> Objetivo cumplido
+              </>
+            ) : (
+              `Objetivo ${formatMinutes(goal.target)}${daily.target ? " por día" : " por semana"}`
+            )}
           </span>
         )}
       </div>
@@ -172,7 +182,7 @@ export function SectionsView() {
   };
 
   return (
-    <div>
+    <div className="space-y-10">
       <PageHeader
         eyebrow="Lo que medís"
         title="Áreas"
@@ -198,18 +208,16 @@ export function SectionsView() {
           ))}
         </div>
       ) : current.length === 0 ? (
-        <Card>
-          <EmptyState
-            illustration={<SproutIllustration />}
-            title="Creá tu primera área"
-            description="Programación, Gym, Inglés, Lectura… cualquier área que quieras mejorar, con su ícono, color y objetivo."
-            action={
-              <Button onClick={() => dialogs.openSectionForm()}>
-                <Plus /> Nueva área
-              </Button>
-            }
-          />
-        </Card>
+        <EmptyState
+          illustration={<SproutIllustration />}
+          title="Creá tu primera área"
+          description="Programación, Gym, Inglés, Lectura… cualquier área que quieras mejorar, con su ícono, color y objetivo."
+          action={
+            <Button variant="gradient" size="lg" onClick={() => dialogs.openSectionForm()}>
+              <Plus /> Nueva área
+            </Button>
+          }
+        />
       ) : ordering ? (
         <Card className="divide-y divide-border">
           {current.map((s, i) => (
@@ -236,18 +244,18 @@ export function SectionsView() {
       )}
 
       {archived.length > 0 && (
-        <div className="mt-8">
+        <div>
           <button
             type="button"
             onClick={() => setShowArchived((v) => !v)}
-            className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="flex h-10 items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
             aria-expanded={showArchived}
           >
             <ChevronDown className={cn("size-4 transition-transform", !showArchived && "-rotate-90")} />
             Archivadas ({archived.length})
           </button>
           {showArchived && (
-            <Card className="mt-3 divide-y divide-border animate-fade-in">
+            <Card className="mt-2 divide-y divide-border animate-fade-in">
               {archived.map((s) => (
                 <div key={s.id} className="flex items-center gap-3 px-5 py-3">
                   <SectionAvatar section={s} size="sm" className="opacity-60" />

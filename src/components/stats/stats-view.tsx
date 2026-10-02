@@ -1,19 +1,8 @@
 "use client";
 
 import { PathIllustration } from "@/components/brand/illustrations";
-import {
-  ArrowLeft,
-  ArrowDownRight,
-  ArrowUpRight,
-  CalendarCheck,
-  ChartColumn,
-  Clock,
-  Flame,
-  Gauge,
-  ListChecks,
-  Table2,
-  Target,
-} from "lucide-react";
+import { StreakMark } from "@/components/brand/marks";
+import { ArrowLeft, CalendarCheck, ChartColumn, Clock, Gauge, ListChecks, Star, Table2, Target } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -24,10 +13,10 @@ import {
   countScale,
 } from "@/components/charts/charts";
 import { buildSectionSeries } from "@/components/charts/series";
-import { StatTile } from "@/components/dashboard/stat-cards";
-import { PageHeader } from "@/components/layout/page-header";
+import { StatTile, TrendBadge } from "@/components/gamification/chips";
+import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { SectionAvatar } from "@/components/sections/section-visuals";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { EmptyState, SegmentedControl, Skeleton } from "@/components/ui/misc";
 import { useDailyTotals, useGoals, useHabitChecks, useHabits, useSections, useToday, useWeekStart } from "@/hooks/use-data";
 import { useStreaks } from "@/hooks/use-metrics";
@@ -84,15 +73,28 @@ function rangesFor(key: RangeKey, today: DateKey, firstDate: DateKey | null): { 
 
 const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const days = countScale((n) => `${n} ${n === 1 ? "día" : "días"}`);
+/** Las barras y porcentajes nunca pasan de 100% visualmente. */
+const clamp01 = (v: number) => (Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0);
 
-function Delta({ value, suffix = "vs. período anterior" }: { value: number | null; suffix?: string }) {
-  if (value === null || !Number.isFinite(value)) return null;
-  const up = value >= 0;
+/** Bloque con título afuera y la tarjeta adentro (mismo patrón que Progreso). */
+function Block({
+  title,
+  hint,
+  action,
+  className,
+  children,
+}: {
+  title: string;
+  hint?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <span className={cn("inline-flex items-center gap-0.5", up ? "text-success" : "text-danger")}>
-      {up ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}
-      {formatPercent(Math.abs(value))} {suffix}
-    </span>
+    <section className={cn("flex min-w-0 flex-col", className)}>
+      <SectionTitle title={title} hint={hint} action={action} />
+      <Card className="flex-1 p-5 sm:p-6">{children}</Card>
+    </section>
   );
 }
 
@@ -120,7 +122,7 @@ export function StatsView() {
   const total = sumInRange(data, current);
   const prevTotal = previous ? sumInRange(data, previous).seconds : 0;
   const delta = previous && prevTotal > 0 ? (total.seconds - prevTotal) / prevTotal : null;
-  const daysCount = eachDayKeys(current.from, current.to).length;
+  const daysCount = Math.max(1, eachDayKeys(current.from, current.to).length);
   const activeDays = activeDaysInRange(byDate, current);
   const completion = dailyGoalCompletion(measures, goals.data ?? [], current, today);
   const prevCompletion = previous ? dailyGoalCompletion(measures, goals.data ?? [], previous, today) : null;
@@ -129,6 +131,7 @@ export function StatsView() {
   const prevDistribution = new Map((previous ? sectionDistribution(data, previous) : []).map((d) => [d.sectionId, d.seconds]));
   const maxShare = distribution[0]?.seconds ?? 0;
   const byId = new Map(sections.map((s) => [s.id, s]));
+  const share = (seconds: number) => (total.seconds > 0 ? seconds / total.seconds : 0);
 
   // Promedio por día de la semana dentro del rango.
   const weekdaySums = Array.from({ length: 7 }, () => ({ seconds: 0, n: 0 }));
@@ -173,318 +176,242 @@ export function StatsView() {
 
   const loading = totals.isLoading;
   const empty = !loading && data.length === 0;
+  const topArea = distribution[0];
 
   return (
-    <div>
-      <Link href="/progress" className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
-        <ArrowLeft className="size-4" /> Progreso
-      </Link>
-      <PageHeader
-        eyebrow="Progreso · detalle"
-        title="Estadísticas"
-        description="En qué se va tu tiempo y cómo evoluciona tu constancia."
-        actions={<SegmentedControl value={rangeKey} onChange={setRangeKey} options={RANGES.map((r) => ({ value: r.value, label: r.label }))} />}
-      />
+    <div className="space-y-10">
+      <div>
+        <Link href="/progress" className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+          <ArrowLeft className="size-4" /> Progreso
+        </Link>
+        <PageHeader
+          className="mb-0"
+          eyebrow="Progreso · detalle"
+          title="Estadísticas"
+          description="En qué se va tu tiempo y cómo evoluciona tu constancia."
+          actions={<SegmentedControl value={rangeKey} onChange={setRangeKey} options={RANGES.map((r) => ({ value: r.value, label: r.label }))} />}
+        />
+      </div>
 
       {empty ? (
-        <Card>
-          <EmptyState illustration={<PathIllustration />} title="Tus estadísticas aparecen acá" description="Registrá algunas actividades y vas a ver cómo evoluciona tu tiempo." />
-        </Card>
+        <EmptyState illustration={<PathIllustration />} title="Tus estadísticas aparecen acá" description="Registrá algunas actividades y vas a ver cómo evoluciona tu tiempo." />
       ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            <StatTile
-              icon={Clock}
-              label="Tiempo total"
-              loading={loading}
-              value={formatDuration(total.seconds)}
-              hint={delta !== null ? <Delta value={delta} /> : `${total.count} ${pluralize(total.count, "actividad", "actividades")}`}
-            />
-            <StatTile
-              icon={Gauge}
-              label="Promedio diario"
-              loading={loading}
-              value={formatDuration(total.seconds / daysCount)}
-              hint={activeDays ? `${formatDuration(total.seconds / activeDays)} por día activo` : "Sin días activos"}
-            />
-            <StatTile
-              icon={CalendarCheck}
-              label="Días activos"
-              loading={loading}
-              value={`${activeDays}/${daysCount}`}
-              hint={`${formatPercent(activeDays / daysCount)} de los días`}
-            />
-            <StatTile
-              icon={Target}
-              label="Objetivo diario"
-              loading={loading}
-              value={completion.withGoal ? formatPercent(completion.ratio) : "—"}
-              hint={
-                completion.withGoal ? (
-                  prevCompletion?.withGoal ? (
-                    <span>
-                      {completion.met}/{completion.withGoal} días ·{" "}
-                      <span className={completion.ratio >= prevCompletion.ratio ? "text-success" : "text-danger"}>
-                        {completion.ratio >= prevCompletion.ratio ? "+" : "−"}
-                        {Math.round(Math.abs(completion.ratio - prevCompletion.ratio) * 100)} pts
-                      </span>
-                    </span>
-                  ) : (
-                    `Cumplido ${completion.met} de ${completion.withGoal} días`
-                  )
-                ) : (
-                  "Sin objetivo en este período"
-                )
-              }
-            />
-          </div>
+        <>
+          {loading ? (
+            <Skeleton className="h-36 rounded-3xl" />
+          ) : (
+            <Card className="grid grid-cols-2 gap-x-6 gap-y-7 p-5 sm:p-6 lg:grid-cols-4">
+              <StatTile
+                icon={<Clock />}
+                label="Tiempo total"
+                value={formatDuration(total.seconds)}
+                trend={delta}
+                hint={`${total.count} ${pluralize(total.count, "actividad", "actividades")}`}
+              />
+              <StatTile
+                icon={<Gauge />}
+                label="Promedio diario"
+                value={formatDuration(total.seconds / daysCount)}
+                hint={activeDays ? `${formatDuration(total.seconds / activeDays)} por día activo` : "Sin días activos"}
+              />
+              <StatTile
+                icon={<CalendarCheck />}
+                label="Días activos"
+                value={`${activeDays}/${daysCount}`}
+                hint={`${formatPercent(clamp01(activeDays / daysCount))} de los días`}
+              />
+              <StatTile
+                icon={<Target />}
+                label="Objetivo diario"
+                value={completion.withGoal ? formatPercent(clamp01(completion.ratio)) : "—"}
+                trend={completion.withGoal && prevCompletion?.withGoal ? completion.ratio - prevCompletion.ratio : null}
+                trendUnit="points"
+                hint={completion.withGoal ? `${completion.met} de ${completion.withGoal} ${pluralize(completion.withGoal, "día")}` : "Sin objetivo en este período"}
+              />
+            </Card>
+          )}
 
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>{chartTitle}</CardTitle>
-                <CardDescription>Desglosado por área</CardDescription>
-              </div>
+          <Block
+            title={chartTitle}
+            hint="Desglosado por área"
+            action={
               <button
                 type="button"
                 onClick={() => setShowTable((v) => !v)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 aria-pressed={showTable}
               >
                 <Table2 className="size-3.5" /> {showTable ? "Ver gráfico" : "Ver tabla"}
               </button>
-            </CardHeader>
-            <CardContent className="pt-4">
-              {loading ? (
-                <Skeleton className="h-[260px]" />
-              ) : showTable ? (
-                <DataTable rows={rows} series={series} labelFor={tooltipLabel} />
+            }
+          >
+            {loading ? (
+              <Skeleton className="h-[260px]" />
+            ) : showTable ? (
+              <DataTable rows={rows} series={series} labelFor={tooltipLabel} />
+            ) : (
+              <>
+                <StackedBarChart rows={rows} series={series} height={260} highlightKey={highlightKey} xFormatter={xFormatter} tooltipLabel={tooltipLabel} />
+                <ChartLegend series={series} className="mt-3" />
+              </>
+            )}
+          </Block>
+
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-6">
+            <Block className="lg:col-span-5" title="Por área" hint={previous ? "Reparto y cambio vs. el período anterior" : "Reparto del tiempo"}>
+              {distribution.length === 0 ? (
+                <EmptyState compact icon={ChartColumn} title="Sin actividad en este período" />
               ) : (
-                <>
-                  <StackedBarChart
-                    rows={rows}
-                    series={series}
-                    height={260}
-                    highlightKey={highlightKey}
-                    xFormatter={xFormatter}
-                    tooltipLabel={tooltipLabel}
-                  />
-                  <ChartLegend series={series} className="mt-3" />
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <Card className="lg:col-span-5">
-              <CardHeader>
-                <div>
-                  <CardTitle>Por área</CardTitle>
-                  <CardDescription>{previous ? "Reparto del tiempo y cambio vs. el período anterior" : "Reparto del tiempo"}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {distribution.length === 0 ? (
-                  <EmptyState compact icon={ChartColumn} title="Sin actividad en este período" />
-                ) : (
-                  <ul className="space-y-3.5">
-                    {distribution.map((d) => {
-                      const s = d.sectionId ? byId.get(d.sectionId) : undefined;
-                      const prev = prevDistribution.get(d.sectionId) ?? 0;
-                      const change = previous ? (prev > 0 ? (d.seconds - prev) / prev : null) : null;
-                      return (
-                        <li key={d.sectionId ?? NO_SECTION_KEY} className="flex items-center gap-3">
-                          <SectionAvatar section={s} size="sm" />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline justify-between gap-2 text-sm">
-                              <span className="truncate font-medium">{s?.name ?? "Sin área"}</span>
-                              <span className="shrink-0">
-                                <b className="font-semibold">{formatDuration(d.seconds)}</b>{" "}
-                                <span className="text-xs text-muted-foreground tabular">{formatPercent(d.seconds / total.seconds)}</span>
-                              </span>
-                            </div>
-                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                              <div className="h-full rounded-full" style={{ width: `${(d.seconds / maxShare) * 100}%`, background: sectionColor(s?.color) }} />
-                            </div>
-                            {previous && (
-                              <p className="mt-1 text-[11px] text-muted-foreground">
-                                {change === null ? "Nuevo en este período" : <Delta value={change} suffix="" />}
-                              </p>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-7">
-              <CardHeader>
-                <div>
-                  <CardTitle>Cumplimiento de objetivos</CardTitle>
-                  <CardDescription>% de días con el objetivo diario general cumplido, por semana</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {compliance.length === 0 ? (
-                  <EmptyState compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
-                ) : (
-                  <StackedBarChart
-                    rows={compliance.map((w) => ({ key: w.key, total: w.total, pct: w.total }))}
-                    series={[{ key: "pct", name: "Cumplimiento", color: "var(--primary-text)" }]}
-                    height={220}
-                    scale={PERCENT_SCALE}
-                    highlightKey={weekRange(today, weekStartsOn).from}
-                    xFormatter={(k) => formatKey(k, "d MMM")}
-                    tooltipLabel={(k) => {
-                      const w = compliance.find((c) => c.key === k);
-                      return `Semana del ${formatKey(k, "d 'de' MMMM")}${w ? ` · ${w.met} de ${w.withGoal} días` : ""}`;
-                    }}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <Card className="lg:col-span-7">
-              <CardHeader>
-                <div>
-                  <CardTitle>Evolución de la racha</CardTitle>
-                  <CardDescription>Días cumplidos seguidos, día a día</CardDescription>
-                </div>
-                <p className="text-right text-xs text-muted-foreground">
-                  Actual <b className="text-sm text-foreground">{streaks.current}</b> · Mejor <b className="text-sm text-foreground">{streaks.best}</b>
-                </p>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <TrendChart
-                  data={streakRows}
-                  height={200}
-                  name="Racha"
-                  step
-                  scale={days}
-                  xFormatter={(k) => formatKey(k, "d MMM")}
-                  tooltipLabel={(k) => capitalize(formatKey(k, "EEEE d 'de' MMMM"))}
-                />
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-5">
-              <CardHeader>
-                <div>
-                  <CardTitle>Hábitos</CardTitle>
-                  <CardDescription>{habitRows.length ? `Cumplimiento general: ${formatPercent(habitsOverall)}` : "Cumplimiento en el período"}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {habitRows.length === 0 ? (
-                  <EmptyState compact icon={ListChecks} title="Sin hábitos en este período" />
-                ) : (
-                  <ul className="space-y-3">
-                    {habitRows.map((r) => (
-                      <li key={r.habit.id} className="flex items-center gap-3">
-                        <SectionAvatar section={r.habit} size="sm" />
+                <ul className="space-y-4">
+                  {distribution.map((d) => {
+                    const s = d.sectionId ? byId.get(d.sectionId) : undefined;
+                    const prev = prevDistribution.get(d.sectionId) ?? 0;
+                    const change = previous ? (prev > 0 ? (d.seconds - prev) / prev : null) : null;
+                    return (
+                      <li key={d.sectionId ?? NO_SECTION_KEY} className="flex items-center gap-3">
+                        <SectionAvatar section={s} size="sm" />
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-baseline justify-between gap-2 text-sm">
-                            <span className="truncate font-medium">{r.habit.name}</span>
+                          <div className="flex items-center justify-between gap-2 text-sm">
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span className="truncate font-semibold">{s?.name ?? "Sin área"}</span>
+                              {previous && (change === null ? <span className="shrink-0 text-[11px] text-muted-foreground">nuevo</span> : <TrendBadge trend={change} />)}
+                            </span>
                             <span className="shrink-0 tabular">
-                              <b className="font-semibold">{formatPercent(r.ratio)}</b>{" "}
-                              <span className="text-xs text-muted-foreground">
-                                {r.done}/{r.expected}
-                              </span>
+                              <b className="font-semibold">{formatDuration(d.seconds)}</b>{" "}
+                              <span className="text-xs text-muted-foreground">{formatPercent(clamp01(share(d.seconds)))}</span>
                             </span>
                           </div>
                           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                            <div className="h-full rounded-full" style={{ width: `${r.ratio * 100}%`, background: sectionColor(r.habit.color) }} />
+                            <div className="h-full rounded-full" style={{ width: `${clamp01(maxShare ? d.seconds / maxShare : 0) * 100}%`, background: sectionColor(s?.color) }} />
                           </div>
                         </div>
                       </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                    );
+                  })}
+                </ul>
+              )}
+            </Block>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <Card className="lg:col-span-7">
-              <CardHeader>
-                <div>
-                  <CardTitle>Tendencia semanal</CardTitle>
-                  <CardDescription>Total por semana · últimas {trend.length} semanas</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <TrendChart
-                  data={trend}
-                  height={220}
-                  name="Total semanal"
-                  xFormatter={(k) => formatKey(k, "d MMM")}
-                  tooltipLabel={(k) => `Semana del ${formatKey(k, "d 'de' MMMM")}`}
-                />
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-5">
-              <CardHeader>
-                <div>
-                  <CardTitle>Tu semana típica</CardTitle>
-                  <CardDescription>Promedio por día de la semana</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
+            <Block className="lg:col-span-7" title="Cumplimiento de objetivos" hint="Días con el objetivo diario cumplido, por semana">
+              {compliance.length === 0 ? (
+                <EmptyState compact icon={Target} title="Sin objetivo diario en este período" description="Definí uno en Objetivos para ver tu cumplimiento." />
+              ) : (
                 <StackedBarChart
-                  rows={weekdayRows}
-                  series={[{ key: "avg", name: "Promedio", color: "var(--primary-text)" }]}
+                  rows={compliance.map((w) => ({ key: w.key, total: Math.min(100, w.total), pct: Math.min(100, w.total) }))}
+                  series={[{ key: "pct", name: "Cumplimiento", color: "var(--primary-text)" }]}
                   height={220}
-                  xFormatter={(k) => WEEKDAY_LABELS[Number(k)]}
-                  tooltipLabel={(k) => `Promedio de los ${WEEKDAY_LABELS[Number(k)].toLowerCase()}`}
+                  scale={PERCENT_SCALE}
+                  highlightKey={weekRange(today, weekStartsOn).from}
+                  xFormatter={(k) => formatKey(k, "d MMM")}
+                  tooltipLabel={(k) => {
+                    const w = compliance.find((c) => c.key === k);
+                    return `Semana del ${formatKey(k, "d 'de' MMMM")}${w ? ` · ${w.met} de ${w.withGoal} días` : ""}`;
+                  }}
                 />
-              </CardContent>
-            </Card>
+              )}
+            </Block>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-            <Highlight
-              icon={Clock}
-              label="Mejor día del período"
-              value={best ? formatDuration(best.seconds) : "—"}
-              hint={best ? capitalize(formatKey(best.date, "EEEE d 'de' MMMM")) : undefined}
-            />
-            <Highlight
-              icon={Flame}
-              label="Mejor racha (histórica)"
-              value={`${streaks.best} ${pluralize(streaks.best, "día")}`}
-              hint={`Racha actual: ${streaks.current} ${pluralize(streaks.current, "día")}`}
-            />
-            <Highlight
-              icon={Target}
-              label="Área principal"
-              value={distribution[0] ? (byId.get(distribution[0].sectionId ?? "")?.name ?? "Sin área") : "—"}
-              hint={distribution[0] ? `${formatPercent(distribution[0].seconds / total.seconds)} de tu tiempo` : undefined}
-            />
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-6">
+            <Block
+              className="lg:col-span-7"
+              title="Evolución de la racha"
+              hint="Días cumplidos seguidos, día a día"
+              action={
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <StreakMark className="size-3.5 text-streak-text" />
+                  Actual <b className="text-sm text-foreground tabular">{streaks.current}</b> · Mejor <b className="text-sm text-foreground tabular">{streaks.best}</b>
+                </span>
+              }
+            >
+              <TrendChart
+                data={streakRows}
+                height={200}
+                name="Racha"
+                step
+                scale={days}
+                xFormatter={(k) => formatKey(k, "d MMM")}
+                tooltipLabel={(k) => capitalize(formatKey(k, "EEEE d 'de' MMMM"))}
+              />
+            </Block>
+
+            <Block className="lg:col-span-5" title="Hábitos" hint={habitRows.length ? `Cumplimiento general: ${formatPercent(clamp01(habitsOverall))}` : "Cumplimiento en el período"}>
+              {habitRows.length === 0 ? (
+                <EmptyState compact icon={ListChecks} title="Sin hábitos en este período" />
+              ) : (
+                <ul className="space-y-4">
+                  {habitRows.map((r) => (
+                    <li key={r.habit.id} className="flex items-center gap-3">
+                      <SectionAvatar section={r.habit} size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-2 text-sm">
+                          <span className="truncate font-semibold">{r.habit.name}</span>
+                          <span className="shrink-0 tabular">
+                            <b className="font-semibold">{formatPercent(clamp01(r.ratio))}</b>{" "}
+                            <span className="text-xs text-muted-foreground">
+                              {r.done}/{r.expected}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full" style={{ width: `${clamp01(r.ratio) * 100}%`, background: sectionColor(r.habit.color) }} />
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Block>
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-6">
+            <Block className="lg:col-span-7" title="Tendencia semanal" hint={`Total por semana · últimas ${trend.length} semanas`}>
+              <TrendChart
+                data={trend}
+                height={220}
+                name="Total semanal"
+                xFormatter={(k) => formatKey(k, "d MMM")}
+                tooltipLabel={(k) => `Semana del ${formatKey(k, "d 'de' MMMM")}`}
+              />
+            </Block>
+
+            <Block className="lg:col-span-5" title="Tu semana típica" hint="Promedio por día de la semana">
+              <StackedBarChart
+                rows={weekdayRows}
+                series={[{ key: "avg", name: "Promedio", color: "var(--primary-text)" }]}
+                height={220}
+                xFormatter={(k) => WEEKDAY_LABELS[Number(k)]}
+                tooltipLabel={(k) => `Promedio de los ${WEEKDAY_LABELS[Number(k)].toLowerCase()}`}
+              />
+            </Block>
+          </div>
+
+          <section>
+            <SectionTitle title="Destacados" />
+            <Card className="grid grid-cols-1 gap-x-6 gap-y-7 p-5 sm:grid-cols-3 sm:p-6">
+              <StatTile
+                icon={<Star />}
+                label="Mejor día del período"
+                value={best ? formatDuration(best.seconds) : "—"}
+                hint={best ? capitalize(formatKey(best.date, "EEEE d 'de' MMMM")) : "Todavía sin actividad"}
+              />
+              <StatTile
+                icon={<StreakMark />}
+                label="Mejor racha"
+                value={`${streaks.best} ${pluralize(streaks.best, "día")}`}
+                hint={`Histórica · hoy vas ${streaks.current} ${pluralize(streaks.current, "día")}`}
+              />
+              <StatTile
+                icon={<Target />}
+                label="Área principal"
+                value={topArea ? (byId.get(topArea.sectionId ?? "")?.name ?? "Sin área") : "—"}
+                hint={topArea ? `${formatPercent(clamp01(share(topArea.seconds)))} de tu tiempo` : undefined}
+              />
+            </Card>
+          </section>
+        </>
       )}
     </div>
-  );
-}
-
-function Highlight({ icon: Icon, label, value, hint }: { icon: typeof Clock; label: string; value: string; hint?: string }) {
-  return (
-    <Card className="flex items-start gap-3 p-4">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-        <Icon className="size-4" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="truncate font-semibold">{value}</p>
-        {hint && <p className="truncate text-xs text-muted-foreground">{hint}</p>}
-      </div>
-    </Card>
   );
 }
 

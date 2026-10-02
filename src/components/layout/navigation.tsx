@@ -100,6 +100,8 @@ export function Sidebar() {
 
 export function MobileHeader() {
   const streaks = useStreaks();
+  // En Hoy la racha ya está junto al saludo (con su nivel): no repetirla acá.
+  const onToday = usePathname() === "/dashboard";
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
       <div className="flex h-14 items-center justify-between px-4">
@@ -107,16 +109,18 @@ export function MobileHeader() {
           <Logo />
         </Link>
         <div className="flex items-center gap-1">
-          <Link
-            href="/progress"
-            className={cn(
-              "mr-1 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition active:scale-95",
-              streaks.current > 0 ? "bg-streak-soft text-streak-text" : "bg-muted text-muted-foreground",
-            )}
-            aria-label={`${streaks.current} días seguidos. Ver progreso`}
-          >
-            <StreakMark className="size-4" /> <span className="tabular">{streaks.current}</span>
-          </Link>
+          {!onToday && (
+            <Link
+              href="/progress"
+              className={cn(
+                "mr-1 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition active:scale-95",
+                streaks.current > 0 ? "bg-streak-soft text-streak-text" : "bg-muted text-muted-foreground",
+              )}
+              aria-label={`${streaks.current} días seguidos. Ver progreso`}
+            >
+              <StreakMark className="size-4" /> <span className="tabular">{streaks.current}</span>
+            </Link>
+          )}
           <ThemeToggleButton />
           <UserMenu compact />
         </div>

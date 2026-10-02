@@ -51,19 +51,34 @@ export function LevelChip({ level, ratio, href, className }: { level: number; ra
  * Variación contra el período anterior. Hacia abajo se muestra en gris (sin
  * rojo): la idea es informar, no culpar.
  */
-export function TrendBadge({ trend, className }: { trend: number | null | undefined; className?: string }) {
-  if (trend === undefined || trend === null || !Number.isFinite(trend) || Math.abs(trend) < 0.01) return null;
+export function TrendBadge({
+  trend,
+  unit = "percent",
+  className,
+}: {
+  trend: number | null | undefined;
+  /** percent: variación relativa (0.12 = 12%). points: diferencia entre dos porcentajes (0.05 = 5 pts). */
+  unit?: "percent" | "points";
+  className?: string;
+}) {
+  if (trend === undefined || trend === null || !Number.isFinite(trend)) return null;
+  // El signo lo da la flecha (sin "+" ni "−"); lo que redondea a 0 no se muestra.
+  const n = Math.round(Math.abs(trend) * 100);
+  if (n === 0) return null;
+  const amount = n > 999 ? "999+" : String(n);
+  const label = unit === "points" ? `${amount} ${n === 1 ? "pt" : "pts"}` : `${amount}%`;
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular",
+        "inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold tabular",
         trend > 0 ? "bg-success-soft text-success" : "bg-muted text-muted-foreground",
         className,
       )}
-      title="Comparado con el período anterior"
+      title={`${trend > 0 ? "Más" : "Menos"} que en el período anterior`}
     >
-      {trend > 0 ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}
-      {Math.round(Math.abs(trend) * 100)}%
+      {trend > 0 ? <ArrowUpRight className="size-3.5" aria-hidden /> : <ArrowDownRight className="size-3.5" aria-hidden />}
+      <span className="sr-only">{trend > 0 ? "Subió " : "Bajó "}</span>
+      {label}
     </span>
   );
 }
@@ -75,6 +90,7 @@ export function StatTile({
   value,
   hint,
   trend,
+  trendUnit,
   className,
 }: {
   icon: React.ReactNode;
@@ -83,17 +99,20 @@ export function StatTile({
   hint?: React.ReactNode;
   /** Variación vs el período anterior (0.12 = +12%). */
   trend?: number | null;
+  trendUnit?: "percent" | "points";
   className?: string;
 }) {
   return (
     <div className={cn("min-w-0", className)}>
       <div className="flex items-center gap-2 text-muted-foreground">
-        <span className="[&_svg]:size-4">{icon}</span>
-        <span className="text-[13px] font-semibold">{label}</span>
+        <span className="shrink-0 [&_svg]:size-4">{icon}</span>
+        <span className="truncate text-[13px] font-semibold">{label}</span>
       </div>
-      <div className="mt-1.5 flex items-baseline gap-2">
-        <p className="truncate font-display text-[30px] font-semibold leading-none">{value}</p>
-        <TrendBadge trend={trend} />
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <p className="max-w-full truncate font-display text-[26px] font-semibold leading-none sm:text-[30px]" title={typeof value === "string" ? value : undefined}>
+          {value}
+        </p>
+        <TrendBadge trend={trend} unit={trendUnit} />
       </div>
       {hint && <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>}
     </div>

@@ -332,7 +332,7 @@ function SectionRow({ section }: { section: Section }) {
                 className="h-2"
               />
               <span className="w-24 shrink-0 text-right text-[11px] font-medium text-muted-foreground">
-                {goal.progress.completed ? "✓ Cumplido" : `${formatMinutes(goal.target)} ${hasDaily ? "/día" : "/sem"}`}
+                {goal.progress.completed ? "Cumplido" : `${formatMinutes(goal.target)} ${hasDaily ? "por día" : "por semana"}`}
               </span>
             </div>
           ) : (

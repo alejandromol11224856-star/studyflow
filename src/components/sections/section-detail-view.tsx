@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Clock, Flame, NotebookPen, Pencil, Play, Plus, SearchX, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, NotebookPen, Pencil, Play, Plus, SearchX, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ActivityItem } from "@/components/activities/activity-item";
 import { HeatLegend, MonthCalendar } from "@/components/calendar/month-calendar";
 import { StackedBarChart } from "@/components/charts/charts";
-import { StatTile } from "@/components/dashboard/stat-cards";
+import { StreakMark } from "@/components/brand/marks";
+import { StatTile } from "@/components/gamification/chips";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { GoalStatusCard, NewGoalCard } from "@/components/goals/goal-progress-card";
 import { HabitCheckButton } from "@/components/habits/habit-visuals";
@@ -84,7 +85,7 @@ function SectionDetail({ section }: { section: Section }) {
   const items = recent.data?.items ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Link href="/sections" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Áreas
       </Link>
@@ -93,7 +94,7 @@ function SectionDetail({ section }: { section: Section }) {
         <div className="flex items-center gap-4">
           <SectionAvatar section={section} size="lg" />
           <div className="min-w-0">
-            <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight sm:text-[28px]">
+            <h1 className="flex items-center gap-2 font-display text-[30px] font-semibold leading-tight sm:text-[34px]">
               <span className="truncate">{section.name}</span>
               {section.archivedAt && <Badge>Archivada</Badge>}
             </h1>
@@ -150,18 +151,17 @@ function SectionDetail({ section }: { section: Section }) {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <Card className="grid grid-cols-2 gap-x-6 gap-y-7 p-5 sm:p-6 lg:grid-cols-4">
         <StatTile
-          icon={Flame}
-          accent={streaks.current > 0}
+          icon={<StreakMark />}
           label="Racha actual"
           value={`${streaks.current} ${pluralize(streaks.current, "día")}`}
-          hint={streaks.todayCompleted ? "Hoy cumplido ✓" : "Días seguidos cumplidos"}
+          hint={streaks.todayCompleted ? "Hoy ya cumpliste" : "Días seguidos cumplidos"}
         />
-        <StatTile icon={Trophy} label="Mejor racha" value={`${streaks.best} ${pluralize(streaks.best, "día")}`} hint="Récord en esta área" />
-        <StatTile icon={Clock} label="Tiempo total" value={formatDuration(all.seconds)} hint={`Este mes: ${formatDuration(monthTotal.seconds)}`} />
-        <StatTile icon={NotebookPen} label="Actividades" value={all.count} hint={`Este mes: ${monthTotal.count}`} />
-      </div>
+        <StatTile icon={<Trophy />} label="Mejor racha" value={`${streaks.best} ${pluralize(streaks.best, "día")}`} hint="Récord en esta área" />
+        <StatTile icon={<Clock />} label="Tiempo total" value={formatDuration(all.seconds)} hint={`Este mes: ${formatDuration(monthTotal.seconds)}`} />
+        <StatTile icon={<NotebookPen />} label="Actividades" value={all.count.toLocaleString("es-AR")} hint={`Este mes: ${monthTotal.count}`} />
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <Card className="lg:col-span-7">

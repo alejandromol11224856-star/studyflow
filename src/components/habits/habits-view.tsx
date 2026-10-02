@@ -241,7 +241,7 @@ export function HabitsView() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10">
+    <div className="space-y-10">
       <PageHeader
         eyebrow="Hábitos"
         title="Lo que repetís"

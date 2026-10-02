@@ -126,14 +126,19 @@ export default function LandingPage() {
         {/* Métodos */}
         <section className="mx-auto max-w-6xl px-5 pb-20">
           <p className="eyebrow">Métodos incluidos</p>
-          <p className="mt-4 font-display text-[26px] font-semibold leading-snug text-foreground/85 sm:text-[34px]">
+          {/* Cada nombre es una unidad: la línea solo se corta entre métodos, nunca adentro de uno. */}
+          <ul className="mt-4 flex flex-wrap font-display text-[26px] font-semibold leading-snug text-foreground/85 sm:text-[34px]">
             {METHOD_NAMES.map((name, i) => (
-              <span key={name}>
+              <li key={name} className="whitespace-nowrap">
                 {name}
-                {i < METHOD_NAMES.length - 1 && <span className="mx-2.5 text-primary-text/60" aria-hidden>·</span>}
-              </span>
+                {i < METHOD_NAMES.length - 1 && (
+                  <span className="mx-2.5 text-primary-text/60" aria-hidden>
+                    ·
+                  </span>
+                )}
+              </li>
             ))}
-          </p>
+          </ul>
           <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
             Y seis técnicas para que los hábitos se sostengan: la regla de los dos minutos, habit stacking, no cortar la cadena y más.
           </p>
@@ -141,7 +146,7 @@ export default function LandingPage() {
 
         {/* Cierre */}
         <section className="mx-auto max-w-6xl px-5 pb-24">
-          <div className="relative overflow-hidden rounded-[32px] px-6 py-16 text-center text-[#f4f0e8] sm:px-12" style={{ background: "#0f1714" }}>
+          <div className="brand-surface relative overflow-hidden rounded-[32px] px-6 py-16 text-center sm:px-12">
             <svg aria-hidden viewBox="0 0 600 600" className="pointer-events-none absolute -right-48 -top-40 w-[560px] opacity-[0.14]">
               <path d="M40 420c90 0 110-190 210-190s115 120 195 120c50 0 75-60 90-125" fill="none" stroke={BRAND.paper} strokeWidth="18" strokeLinecap="round" />
               <circle cx="537" cy="226" r="26" fill={BRAND.sun} />

@@ -56,6 +56,15 @@ export function countScale(unit: (n: number) => string): ValueScale {
   };
 }
 
+/**
+ * Ancho del eje Y según la etiqueta más larga: así "100%" o "1000h" nunca se
+ * cortan, y los ejes cortos ("2h") no dejan aire de más.
+ */
+function axisWidth(ticks: number[], scale: ValueScale) {
+  const longest = Math.max(1, ...ticks.map((t) => scale.axis(t).length));
+  return Math.ceil(longest * 6.6) + 12;
+}
+
 // ---------------------------------------------------------------------------
 // Tooltip: valores con tokens de texto; el color solo en la muestra.
 // ---------------------------------------------------------------------------
@@ -155,7 +164,7 @@ export function StackedBarChart({
   return (
     <div className={cn("w-full", className)} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -12 }} barCategoryGap="22%">
+        <BarChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: 0 }} barCategoryGap="22%">
           <CartesianGrid vertical={false} stroke="var(--border)" strokeWidth={1} />
           <XAxis
             dataKey="key"
@@ -189,7 +198,7 @@ export function StackedBarChart({
             ticks={ticks}
             domain={[0, ticks[ticks.length - 1]]}
             tickFormatter={(v: number) => scale.axis(v)}
-            width={48}
+            width={axisWidth(ticks, scale)}
           />
           <Tooltip
             cursor={{ fill: "var(--muted)", opacity: 0.6, radius: 6 }}
@@ -247,7 +256,7 @@ export function TrendChart({
   return (
     <div className="w-full" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 8, bottom: 0, left: -12 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--border)" strokeWidth={1} />
           <XAxis
             dataKey="key"
@@ -266,7 +275,7 @@ export function TrendChart({
             ticks={ticks}
             domain={[0, ticks[ticks.length - 1]]}
             tickFormatter={(v: number) => scale.axis(v)}
-            width={48}
+            width={axisWidth(ticks, scale)}
           />
           <Tooltip
             cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1 }}

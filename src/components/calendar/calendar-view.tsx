@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarCheck, CalendarDays, ChevronLeft, ChevronRight, Plus, Star } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ActivityItem } from "@/components/activities/activity-item";
 import { StreakMark } from "@/components/brand/marks";
 import { CalendarIllustration } from "@/components/brand/illustrations";
@@ -75,8 +75,26 @@ export function CalendarView() {
     if (d < range.from || d > range.to) setMonth(d);
   }
 
+  // En el celular el detalle va debajo del calendario: al tocar un día, se
+  // acomoda la página lo justo para verlo (sin perder el calendario de vista).
+  const panelRef = useRef<HTMLDivElement>(null);
+  function revealPanel() {
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    const el = panelRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top;
+    if (top >= 72 && top <= window.innerHeight * 0.6) return; // ya se ve cómodo
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const offset = top < 72 ? 72 : window.innerHeight * 0.3;
+    window.scrollTo({ top: window.scrollY + top - offset, behavior: reduce ? "auto" : "smooth" });
+  }
+  function pickDay(d: DateKey) {
+    selectDay(d);
+    requestAnimationFrame(revealPanel);
+  }
+
   return (
-    <div className="mx-auto max-w-6xl">
+    <div>
       <PageHeader eyebrow="Calendario" title="Tu constancia" description={summary} />
 
       <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:px-0">
@@ -93,9 +111,10 @@ export function CalendarView() {
         ))}
       </div>
 
+      {/* Móvil: calendario → detalle del día → resumen → últimos meses. Escritorio: detalle al costado. */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-6">
-        <div className="space-y-8 lg:col-span-8">
-          <Card className="p-4 sm:p-6">
+        <div className="contents lg:col-span-8 lg:block lg:space-y-8">
+          <Card className="order-1 p-4 sm:p-6 lg:order-none">
             {streaks.isLoading ? (
               <Skeleton className="h-96" />
             ) : (
@@ -109,7 +128,7 @@ export function CalendarView() {
                 weekStartsOn={weekStartsOn}
                 habitsByDate={habitsByDate}
                 selected={selected}
-                onSelect={setSelected}
+                onSelect={pickDay}
               />
             )}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
@@ -118,7 +137,7 @@ export function CalendarView() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-7 px-1 sm:grid-cols-4">
+          <div className="order-3 grid grid-cols-2 gap-x-6 gap-y-7 px-1 sm:grid-cols-4 lg:order-none">
             <StatTile icon={<CalendarDays />} label="Total del mes" value={formatDuration(monthSeconds)} />
             <StatTile icon={<CalendarCheck />} label="Días cumplidos" value={completedDays} hint={`${activeDays} de ${elapsedDays || 0} con actividad`} />
             <StatTile
@@ -135,7 +154,7 @@ export function CalendarView() {
             />
           </div>
 
-          <section>
+          <section className="order-4 lg:order-none">
             <SectionTitle title="Últimos seis meses" hint="Cada cuadrito es un día. Tocá uno para verlo." />
             {streaks.isLoading ? (
               <Skeleton className="h-28" />
@@ -147,7 +166,7 @@ export function CalendarView() {
                 today={today}
                 weekStartsOn={weekStartsOn}
                 selected={selected}
-                onSelect={selectDay}
+                onSelect={pickDay}
               />
             )}
           </section>
@@ -161,7 +180,8 @@ export function CalendarView() {
           habits={(habits.data ?? []).filter((h) => !sectionId || h.sectionId === sectionId)}
           checkedHabitIds={new Set((checks.data ?? []).filter((c) => c.date === selected).map((c) => c.habitId))}
           onNavigate={(delta) => selectDay(addDaysKey(selected, delta))}
-          className="lg:col-span-4"
+          ref={panelRef}
+          className="order-2 lg:order-none lg:col-span-4"
         />
       </div>
     </div>
@@ -192,6 +212,7 @@ function DayPanel({
   habits,
   checkedHabitIds,
   onNavigate,
+  ref,
   className,
 }: {
   date: DateKey;
@@ -202,6 +223,7 @@ function DayPanel({
   habits: Habit[];
   checkedHabitIds: Set<string>;
   onNavigate: (delta: number) => void;
+  ref?: React.Ref<HTMLDivElement>;
   className?: string;
 }) {
   const today = useToday();
@@ -224,7 +246,7 @@ function DayPanel({
   const status = completed ? "Cumplido" : items.length > 0 ? "Parcial" : date === today ? "Por empezar" : "Día libre";
 
   return (
-    <Card className={cn("h-fit overflow-clip lg:sticky lg:top-6", className)} aria-live="polite">
+    <Card ref={ref} className={cn("h-fit overflow-clip lg:sticky lg:top-6", className)} aria-live="polite">
       <div className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

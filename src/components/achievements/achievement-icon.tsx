@@ -1,11 +1,13 @@
-import { CalendarCheck, CircleCheck, Clock, Crown, Flag, Flame, Lock, Mountain, Repeat, Star, Target, Trophy, Zap } from "lucide-react";
-import { createElement } from "react";
+import { CalendarCheck, CircleCheck, Clock, Crown, Flag, Lock, Mountain, Repeat, Star, Target, Trophy, Zap } from "lucide-react";
+import { type ComponentType, type SVGProps, createElement } from "react";
+import { StreakMark } from "@/components/brand/marks";
 import type { AchievementDefinition } from "@/lib/domain/progression";
 import { cn } from "@/lib/utils";
 
 const ICONS = {
   flag: Flag,
-  flame: Flame,
+  // Constancia: los eslabones propios de StudyFlow (no una llama).
+  flame: StreakMark,
   clock: Clock,
   zap: Zap,
   check: CircleCheck,
@@ -16,7 +18,7 @@ const ICONS = {
   crown: Crown,
   trophy: Trophy,
   mountain: Mountain,
-} satisfies Record<AchievementDefinition["icon"], typeof Flag>;
+} satisfies Record<AchievementDefinition["icon"], ComponentType<SVGProps<SVGSVGElement>>>;
 
 /** Medalla del logro: con acento si está desbloqueado, apagada y con candado si no. */
 export function AchievementBadge({

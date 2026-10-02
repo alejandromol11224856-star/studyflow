@@ -67,7 +67,7 @@ function ShellSkeleton() {
           ))}
         </div>
       </div>
-      <div className="mx-auto max-w-6xl space-y-4 px-4 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+      <div className="mx-auto max-w-[68rem] space-y-4 px-4 pt-5 sm:px-6 lg:px-8 lg:pt-8">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-56" />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -124,7 +124,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
       <MobileHeader />
       <main
         className={cn(
-          "mx-auto max-w-6xl px-4 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8",
+          "mx-auto max-w-[68rem] px-4 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8",
           timer ? "pb-[calc(10.5rem+env(safe-area-inset-bottom))]" : "pb-[calc(7rem+env(safe-area-inset-bottom))]",
         )}
       >

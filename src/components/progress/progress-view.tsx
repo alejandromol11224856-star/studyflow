@@ -165,7 +165,7 @@ export function ProgressView() {
   const loading = totals.isLoading || goals.isLoading;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-12 pb-4">
+    <div className="space-y-10 pb-4">
       <header className="animate-page-in">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="eyebrow">Progreso · {thisPeriod}</p>

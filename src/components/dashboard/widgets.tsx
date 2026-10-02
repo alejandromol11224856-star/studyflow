@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowRight, Clock, Flame, ListChecks, Plus, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Clock, ListChecks, Plus, Trophy } from "lucide-react";
 import Link from "next/link";
 import type { ComponentType } from "react";
 import { AchievementBadge } from "@/components/achievements/achievement-icon";
+import { StreakMark, XpMark } from "@/components/brand/marks";
 import { useDialogs } from "@/components/dialogs/dialogs-provider";
 import { GoalRow } from "@/components/goals/goal-row";
 import { HabitWeekStrip } from "@/components/habits/habit-visuals";
@@ -36,7 +37,7 @@ function MiniCard({
   className,
 }: {
   title: string;
-  icon: typeof Flame;
+  icon: ComponentType<{ className?: string }>;
   href?: string;
   children: React.ReactNode;
   className?: string;
@@ -66,15 +67,15 @@ function StreakWidget({ className }: { className?: string }) {
   const today = useToday();
   const days = Array.from({ length: 14 }, (_, i) => addDaysKey(today, i - 13));
   return (
-    <MiniCard title="Racha" icon={Flame} href="/calendar" className={className}>
+    <MiniCard title="Racha" icon={StreakMark} href="/calendar" className={className}>
       {streaks.isLoading ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
         <>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">
+          <p className="mt-2 font-display text-[28px] font-semibold leading-tight">
             {streaks.current} <span className="text-sm font-normal text-muted-foreground">{pluralize(streaks.current, "día")}</span>
           </p>
-          <p className="text-xs text-muted-foreground">Mejor: {streaks.best} · {streaks.todayCompleted ? "hoy ✓" : "hoy pendiente"}</p>
+          <p className="text-xs text-muted-foreground">Mejor: {streaks.best} · {streaks.todayCompleted ? "hoy cumplido" : "hoy pendiente"}</p>
           <div className="mt-3 flex gap-[3px]" aria-label="Últimos 14 días">
             {days.map((d) => (
               <span
@@ -97,12 +98,12 @@ function StreakWidget({ className }: { className?: string }) {
 function LevelWidget({ className }: { className?: string }) {
   const { progression } = useProgression();
   return (
-    <MiniCard title="Nivel" icon={Sparkles} href="/progress" className={className}>
+    <MiniCard title="Nivel" icon={XpMark} href="/progress" className={className}>
       {!progression ? (
         <Skeleton className="mt-3 h-12" />
       ) : (
         <>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">
+          <p className="mt-2 font-display text-[28px] font-semibold leading-tight">
             {progression.level.level}{" "}
             <span className="text-sm font-normal text-muted-foreground">{levelTitle(progression.level.level)}</span>
           </p>
@@ -127,7 +128,7 @@ function TotalTimeWidget({ className }: { className?: string }) {
         <Skeleton className="mt-3 h-12" />
       ) : (
         <>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">{formatDuration(all.seconds)}</p>
+          <p className="mt-2 font-display text-[28px] font-semibold leading-tight">{formatDuration(all.seconds)}</p>
           <p className="text-xs text-muted-foreground">
             {all.count.toLocaleString("es-AR")} {pluralize(all.count, "actividad", "actividades")}
           </p>

@@ -76,7 +76,7 @@ const IDEAS = [
 /** Panel de marca (escritorio): tinta, una frase y una muestra del producto. */
 function BrandPanel() {
   return (
-    <div className="relative hidden overflow-hidden p-12 text-[#f4f0e8] lg:flex lg:flex-col lg:justify-between" style={{ background: "#0f1714" }}>
+    <div className="brand-surface brand-surface-side relative hidden overflow-hidden p-12 lg:flex lg:flex-col lg:justify-between">
       <svg aria-hidden viewBox="0 0 600 600" className="pointer-events-none absolute -right-40 -top-24 w-[640px] opacity-[0.16]">
         <path d="M40 420c90 0 110-190 210-190s115 120 195 120c50 0 75-60 90-125" fill="none" stroke={BRAND.paper} strokeWidth="18" strokeLinecap="round" />
         <circle cx="537" cy="226" r="26" fill={BRAND.sun} />

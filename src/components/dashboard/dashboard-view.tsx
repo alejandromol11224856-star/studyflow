@@ -119,7 +119,7 @@ export function DashboardView({ startTour = false, action = null }: { startTour?
   }, [startTour, action]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10 pb-4 sm:space-y-12">
+    <div className="space-y-10 pb-4">
       <DayHeader />
 
       <div className="-mt-2 space-y-4">
